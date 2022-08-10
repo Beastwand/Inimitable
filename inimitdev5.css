@@ -1,0 +1,40 @@
+* {
+ margin: 0;
+ padding: 0;
+ box-sizing: border-box
+}
+
+#geometricDes {
+ background: black;
+ position: absolute;
+ left: 50%;
+ top: 50%;
+ transform: translate(-50%, -50%)
+}
+
+#adjust {
+ position: absolute;
+ padding: 10px;
+ border: 2px solid rgb(14,89,3);
+ left: 20px;
+ top: 20px;
+ width: 205px;
+ background: rgb(12,69,3)
+}
+
+#span,#sides,#thick {
+ width: 59%;
+ height: 0.9rem
+}
+
+button {
+ width: 11rem;
+ height: 2.1rem;
+ /* padding: 0.3em 4rem; */
+ font-size: 1.1rem
+}
+
+label,input {
+ color: white;
+ font-size: 0.9rem
+}

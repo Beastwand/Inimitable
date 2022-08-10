@@ -1,0 +1,98 @@
+<!doctype HTML>
+<html lang="en-US">
+
+<meta charset="UTF-8">
+<meta name="author" content="Aaron Sutherland">
+<meta name="description" content="In development to become an AI blog & portfolio website">
+<title>Inimitable Constructs</title>
+<link rel="icon" href="siteicon.jpg" type="image/x-icon">
+<script src="inimitdev2.js" defer></script>
+<link rel="stylesheet" href="inimitdev2.css" type="text/css">
+
+<h1>Inimitable Code - Feats</h1>
+
+<canvas id="tstream"></canvas>
+
+This site is about a text stream effect
+
+<!-- <br><br><br><br><br> -->
+
+<!-- <style>
+ * {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box
+ }
+ body {
+  overflow: hidden;
+  background: black
+ }
+ canvas {
+  position: absolute;
+  top: 0;
+  left: 0
+ }
+</style> -->
+
+<!-- <script>
+
+const tstream = document.getElementById('tstream')
+const tseffect = tstream.getContext('2d')
+tstream.width = window.innerWidth
+tstream.height = window.innerHeight
+
+class symbols {
+ constructor(x, y, textSize, tstreamHeight) {
+  this.chars = 'アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズブヅプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロヲゴゾドボポヴッン0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+  this.x = x
+  this.y = y
+  this.textSize = textSize
+  this.text = ''
+  this.tstreamHeight = tstreamHeight
+ }
+ draw(context){
+  this.text = this.chars.charAt(Math.floor(Math.random()*this.chars.length))
+  context.fillStyle = 'green'
+  context.fillText(this.text, this.x*this.textSize, this.y*this.textSize)
+  if (this.y*this.textSize > this.tstreamHeight){
+   this.y = 0}
+   else {this.y += 1}
+ }
+}
+class effect {
+ constructor(tstreamWidth, tstreamHeight){
+  this.tstreamWidth = tstreamWidth
+  this.tstreamHeight = tstreamHeight
+  this.textSize = 20
+  this.columns = this.tstreamWidth/this.textSize
+  this.symbolChars = []
+  this.#activate()
+  console.log(this.symbolChars)
+ }
+ #activate() {
+  for (let i = 0; i < this.columns; i++){
+   this.symbolChars[i] = new symbols(i, 0, this.textSize, this.tstreamHeight)
+  }
+ }
+
+}
+
+const effect = new effect(tstream.width, tstream.height)
+
+function motion(){
+ tseffect.font = effect.textSize + 'px monospace'
+ effect.symbolChars.forEach(symbolChar => symbolChar.draw(tseffect))
+ requestAnimationFrame(motion)
+ 
+}
+motion()
+
+
+</script> -->
+
+<!-- <a href="https://aarongm1101.wixsite.com/aaron" class="nav">My Wix site</a> | -->
+<!-- <a href="https://twitter.com/AaronSGMT" class="nav">My Twitter</a> | -->
+<!-- <a href="https://www.youtube.com/channel/UC4jIHT-E4UahPAE-i31R5iA" class="nav">My YT</a> -->
+
+</html>
+

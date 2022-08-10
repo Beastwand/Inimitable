@@ -1,0 +1,64 @@
+<!doctype HTML>
+<html lang="en-US">
+
+<meta charset="UTF-8">
+<meta name="author" content="Aaron Sutherland">
+<meta name="description" content="In development to become an AI blog & portfolio website">
+<title>Inimitable Dev Blog</title>
+<link rel="icon" href="siteicon.jpg" type="image/x-icon">
+<script src="inimitdev.js" defer></script>
+<link rel="stylesheet" href="inimitdev.css" type="text/css">
+
+<!-- Start of paste -->
+<nav class="sideWindow">
+  <span class="openSW">
+   <a onclick="openPane()">
+    <svg width="30" height="19">
+     <line x1="30" y1="1.5" y2="1.5" stroke="black" stroke-width="3"/>
+     <line x1="30" y1="9.5" y2="9.5" stroke="black" stroke-width="3"/>
+     <line x1="30" y1="17.5" y2="17.5" stroke="black" stroke-width="3"/>
+    </svg>
+   </a>
+  </span>
+  <ul class="listSW">
+   <li><a href="inimitdev.htm" style="font-family: consolas">Inimitable Development</a></li>
+   <li><a href="idblog.htm">Blog</a></li>
+   <li><a href="idfeats.htm">Feats</a></li>
+   <li><a href="idabout.htm">About</a></li>
+  </ul>
+ </nav>
+ 
+ <div class="sideSW" id="thirdSW">
+  <a class="closeButton" onclick="closePane()">Close</a>
+  <a href="inimitdev.htm">ID</a>
+  <a href="idblog.htm">Blog</a>
+  <a href="idfeats.htm">Feats</a>
+  <a href="idabout.htm">About</a>
+ </div>
+ 
+ <div id="primary">
+ 
+ <script>
+  function openPane(){
+   document.getElementById('thirdSW').style.width = '150px'
+   document.getElementById('primary').style.marginLeft = '150px'
+  }
+  function closePane(){
+   document.getElementById('thirdSW').style.width = '0'
+   document.getElementById('primary').style.marginLeft = '0'
+  }
+ </script>
+<!-- End of paste -->
+
+<h1>Inimitable Development Blog</h1>
+
+This page will be where I have my AI blog
+
+<br><br><br><br><br>
+
+<a href="https://aarongm1101.wixsite.com/aaron" class="nav">My Wix site</a> |
+<a href="https://twitter.com/AaronSGMT" class="nav">My Twitter</a> |
+<a href="https://www.youtube.com/channel/UC4jIHT-E4UahPAE-i31R5iA" class="nav">My YT</a>
+
+</html>
+

@@ -1,0 +1,18 @@
+#gamelayout{
+ width: 600px;
+ height: 600px;
+ position: absolute;
+ transform: translate(-50%,-50%);
+ top: 50%;
+ left: 50%
+}
+.controls{
+ position: absolute;
+ top: 50px;
+ left: 50%;
+ z-index: 10;
+ transform: translateX(-50%)
+}
+.controls,select{
+ font-size: 1.4rem
+}

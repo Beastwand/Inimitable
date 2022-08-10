@@ -1,0 +1,22 @@
+body{
+ background: black
+}
+.container{
+ width: 400px;
+ position: absolute;
+ top: 4rem;
+ left: 15rem;
+ transform: translate(-50%,-50%);
+ font-size: 1.3rem
+}
+#parallaxGE{
+ width: 800px;
+ height: 700px;
+ position: relative
+}
+#adjustGS{
+ width: 50%
+}
+p{
+ color: white
+}

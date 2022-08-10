@@ -1,0 +1,30 @@
+<!doctype HTML>
+<html lang="en-US">
+
+<meta charset="UTF-8">
+<meta name="author" content="Aaron Sutherland">
+<meta name="description" content="In development to become an AI blog & portfolio website">
+<title>Inimitable Constructs</title>
+<link rel="icon" href="siteicon.jpg" type="image/x-icon">
+<script src="inimitdev7.js" defer></script>
+<link rel="stylesheet" href="inimitdev7.css" type="text/css">
+
+<div class="container">
+ <button>Button 1</button>
+ <button>Button 2</button>
+ <button>Button 3</button>
+</div>
+
+<svg>
+ <defs>
+  <filter id="wave">
+   <feTurbulence type='fractalNoise' baseFrequency='0.05 0.9' numOctaves='1' result='warp' />
+   <feDisplacementMap xChannelSelector='R' yChannelSelector='G' scale='30' in='SourceGraphic' in2='warpOffset' />
+  </filter>
+ </defs>
+</svg>
+
+<canvas id="pixManip"></canvas>
+
+</html>
+

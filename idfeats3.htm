@@ -1,0 +1,78 @@
+<!doctype HTML>
+<html lang="en-US">
+
+<meta charset="UTF-8">
+<meta name="author" content="Aaron Sutherland">
+<meta name="description" content="In development to become an AI blog & portfolio website">
+<title>Inimitable Constructs</title>
+<link rel="icon" href="siteicon.jpg" type="image/x-icon">
+<!-- <script src="inimitdev2.js" defer></script> -->
+<!-- <link rel="stylesheet" href="inimitdev2.css" type="text/css"> -->
+
+<style>
+body {
+ display: grid;
+ place-content: center
+}
+#Obj {
+ width: 600px;
+ height: 400px;
+ display: grid;
+ place-items: center;
+ overflow: hidden;
+ position: relative
+}
+.circ {
+ border-radius: 50%;
+ width: 150px;
+ height: 150px;
+ background-color: green;
+ position: absolute;
+ opacity: 0;
+ animation: scaleIn 4s infinite cubic-bezier(.36, .11, .89, .32)
+}
+
+@keyframes scaleIn {
+ from {
+  transform: scale(.5, .5);
+  opacity: .5
+ }
+ to {
+  transform: scale(2.5, 2.5);
+  opacity: 0
+ }
+}
+
+.genObj {
+ z-index: 100;
+ padding: 5px
+}
+.genObj img {
+ width: 150px
+}
+</style>
+ 
+<div id="pulseObj">
+ <div id="Obj">
+  <div class="genObj">
+   <svg width="110" height="110">
+    <circle r="50" cx="55" cy="55" fill="steelblue" stroke="gold" stroke-width="5"/>
+    <rect x="27.5" y="27.5" width="55" height="55" fill="green" rx="10" ry="10"/>
+   </svg>
+  </div>
+  <div class="circ" style="animation-delay: -3s"></div>
+  <div class="circ" style="animation-delay: -2s"></div>
+  <div class="circ" style="animation-delay: -1s"></div>
+  <div class="circ" style="animation-delay: 0s"></div>
+ </div>
+</div>
+
+<script>
+// var randCol =
+// document.getElementById('').style.background-color = 'rgb(' + Math.random()*255 + ',' + Math.random()*255 + ',' + Math.random()*255 + ')'
+// let newColor = document.getElementsByClassName('circ')
+// newColor = 'rgb(' + Math.random()*255 + ',' + Math.random()*255 + ',' + Math.random()*255 + ')'
+
+</script>
+
+</html>
