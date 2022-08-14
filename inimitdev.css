@@ -94,7 +94,6 @@ button:hover {
 
 #primary {
  transition: 0.5s;
- padding: 22px;
  overflow: hidden;
  width: 100%
 }
