@@ -1,0 +1,143 @@
+<!doctype HTML>
+<html lang="en-US">
+
+<meta charset="UTF-8">
+<meta name="author" content="Aaron Sutherland">
+<meta name="description" content="AI blog & portfolio website">
+<title>Inimitable Development - AI Blog & More</title>
+<link rel="icon" href="siteicon.jpg" type="image/x-icon">
+<script src="inimitdev.js" defer></script>
+<link rel="stylesheet" href="inimitdev.css" type="text/css">
+
+<h1>Trading Grip</h1>
+
+The following is a checklist to make sure that you didn't look over anything<br>that you may have wished you had thought of before entering a trade:<br><br>
+
+<button id='TGmodalStart'>Start familiarity checklist</button><br>
+
+<p style='font-size: 1.5rem'>Your familiarity score on covered topics is: <span id='displayScore'>0</span>/13</p>
+
+<dialog class='TGmodal' id='TGmodalSpecific'>
+<p><h3>Are you satisfied with your familiarity with the details of...? (+6) 1/29</h3></p>
+<p style='font-family: verdana'>Relative potential for the price to plummet? (1m candles)</p>
+<p>Some stocks may go down the entire day but never have a big move at any given minute.<br> Knowing the likelihood of this is important and there are often behavioral hints.</p>
+<button id='checkYes'>Yes</button>
+<button id='checkNo'>No</button>
+</dialog>
+
+<dialog class='TGmodal' id='TGmodalSpecific2'>
+<p><h3>Are you satisfied with your familiarity with the details of...? (+4)</h3></p>
+<p style='font-family: verdana'>At what level you can identify that you are wrong about the trade?</p>
+<p>You can't know anything 100%. The best traders know it is about probability,<br>not predictability. Do you know ahead of time where to get out?</p>
+<button id='checkYes2'>Yes</button>
+<button id='checkNo2'>No</button>
+</dialog>
+
+<dialog class='TGmodal' id='TGmodalSpecific3'>
+<p><h3>Are you satisfied with your familiarity with the details of...? (+3)</h3></p>
+<p style='font-family: verdana'>Time of day significance of potential price action?</p>
+<p>Whether it's in the premarket, near the market open, later in the day or after the<br>4pm close, the exact same stock with same news can move differently.</p>
+<button id='checkYes3'>Yes</button>
+<button id='checkNo3'>No</button>
+
+</dialog>
+
+<br><br><br><br><br><br><br><br><br>
+
+<br><br><br><hr>
+<p style='font-family: tahoma'>Quotes: "It is not the strongest of the species that survive, nor the most intelligent,<br>but the one more responsive to change." ~Charles Darwin<br><br>
+"In matters of style, swim with the current; in matters of principle,<br>stand like a rock." ~Thomas Jefferson<br><br>
+"Earth provides enough to satisfy every man's needs,<br>but not every man's greed." ~Mahatma Gandhi<br><br>
+"A ship in harbor is safe, but that is not what ships are built for." ~John Shedd</p>
+
+<hr><br><br><br>
+
+<div class='TGsidePanel' onInput='genT.value = ticker.value'>
+ <form>
+ <input id='ticker' maxLength='5'><br><br>
+ Links:<br><br>https://finviz.com/quote.ashx?t=<output id='genT' for='ticker'></output>
+ </form>
+</div>
+
+
+<!-- <input type='button' value='Generate links' onClick='genT.value = ticker.value'> -->
+
+
+
+
+<style>
+body{
+ background-color: lightgreen
+}
+.TGmodal{
+ background: lightblue
+}
+.TGsidePanel{
+ position: absolute;
+ right: 3%;
+ top: 5%
+}
+</style>
+
+<script>
+var openCounter = 1;
+var score = 0;
+const TGmodalStart = document.getElementById('TGmodalStart')
+const TGmodalSpecific = document.getElementById('TGmodalSpecific')
+const TGmodalSpecific2 = document.getElementById('TGmodalSpecific2')
+const TGmodalSpecific3 = document.getElementById('TGmodalSpecific3')
+const checkYes = document.getElementById('checkYes')
+const checkYes2 = document.getElementById('checkYes2')
+const checkYes3 = document.getElementById('checkYes3')
+const checkNo = document.getElementById('checkNo')
+const checkNo2 = document.getElementById('checkNo2')
+const checkNo3 = document.getElementById('checkNo3')
+
+console.log("test")
+
+TGmodalStart.addEventListener('click',()=>{
+ if (openCounter == 1){
+  score = 0;
+  document.getElementById('displayScore').innerHTML = score;
+  TGmodalSpecific.show();
+  openCounter = 0;
+ }else{
+   TGmodalSpecific.close();
+   TGmodalSpecific2.close();
+   TGmodalSpecific3.close();
+   openCounter = 1;
+  }
+})
+checkYes.addEventListener('click',()=>{
+ TGmodalSpecific.close();
+ TGmodalSpecific2.show();
+ score += 6;
+ document.getElementById('displayScore').innerHTML = score;
+})
+checkYes2.addEventListener('click',()=>{
+ TGmodalSpecific2.close();
+ TGmodalSpecific3.show();
+ score += 4;
+ document.getElementById('displayScore').innerHTML = score;
+})
+checkYes3.addEventListener('click',()=>{
+ TGmodalSpecific3.close();
+ score += 3;
+ document.getElementById('displayScore').innerHTML = score;
+ openCounter = 1;
+})
+checkNo.addEventListener('click',()=>{
+ TGmodalSpecific.close();
+ TGmodalSpecific2.show();
+ openCounter = 1;
+})
+checkNo2.addEventListener('click',()=>{
+ TGmodalSpecific2.close();
+ TGmodalSpecific3.show();
+ openCounter = 1;
+})
+checkNo3.addEventListener('click',()=>{
+ TGmodalSpecific3.close();
+ openCounter = 1;
+})
+</script>
