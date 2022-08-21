@@ -6,7 +6,6 @@
 <meta name="description" content="AI blog & portfolio website">
 <title>Inimitable Development - AI Blog & More</title>
 <link rel="icon" href="siteicon.jpg" type="image/x-icon">
-<script src="inimitdev.js" defer></script>
 <link rel="stylesheet" href="inimitdev.css" type="text/css">
 
 <h1>Trading Grip</h1>
@@ -15,7 +14,7 @@ The following is a checklist to make sure that you didn't look over anything<br>
 
 <button id='TGmodalStart'>Start familiarity checklist</button><br>
 
-<p style='font-size: 1.5rem'>Your familiarity score on covered topics is: <span id='displayScore'>0</span>/13</p>
+<p style='font-size: 1.5rem'>Your familiarity score on covered topics is: <span id='displayScore'>0</span> / 17</p>
 
 <dialog class='TGmodal' id='TGmodalSpecific'>
 <p><h3>Are you satisfied with your familiarity with the details of...? (+6) 1/29</h3></p>
@@ -36,10 +35,33 @@ The following is a checklist to make sure that you didn't look over anything<br>
 <dialog class='TGmodal' id='TGmodalSpecific3'>
 <p><h3>Are you satisfied with your familiarity with the details of...? (+3)</h3></p>
 <p style='font-family: verdana'>Time of day significance of potential price action?</p>
-<p>Whether it's in the premarket, near the market open, later in the day or after the<br>4pm close, the exact same stock with same news can move differently.</p>
+<p>Whether it's in the premarket, near the market open, later in the day or after the<br>4pm close, the exact same stock with same news can behave differently.</p>
 <button id='checkYes3'>Yes</button>
 <button id='checkNo3'>No</button>
+</dialog>
 
+<dialog class='TGmodal' id='TGmodalSpecific4'>
+<p><h3>Are you satisfied with your familiarity with the details of...? (+1)</h3></p>
+<p style='font-family: verdana'>Are there warrants for this stock?</p>
+<p>There's usually another ticker with a 'W' at the end or '/WS' sometimes such as on TDA.<br>If warrants exist it's a good idea to check at what price they are exercisable.</p>
+<button id='checkYes4'>Yes</button>
+<button id='checkNo4'>No</button>
+</dialog>
+
+<dialog class='TGmodal' id='TGmodalSpecific5'>
+<p><h3>Are you satisfied with your familiarity with the details of...? (+2)</h3></p>
+<p style='font-family: verdana'>Amount of short interest</p>
+<p>How much short interest the stock has, or any tendency of it to increase<br>or decrease around time intervals can be taken to mean negative things,<br>and if unexpectedly wrong can be positive for the stock.</p>
+<button id='checkYes5'>Yes</button>
+<button id='checkNo5'>No</button>
+</dialog>
+
+<dialog class='TGmodal' id='TGmodalSpecific6'>
+<p><h3>Are you satisfied with your familiarity with the details of...? (+2)</h3></p>
+<p style='font-family: verdana'>Multiyear chart & vol</p>
+<p>Always zoom out to get the bigger picture. There may be no direct correlation<br>between it going from $100 -> $1 over the last two years and what it will do today,<br>but it is important to get as many puzzle pieces in place as you can.</p>
+<button id='checkYes6'>Yes</button>
+<button id='checkNo6'>No</button>
 </dialog>
 
 <br><br><br><br><br><br><br><br><br>
@@ -54,16 +76,18 @@ The following is a checklist to make sure that you didn't look over anything<br>
 
 <div class='TGsidePanel' onInput='genT.value = ticker.value'>
  <form>
- <input id='ticker' maxLength='5'><br><br>
- Links:<br><br>https://finviz.com/quote.ashx?t=<output id='genT' for='ticker'></output>
+ <input id='ticker' maxLength='5'><br><br><br><br><br><br>
+ <h2>Links for <b><output id='genT' for='ticker' style='text-transform: uppercase'></output></b>:</h2><br>
+ <!-- <br><br>https://floatchecker.com<output id='genT' for='ticker'></output> -->
  </form>
+ <div id='stockLinks'>
+  <div id='stockLink1'>Finviz</div><br>
+  <div id='stockLink2'>FloatChecker</div><br>
+  <div id='stockLink3'>Stocktwits</div><br>
+  <div id='stockLink4'>TradingView</div><br>
+  <div id='stockLink5'>Twitter</div>
+ </div>
 </div>
-
-
-<!-- <input type='button' value='Generate links' onClick='genT.value = ticker.value'> -->
-
-
-
 
 <style>
 body{
@@ -86,14 +110,41 @@ const TGmodalStart = document.getElementById('TGmodalStart')
 const TGmodalSpecific = document.getElementById('TGmodalSpecific')
 const TGmodalSpecific2 = document.getElementById('TGmodalSpecific2')
 const TGmodalSpecific3 = document.getElementById('TGmodalSpecific3')
+const TGmodalSpecific4 = document.getElementById('TGmodalSpecific4')
+const TGmodalSpecific5 = document.getElementById('TGmodalSpecific5')
+const TGmodalSpecific6 = document.getElementById('TGmodalSpecific6')
 const checkYes = document.getElementById('checkYes')
 const checkYes2 = document.getElementById('checkYes2')
 const checkYes3 = document.getElementById('checkYes3')
+const checkYes4 = document.getElementById('checkYes4')
+const checkYes5 = document.getElementById('checkYes5')
+const checkYes6 = document.getElementById('checkYes6')
 const checkNo = document.getElementById('checkNo')
 const checkNo2 = document.getElementById('checkNo2')
 const checkNo3 = document.getElementById('checkNo3')
+const checkNo4 = document.getElementById('checkNo4')
+const checkNo5 = document.getElementById('checkNo5')
+const checkNo6 = document.getElementById('checkNo6')
 
-console.log("test")
+var tickerInput = document.getElementById('ticker')
+
+// use of function from inimitdev.js
+tickerInput.addEventListener('input',function(){
+ tickerInput = document.getElementById('ticker').value
+//  document.write('<a href="' + updatedFinviz + tickerInput + '">linkshouldbehere</a>')
+ document.getElementById('stockLink1').innerHTML = '<a href="' + 'https://finviz.com/quote.ashx?t=' + tickerInput + '" target="_blank" rel="noopener noreferrer">Finviz</a>' + ' for ' + tickerInput
+ document.getElementById('stockLink2').innerHTML = '<a href="' + 'https://www.floatchecker.com/stock?float=' + tickerInput + '" target="_blank" rel="noopener noreferrer">FloatChecker</a>' + ' for ' + tickerInput
+ document.getElementById('stockLink3').innerHTML = '<a href="' + 'https://stocktwits.com/symbol/' + tickerInput + '" target="_blank" rel="noopener noreferrer">Stocktwits</a>' + ' for ' + tickerInput
+ document.getElementById('stockLink4').innerHTML = '<a href="' + 'https://www.tradingview.com/chart/?symbol=' + tickerInput + '" target="_blank" rel="noopener noreferrer">TradingView</a>' + ' for ' + tickerInput
+ document.getElementById('stockLink5').innerHTML = '<a href="' + 'https://twitter.com/search?q=%24' + tickerInput + '&src=cashtag_click" target="_blank" rel="noopener noreferrer">Twitter</a>' + ' for ' + tickerInput
+ if (tickerInput.length == 0){
+  document.getElementById('stockLink1').innerHTML = 'Finviz'
+  document.getElementById('stockLink2').innerHTML = 'FloatChecker'
+  document.getElementById('stockLink3').innerHTML = 'Stocktwits'
+  document.getElementById('stockLink4').innerHTML = 'TradingView'
+  document.getElementById('stockLink5').innerHTML = 'Twitter'
+ }
+})
 
 TGmodalStart.addEventListener('click',()=>{
  if (openCounter == 1){
@@ -105,6 +156,9 @@ TGmodalStart.addEventListener('click',()=>{
    TGmodalSpecific.close();
    TGmodalSpecific2.close();
    TGmodalSpecific3.close();
+   TGmodalSpecific4.close();
+   TGmodalSpecific5.close();
+   TGmodalSpecific6.close();
    openCounter = 1;
   }
 })
@@ -113,31 +167,69 @@ checkYes.addEventListener('click',()=>{
  TGmodalSpecific2.show();
  score += 6;
  document.getElementById('displayScore').innerHTML = score;
+ openCounter = 0;
 })
 checkYes2.addEventListener('click',()=>{
  TGmodalSpecific2.close();
  TGmodalSpecific3.show();
  score += 4;
  document.getElementById('displayScore').innerHTML = score;
+ openCounter = 0;
 })
 checkYes3.addEventListener('click',()=>{
  TGmodalSpecific3.close();
+ TGmodalSpecific4.show();
  score += 3;
+ document.getElementById('displayScore').innerHTML = score;
+ openCounter = 0;
+})
+checkYes4.addEventListener('click',()=>{
+ TGmodalSpecific4.close();
+ TGmodalSpecific5.show();
+ score += 1;
+ document.getElementById('displayScore').innerHTML = score;
+ openCounter = 0;
+})
+checkYes5.addEventListener('click',()=>{
+ TGmodalSpecific5.close();
+ TGmodalSpecific6.show();
+ score += 2;
+ document.getElementById('displayScore').innerHTML = score;
+ openCounter = 0;
+})
+checkYes6.addEventListener('click',()=>{
+ TGmodalSpecific6.close();
+ score += 1;
  document.getElementById('displayScore').innerHTML = score;
  openCounter = 1;
 })
 checkNo.addEventListener('click',()=>{
  TGmodalSpecific.close();
  TGmodalSpecific2.show();
- openCounter = 1;
+ openCounter = 0;
 })
 checkNo2.addEventListener('click',()=>{
  TGmodalSpecific2.close();
  TGmodalSpecific3.show();
- openCounter = 1;
+ openCounter = 0;
 })
 checkNo3.addEventListener('click',()=>{
  TGmodalSpecific3.close();
+ TGmodalSpecific4.show();
+ openCounter = 1;
+})
+checkNo4.addEventListener('click',()=>{
+ TGmodalSpecific4.close();
+ TGmodalSpecific5.show();
+ openCounter = 0;
+})
+checkNo5.addEventListener('click',()=>{
+ TGmodalSpecific5.close();
+ TGmodalSpecific6.show();
+ openCounter = 0;
+})
+checkNo6.addEventListener('click',()=>{
+ TGmodalSpecific6.close();
  openCounter = 1;
 })
 </script>
