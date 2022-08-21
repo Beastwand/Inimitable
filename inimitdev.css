@@ -10,7 +10,9 @@ a {
  color: orange;
  font-family: fantasy
 }
-
+#stockListing{
+ color: blue
+}
 #stockLinks {
  text-decoration: none;
  color: green;
