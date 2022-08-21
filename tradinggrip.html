@@ -132,11 +132,11 @@ var tickerInput = document.getElementById('ticker')
 tickerInput.addEventListener('input',function(){
  tickerInput = document.getElementById('ticker').value
 //  document.write('<a href="' + updatedFinviz + tickerInput + '">linkshouldbehere</a>')
- document.getElementById('stockLink1').innerHTML = '<a href="' + 'https://finviz.com/quote.ashx?t=' + tickerInput + '" target="_blank" rel="noopener noreferrer">Finviz</a>' + ' for ' + tickerInput
- document.getElementById('stockLink2').innerHTML = '<a href="' + 'https://www.floatchecker.com/stock?float=' + tickerInput + '" target="_blank" rel="noopener noreferrer">FloatChecker</a>' + ' for ' + tickerInput
- document.getElementById('stockLink3').innerHTML = '<a href="' + 'https://stocktwits.com/symbol/' + tickerInput + '" target="_blank" rel="noopener noreferrer">Stocktwits</a>' + ' for ' + tickerInput
- document.getElementById('stockLink4').innerHTML = '<a href="' + 'https://www.tradingview.com/chart/?symbol=' + tickerInput + '" target="_blank" rel="noopener noreferrer">TradingView</a>' + ' for ' + tickerInput
- document.getElementById('stockLink5').innerHTML = '<a href="' + 'https://twitter.com/search?q=%24' + tickerInput + '&src=cashtag_click" target="_blank" rel="noopener noreferrer">Twitter</a>' + ' for ' + tickerInput
+ document.getElementById('stockLink1').innerHTML = '<a id="stockListing" href="' + 'https://finviz.com/quote.ashx?t=' + tickerInput + '" target="_blank" rel="noopener noreferrer">Finviz</a>' + ' for ' + tickerInput
+ document.getElementById('stockLink2').innerHTML = '<a id="stockListing" href="' + 'https://www.floatchecker.com/stock?float=' + tickerInput + '" target="_blank" rel="noopener noreferrer">FloatChecker</a>' + ' for ' + tickerInput
+ document.getElementById('stockLink3').innerHTML = '<a id="stockListing" href="' + 'https://stocktwits.com/symbol/' + tickerInput + '" target="_blank" rel="noopener noreferrer">Stocktwits</a>' + ' for ' + tickerInput
+ document.getElementById('stockLink4').innerHTML = '<a id="stockListing" href="' + 'https://www.tradingview.com/chart/?symbol=' + tickerInput + '" target="_blank" rel="noopener noreferrer">TradingView</a>' + ' for ' + tickerInput
+ document.getElementById('stockLink5').innerHTML = '<a id="stockListing" href="' + 'https://twitter.com/search?q=%24' + tickerInput + '&src=cashtag_click" target="_blank" rel="noopener noreferrer">Twitter</a>' + ' for ' + tickerInput
  if (tickerInput.length == 0){
   document.getElementById('stockLink1').innerHTML = 'Finviz'
   document.getElementById('stockLink2').innerHTML = 'FloatChecker'
