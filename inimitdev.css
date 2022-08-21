@@ -5,10 +5,32 @@ body {
  margin: 0
 }
 
-a {
+/* a {
  text-decoration: none;
  color: orange;
  font-family: fantasy
+} */
+#commonLinks,#navLinks {
+ text-decoration: none;
+ color: orange;
+ font-family: fantasy
+}
+#stockLinks {
+ text-decoration: none;
+ color: green;
+ font-family: verdana
+}
+#stockLinks:visited {
+ text-decoration: none;
+ color: green;
+ font-family: verdana
+}
+#ticker{
+ color: green;
+ text-transform: lowercase;
+ font-family: impact;
+ font-size: 1.4rem;
+ width: 7.7rem
 }
 
 button {
@@ -34,6 +56,7 @@ button:hover {
 .sideWindow {
  background-color: rgb(21, 96, 189);
  overflow: hidden;
+ /* width: 105%; */
  height: 80px
 }
 
@@ -92,13 +115,34 @@ button:hover {
  margin-left: 50px
 }
 
+#navLinks{
+ text-transform: uppercase
+}
+
 #primary {
  transition: 0.5s;
+ /* padding: 22px; */
  overflow: hidden;
  width: 100%
 }
 
 img {border: 0.3rem solid steelblue}
+
+.blogArticleList {
+ display: grid;
+ grid-template-columns: 1fr 1fr 1fr;
+ margin: 0 9rem;
+ /* margin-left: 10%;
+ margin-right: 10%;
+ padding: 2rem; */
+ gap: 0.4rem
+}
+#blogArticleItem{
+ border: 0.5rem outset green
+}
+#blogArticleItem:hover{
+ border-style: inset
+}
 
 h1:hover {color: orange;
 background: green}
@@ -121,3 +165,6 @@ color: orange} */
 /* #iniDefPic:hover {
  cursor: url('inidef.png')
 } */
+
+
+/* margin: 0 auto */
