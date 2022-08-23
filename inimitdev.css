@@ -5,17 +5,24 @@ body {
  margin: 0
 }
 
-a {
+/* a {
+ text-decoration: none;
+ color: orange;
+ font-family: fantasy
+} */
+#commonLinks,#navLinks {
  text-decoration: none;
  color: orange;
  font-family: fantasy
 }
-#stockListing{
- color: blue
-}
 #stockLinks {
  text-decoration: none;
  color: green;
+ font-family: verdana
+}
+#stockLinks2 {
+ text-decoration: none;
+ color: rgb(13,52,181);
  font-family: verdana
 }
 
@@ -71,6 +78,10 @@ button:hover {
 
 .sideWindow a:hover {
  background-color: orange;
+ color: blue
+}
+
+#navLinks:hover {
  color: blue
 }
 

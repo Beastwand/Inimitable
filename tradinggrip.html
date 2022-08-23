@@ -8,63 +8,67 @@
 <link rel="icon" href="siteicon.jpg" type="image/x-icon">
 <link rel="stylesheet" href="inimitdev.css" type="text/css">
 
-<h1>Trading Grip</h1>
+<h1>Trading Grip &#9994</h1>
 
 The following is a checklist to make sure that you didn't look over anything<br>that you may have wished you had thought of before entering a trade:<br><br>
 
-<button id='TGmodalStart'>Start familiarity checklist</button><br>
+<button id='TGmodalStart'>Start familiarity checklist &#128373</button><br>
 
-<p style='font-size: 1.5rem'>Your familiarity score on covered topics is: <span id='displayScore'>0</span> / 17</p>
+<!-- &#10004 &#10008 &#10006 &#10801 &#10805 &#10754 &#9745 &#9746 &#9749 &#9757 &#9763 &#9762 &#9775 &#9876 &#9874 &#9888 &#9872 &#9730 &#9824&#9829&#9830&#9827 -->
+<!-- <button style='position: absolute; right: 1%; top: 1%; color: black; font-size: 1.7rem; padding: 0; background-color: lightblue'>&#10754</button> -->
+
+<p style='font-size: 1.5rem'>Your self-assessment score (on covered topics) is: <span id='displayScorePercent' style='color: blue; font-size: 1.48rem'></span> <span id='displayScore'>0</span> / 18</p>
 
 <dialog class='TGmodal' id='TGmodalSpecific'>
-<p><h3>Are you satisfied with your familiarity with the details of...? (+6) 1/29</h3></p>
-<p style='font-family: verdana'>Relative potential for the price to plummet? (1m candles)</p>
-<p>Some stocks may go down the entire day but never have a big move at any given minute.<br> Knowing the likelihood of this is important and there are often behavioral hints.</p>
+<p><h3>Are you satisfied with your familiarity with this stock regarding...? (+6) 1/29</h3></p>
+<p style='font-family: verdana'><span id='TGqTitle'>Volatility</span><br>Relative potential for the price to plummet on 1m chart</p>
+<p>Some stocks may go down the entire day but never have a big move at any given<br>minute. Knowing the likelihood of this is important and there are often behavioral<br>hints that are even worth waiting for.</p>
 <button id='checkYes'>Yes</button>
 <button id='checkNo'>No</button>
 </dialog>
 
 <dialog class='TGmodal' id='TGmodalSpecific2'>
-<p><h3>Are you satisfied with your familiarity with the details of...? (+4)</h3></p>
-<p style='font-family: verdana'>At what level you can identify that you are wrong about the trade?</p>
+<p><h3>Are you satisfied with your familiarity with this stock regarding...? (+4)</h3></p>
+<p style='font-family: verdana'><span id='TGqTitle'>Exit level</span><br>At what level you can identify that you are wrong</p>
 <p>You can't know anything 100%. The best traders know it is about probability,<br>not predictability. Do you know ahead of time where to get out?</p>
 <button id='checkYes2'>Yes</button>
 <button id='checkNo2'>No</button>
 </dialog>
 
 <dialog class='TGmodal' id='TGmodalSpecific3'>
-<p><h3>Are you satisfied with your familiarity with the details of...? (+3)</h3></p>
-<p style='font-family: verdana'>Time of day significance of potential price action?</p>
+<p><h3>Are you satisfied with your familiarity with this stock regarding...? (+3)</h3></p>
+<p style='font-family: verdana'><span id='TGqTitle'>Time</span><br>Time of day significance of potential price action</p>
 <p>Whether it's in the premarket, near the market open, later in the day or after the<br>4pm close, the exact same stock with same news can behave differently.</p>
 <button id='checkYes3'>Yes</button>
 <button id='checkNo3'>No</button>
 </dialog>
 
 <dialog class='TGmodal' id='TGmodalSpecific4'>
-<p><h3>Are you satisfied with your familiarity with the details of...? (+1)</h3></p>
-<p style='font-family: verdana'>Are there warrants for this stock?</p>
-<p>There's usually another ticker with a 'W' at the end or '/WS' sometimes such as on TDA.<br>If warrants exist it's a good idea to check at what price they are exercisable.</p>
+<p><h3>Are you satisfied with your familiarity with this stock regarding...? (+1)</h3></p>
+<p style='font-family: verdana'><span id='TGqTitle'>Warrants</span><br>Are there warrants for this stock?</p>
+<p>There's usually another ticker with a 'W' at the end or '/WS' sometimes such as on<br>TDA. If warrants exist it's a good idea to check at what price they are exercisable.</p>
 <button id='checkYes4'>Yes</button>
 <button id='checkNo4'>No</button>
 </dialog>
 
 <dialog class='TGmodal' id='TGmodalSpecific5'>
-<p><h3>Are you satisfied with your familiarity with the details of...? (+2)</h3></p>
-<p style='font-family: verdana'>Amount of short interest</p>
+<p><h3>Are you satisfied with your familiarity with this stock regarding...? (+2)</h3></p>
+<p style='font-family: verdana'><span id='TGqTitle'>Short interest</span><br>% of publicly tradeable shares sold short</p>
 <p>How much short interest the stock has, or any tendency of it to increase<br>or decrease around time intervals can be taken to mean negative things,<br>and if unexpectedly wrong can be positive for the stock.</p>
 <button id='checkYes5'>Yes</button>
 <button id='checkNo5'>No</button>
 </dialog>
 
 <dialog class='TGmodal' id='TGmodalSpecific6'>
-<p><h3>Are you satisfied with your familiarity with the details of...? (+2)</h3></p>
-<p style='font-family: verdana'>Multiyear chart & vol</p>
+<p><h3>Are you satisfied with your familiarity with this stock regarding...? (+2)</h3></p>
+<p style='font-family: verdana'><span id='TGqTitle'>Multiyear chart & vol</span><br>The long-term chart & respective volume</p>
 <p>Always zoom out to get the bigger picture. There may be no direct correlation<br>between it going from $100 -> $1 over the last two years and what it will do today,<br>but it is important to get as many puzzle pieces in place as you can.</p>
 <button id='checkYes6'>Yes</button>
 <button id='checkNo6'>No</button>
 </dialog>
 
-<br><br><br><br><br><br><br><br><br>
+<br><br><br><br><br><br><br><br><br><br><br>
+<br><br><br><br><br><br><br>
 
 <br><br><br><hr>
 <p style='font-family: tahoma'>Quotes: "It is not the strongest of the species that survive, nor the most intelligent,<br>but the one more responsive to change." ~Charles Darwin<br><br>
@@ -72,20 +76,27 @@ The following is a checklist to make sure that you didn't look over anything<br>
 "Earth provides enough to satisfy every man's needs,<br>but not every man's greed." ~Mahatma Gandhi<br><br>
 "A ship in harbor is safe, but that is not what ships are built for." ~John Shedd</p>
 
-<hr><br><br><br>
+<hr><br>
 
 <div class='TGsidePanel' onInput='genT.value = ticker.value'>
  <form>
- <input id='ticker' maxLength='5'><br><br><br><br><br><br>
+ <input id='ticker' maxLength='5' autocomplete='off' spellcheck='false' onkeydown='return event.keyCode!=13' placeholder='Ticker' onclick='this.select()' autofocus><br><br>
  <h2>Links for <b><output id='genT' for='ticker' style='text-transform: uppercase'></output></b>:</h2><br>
- <!-- <br><br>https://floatchecker.com<output id='genT' for='ticker'></output> -->
  </form>
  <div id='stockLinks'>
   <div id='stockLink1'>Finviz</div><br>
   <div id='stockLink2'>FloatChecker</div><br>
-  <div id='stockLink3'>Stocktwits</div><br>
-  <div id='stockLink4'>TradingView</div><br>
-  <div id='stockLink5'>Twitter</div>
+  <div id='stockLink3'>MarketWatch</div><br>
+  <div id='stockLink4'>Stocktwits</div><br>
+  <div id='stockLink5'>TradingView</div><br>
+  <div id='stockLink6'>Twitter</div>
+ </div>
+ <h2>Specifics:</h2><div id='stockLinks'>
+  <div id='stockLink7'>(options) Barchart</div><br>
+  <div id='stockLink8'>(PRs) Fintel</div><br>
+  <div id='stockLink9'>(news) GlobeNewswire</div><br>
+  <div id='stockLink10'>(SEC filings) Nasdaq</div><br>
+  <div id='stockLink11'>(report) Seeking Alpha</div><br>
  </div>
 </div>
 
@@ -100,6 +111,13 @@ body{
  position: absolute;
  right: 3%;
  top: 5%
+}
+/* #TGmodalStart{
+  background-color: rgb(0, 0, 128);
+} */
+#TGqTitle{
+ font-size: 1.2rem;
+ font-weight: bold
 }
 </style>
 
@@ -131,25 +149,37 @@ var tickerInput = document.getElementById('ticker')
 // use of function from inimitdev.js
 tickerInput.addEventListener('input',function(){
  tickerInput = document.getElementById('ticker').value
-//  document.write('<a href="' + updatedFinviz + tickerInput + '">linkshouldbehere</a>')
- document.getElementById('stockLink1').innerHTML = '<a id="stockListing" href="' + 'https://finviz.com/quote.ashx?t=' + tickerInput + '" target="_blank" rel="noopener noreferrer">Finviz</a>' + ' for ' + tickerInput
- document.getElementById('stockLink2').innerHTML = '<a id="stockListing" href="' + 'https://www.floatchecker.com/stock?float=' + tickerInput + '" target="_blank" rel="noopener noreferrer">FloatChecker</a>' + ' for ' + tickerInput
- document.getElementById('stockLink3').innerHTML = '<a id="stockListing" href="' + 'https://stocktwits.com/symbol/' + tickerInput + '" target="_blank" rel="noopener noreferrer">Stocktwits</a>' + ' for ' + tickerInput
- document.getElementById('stockLink4').innerHTML = '<a id="stockListing" href="' + 'https://www.tradingview.com/chart/?symbol=' + tickerInput + '" target="_blank" rel="noopener noreferrer">TradingView</a>' + ' for ' + tickerInput
- document.getElementById('stockLink5').innerHTML = '<a id="stockListing" href="' + 'https://twitter.com/search?q=%24' + tickerInput + '&src=cashtag_click" target="_blank" rel="noopener noreferrer">Twitter</a>' + ' for ' + tickerInput
+ document.getElementById('stockLink1').innerHTML = '<a id="stockLinks2" href="' + 'https://finviz.com/quote.ashx?t=' + tickerInput + '" target="_blank" rel="noopener noreferrer">Finviz</a>' + ' for ' + tickerInput
+ document.getElementById('stockLink2').innerHTML = '<a id="stockLinks2" href="' + 'https://www.floatchecker.com/stock?float=' + tickerInput + '" target="_blank" rel="noopener noreferrer">FloatChecker</a>' + ' for ' + tickerInput
+ document.getElementById('stockLink3').innerHTML = '<a id="stockLinks2" href="' + 'https://www.marketwatch.com/investing/stock/' + tickerInput + '?mod=search_symbol" target="_blank" rel="noopener noreferrer">MarketWatch</a>' + ' for ' + tickerInput
+ document.getElementById('stockLink4').innerHTML = '<a id="stockLinks2" href="' + 'https://stocktwits.com/symbol/' + tickerInput + '" target="_blank" rel="noopener noreferrer">Stocktwits</a>' + ' for ' + tickerInput
+ document.getElementById('stockLink5').innerHTML = '<a id="stockLinks2" href="' + 'https://www.tradingview.com/symbols/' + tickerInput + '" target="_blank" rel="noopener noreferrer">TradingView</a>' + ' for ' + tickerInput
+ document.getElementById('stockLink6').innerHTML = '<a id="stockLinks2" href="' + 'https://twitter.com/search?q=%24' + tickerInput + '&src=cashtag_click" target="_blank" rel="noopener noreferrer">Twitter</a>' + ' for ' + tickerInput
+ document.getElementById('stockLink7').innerHTML = '(options) <a id="stockLinks2" href="' + 'https://www.barchart.com/stocks/quotes/' + tickerInput + '/options" target="_blank" rel="noopener noreferrer">Barchart</a>' + ' for ' + tickerInput
+ document.getElementById('stockLink8').innerHTML = '(PRs) <a id="stockLinks2" href="' + 'https://fintel.io/sfpr/us/' + tickerInput + '" target="_blank" rel="noopener noreferrer">Fintel</a>' + ' for ' + tickerInput
+ document.getElementById('stockLink9').innerHTML = '(news) <a id="stockLinks2" href="' + 'https://www.globenewswire.com/search/keyword/' + tickerInput + '" target="_blank" rel="noopener noreferrer">GlobeNewswire</a>' + ' for ' + tickerInput
+ document.getElementById('stockLink10').innerHTML = '(SEC filings) <a id="stockLinks2" href="' + 'https://www.nasdaq.com/market-activity/stocks/' + tickerInput + '/sec-filings" target="_blank" rel="noopener noreferrer">Nasdaq</a>' + ' for ' + tickerInput
+ document.getElementById('stockLink11').innerHTML = '(report) <a id="stockLinks2" href="' + 'https://seekingalpha.com/symbol/' + tickerInput + '/earnings" target="_blank" rel="noopener noreferrer">Seeking Alpha</a>' + ' for ' + tickerInput
  if (tickerInput.length == 0){
   document.getElementById('stockLink1').innerHTML = 'Finviz'
   document.getElementById('stockLink2').innerHTML = 'FloatChecker'
-  document.getElementById('stockLink3').innerHTML = 'Stocktwits'
-  document.getElementById('stockLink4').innerHTML = 'TradingView'
-  document.getElementById('stockLink5').innerHTML = 'Twitter'
+  document.getElementById('stockLink3').innerHTML = 'MarketWatch'
+  document.getElementById('stockLink4').innerHTML = 'Stocktwits'
+  document.getElementById('stockLink5').innerHTML = 'TradingView'
+  document.getElementById('stockLink6').innerHTML = 'Twitter'
+  document.getElementById('stockLink7').innerHTML = '(options) Barchart'
+  document.getElementById('stockLink8').innerHTML = '(PRs) Fintel'
+  document.getElementById('stockLink9').innerHTML = '(news) GlobeNewswire'
+  document.getElementById('stockLink10').innerHTML = '(SEC filings) Nasdaq'
+  document.getElementById('stockLink11').innerHTML = '(report) Seeking Alpha'
  }
 })
 
 TGmodalStart.addEventListener('click',()=>{
  if (openCounter == 1){
   score = 0;
-  document.getElementById('displayScore').innerHTML = score;
+  document.getElementById('displayScore').innerHTML = 0;
+  document.getElementById('displayScorePercent').innerHTML = '';
   TGmodalSpecific.show();
   openCounter = 0;
  }else{
@@ -174,33 +204,30 @@ checkYes2.addEventListener('click',()=>{
  TGmodalSpecific3.show();
  score += 4;
  document.getElementById('displayScore').innerHTML = score;
- openCounter = 0;
 })
 checkYes3.addEventListener('click',()=>{
  TGmodalSpecific3.close();
  TGmodalSpecific4.show();
  score += 3;
  document.getElementById('displayScore').innerHTML = score;
- openCounter = 0;
 })
 checkYes4.addEventListener('click',()=>{
  TGmodalSpecific4.close();
  TGmodalSpecific5.show();
  score += 1;
  document.getElementById('displayScore').innerHTML = score;
- openCounter = 0;
 })
 checkYes5.addEventListener('click',()=>{
  TGmodalSpecific5.close();
  TGmodalSpecific6.show();
  score += 2;
  document.getElementById('displayScore').innerHTML = score;
- openCounter = 0;
 })
 checkYes6.addEventListener('click',()=>{
  TGmodalSpecific6.close();
- score += 1;
+ score += 2;
  document.getElementById('displayScore').innerHTML = score;
+ document.getElementById('displayScorePercent').innerHTML = parseInt(score/18*100) + '%';
  openCounter = 1;
 })
 checkNo.addEventListener('click',()=>{
@@ -211,25 +238,22 @@ checkNo.addEventListener('click',()=>{
 checkNo2.addEventListener('click',()=>{
  TGmodalSpecific2.close();
  TGmodalSpecific3.show();
- openCounter = 0;
 })
 checkNo3.addEventListener('click',()=>{
  TGmodalSpecific3.close();
  TGmodalSpecific4.show();
- openCounter = 1;
 })
 checkNo4.addEventListener('click',()=>{
  TGmodalSpecific4.close();
  TGmodalSpecific5.show();
- openCounter = 0;
 })
 checkNo5.addEventListener('click',()=>{
  TGmodalSpecific5.close();
  TGmodalSpecific6.show();
- openCounter = 0;
 })
 checkNo6.addEventListener('click',()=>{
  TGmodalSpecific6.close();
+ document.getElementById('displayScorePercent').innerHTML = parseInt(score/18*100) + '%';
  openCounter = 1;
 })
 </script>
