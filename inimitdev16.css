@@ -1,0 +1,15 @@
+*{
+ margin: 0;
+ padding: 0;
+ box-sizing: border-box;
+ /* background: rgb(0,0,0) */
+}
+canvas{
+ overflow: hidden;
+ background: rgb(0,0,0)
+}
+canvas{
+ position: relative;
+ top: 0;
+ left: 20px
+}
