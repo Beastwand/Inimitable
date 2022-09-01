@@ -5,11 +5,6 @@ body {
  margin: 0
 }
 
-/* a {
- text-decoration: none;
- color: orange;
- font-family: fantasy
-} */
 #commonLinks,#navLinks {
  text-decoration: none;
  color: orange;
@@ -90,7 +85,7 @@ button:hover {
  height: 100%;
  position: fixed;
  z-index: 1;
- top: 0;
+ top: 80px;
  left: 0;
  background-color: black;
  opacity: 0.9;
@@ -131,7 +126,7 @@ button:hover {
  width: 100%
 }
 
-img {border: 0.3rem solid steelblue}
+img {border: 0.1rem solid steelblue}
 
 .blogArticleList {
  display: grid;
@@ -154,10 +149,6 @@ background: green}
 
 h2:hover {color: #b0ab1e}
 
-/* a {text-decoration: none;
-color: orange} */
-
-/* ctrail = canvas1 */
 #ctrail {position: absolute;
   background: black;
   width: 100%;
@@ -170,6 +161,3 @@ color: orange} */
 /* #iniDefPic:hover {
  cursor: url('inidef.png')
 } */
-
-
-/* margin: 0 auto */
