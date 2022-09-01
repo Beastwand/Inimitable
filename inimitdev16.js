@@ -5,9 +5,19 @@ layout.height = 100;
 let partCont = [];
 const cursorDet = {radiusC: 20}
 
-window.addEventListener('mousemove',function(uponM){
- cursorDet.x = uponM.x;//+1?
- cursorDet.y = uponM.y;//+3?
+// let cursorDet = {
+//  x: null,
+//  y: null,
+//  radiusC: 20
+// }
+
+layout.addEventListener('mousemove',function(uponM){
+ cursorDet.x = uponM.offsetX;//+1?
+ cursorDet.y = uponM.offsetY;//+3?
+});
+layout.addEventListener('mouseout',function(){
+ cursorDet.x = null;
+ cursorDet.y = null;
 });
 
 setup.fillStyle = 'rgb(0,35,102)';
