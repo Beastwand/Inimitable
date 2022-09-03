@@ -28,7 +28,10 @@ body {
  font-size: 1.4rem;
  width: 7.7rem
 }
-
+#partField{
+ width: 100%;
+ background: linear-gradient(90deg, rgb(15,138,48), rgb(166,162,85), rgb(15,138,48))
+}
 button {
  background-color: rgb(0, 0, 0);
  padding: 6px 8px;
