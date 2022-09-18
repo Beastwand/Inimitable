@@ -15,9 +15,10 @@
 
 <div class='sideSW' id='thirdSW'>
  <a class='closeButton' onclick='closePane()'>&#10008</a>
- <a id='commonLinks' href='https://inimitable.dev' style='color: rgb(0,56,168)'>Inimitable</a>
+ <a id='commonLinks' href='main.html' style='color: rgb(0,56,168)'>Inimitable</a>
  <a id='commonLinks' href='blog.html'>BLOG</a>
  <a id='commonLinks' href='feats.html'>FEATS</a>
+ <a id='commonLinks' href='gallery.html'>GALLERY</a>
  <a id='commonLinks' href='about.html'>ABOUT</a>
 </div>
 
@@ -44,7 +45,7 @@
   <label for='secondTab'>CHECKLIST</label>
   <div class='subCont'>
    <p style='text-align: left'>The following is a familiarity checklist to bring to mind contextual aspects of trading that you may already understand, but might not have thought of when entering this given trade:</p>
-   <button id='TGmodalStart' style='width: 73%; font-family: lucida console'>Start &#128373</button><br>
+   <button class='genBtn' id='TGmodalStart' style='width: 73%; font-family: lucida console'>Start &#128373</button><br>
    <p style='font-size: 20px; font-family: comic sans ms'>Your self-assessment score (on covered topics): <span id='displayScorePercent' style='font-size: 1.32rem; color: #0000ff'></span><span id='displayScore'>0</span> / 18</p>
   </div>
  </div>
@@ -52,8 +53,8 @@
   <input id='thirdTab' name='Tab Group Options' type='checkbox'>
   <label for='thirdTab'>NOTES</label>
   <div class='subCont'>
-   <p style='text-align: left'>Notes (like tickers to keep track of):</p>
-   <textarea rows='11' cols='58' placeholder='tickers, links, drafts, posts' style='resize: none' spellcheck='false' autocorrect='off'></textarea>
+   <p style='text-align: left'><b>Notes</b> (e.g. tickers, links, posts or drafts):</p>
+   <textarea rows='11' cols='58' placeholder='notes' style='resize: none' spellcheck='false' autocorrect='off'></textarea>
   </div>
  </div>
 </div>
@@ -63,48 +64,48 @@
 <p><h3>Are you satisfied with your familiarity with this stock regarding...? (+6) 1/29</h3></p>
 <p style='font-family: verdana'><span id='TGqTitle'>Volatility</span><br>Relative potential for the price to plummet on 1m chart</p>
 <p>Some stocks may go down the entire day but never have a big move at any given<br>minute. Knowing the likelihood of this is important and there are often behavioral<br>hints that are even worth waiting for.</p>
-<button id='checkYes'>Yes</button>
-<button id='checkNo'>No</button>
+<button class='genBtn' id='checkYes'>Yes</button>
+<button class='genBtn' id='checkNo'>No</button>
 </dialog>
 
 <dialog class='TGmodal' id='TGmodalSpecific2'>
 <p><h3>Are you satisfied with your familiarity with this stock regarding...? (+4)</h3></p>
 <p style='font-family: verdana'><span id='TGqTitle'>Exit level</span><br>At what level you can identify that you are wrong</p>
 <p>You can't know anything 100%. The best traders know it is about probability,<br>not predictability. Do you know ahead of time where to get out?</p>
-<button id='checkYes2'>Yes</button>
-<button id='checkNo2'>No</button>
+<button class='genBtn' id='checkYes2'>Yes</button>
+<button class='genBtn' id='checkNo2'>No</button>
 </dialog>
 
 <dialog class='TGmodal' id='TGmodalSpecific3'>
 <p><h3>Are you satisfied with your familiarity with this stock regarding...? (+3)</h3></p>
 <p style='font-family: verdana'><span id='TGqTitle'>Time</span><br>Time of day significance of potential price action</p>
 <p>Whether it's in the premarket, near the market open, later in the day or after the<br>4pm close, the exact same stock with same news can behave differently. Some<br>stocks typically experience no volume before 9:30am and after 4:00pm.</p>
-<button id='checkYes3'>Yes</button>
-<button id='checkNo3'>No</button>
+<button class='genBtn'id='checkYes3'>Yes</button>
+<button class='genBtn' id='checkNo3'>No</button>
 </dialog>
 
 <dialog class='TGmodal' id='TGmodalSpecific4'>
 <p><h3>Are you satisfied with your familiarity with this stock regarding...? (+1)</h3></p>
 <p style='font-family: verdana'><span id='TGqTitle'>Warrants</span><br>Are there warrants for this stock?</p>
 <p>There's usually another ticker with a 'W' at the end or '/WS' sometimes such as on<br>TDA. If warrants exist it's a good idea to check at what price they are exercisable.<br>To find that you can check their most recent financial report.</p>
-<button id='checkYes4'>Yes</button>
-<button id='checkNo4'>No</button>
+<button class='genBtn' id='checkYes4'>Yes</button>
+<button class='genBtn' id='checkNo4'>No</button>
 </dialog>
 
 <dialog class='TGmodal' id='TGmodalSpecific5'>
 <p><h3>Are you satisfied with your familiarity with this stock regarding...? (+2)</h3></p>
 <p style='font-family: verdana'><span id='TGqTitle'>Short interest</span><br>% of publicly tradeable shares sold short</p>
 <p>How much short interest the stock has, or any tendency of it to increase<br>or decrease around time intervals can be taken to mean negative things,<br>and if unexpectedly wrong can be positive for the stock.</p>
-<button id='checkYes5'>Yes</button>
-<button id='checkNo5'>No</button>
+<button class='genBtn' id='checkYes5'>Yes</button>
+<button class='genBtn' id='checkNo5'>No</button>
 </dialog>
 
 <dialog class='TGmodal' id='TGmodalSpecific6'>
 <p><h3>Are you satisfied with your familiarity with this stock regarding...? (+2)</h3></p>
 <p style='font-family: verdana'><span id='TGqTitle'>Multiyear chart & vol</span><br>The long-term chart & respective volume</p>
 <p>Always zoom out to get the bigger picture. There may be no direct correlation<br>between it going from $100 -> $1 over the last two years and what it will do today,<br>but it is important to get as many puzzle pieces in place as you can.</p>
-<button id='checkYes6'>Yes</button>
-<button id='checkNo6'>No</button>
+<button class='genBtn' id='checkYes6'>Yes</button>
+<button class='genBtn' id='checkNo6'>No</button>
 </dialog>
 
 <br><br><br><br><br><br><br><br><br><br><br>
