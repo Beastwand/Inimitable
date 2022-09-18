@@ -175,8 +175,7 @@ h2:hover {color: #b0ab1e}
 
 
 /* background text pe */
-
-/* #bgScroll{
+#bgScroll{
  font-size: 5.11rem;
  font-weight: 1000;
  font-family: brush script mt, tahoma;
@@ -194,6 +193,5 @@ h2:hover {color: #b0ab1e}
  60%{background-position: 38% 6%}
  80%{background-position: 66% 88%}
  to{background-position: 100% 27%}
-} */
-
+}
 /* background text2 */
