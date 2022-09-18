@@ -6,56 +6,45 @@
 <meta name="description" content="In development to become an AI blog & portfolio website">
 <meta name="viewport" content="initial-scale=1 width=device-width">
 <title>Inimitable Dev Feats</title>
-<link rel="icon" href="siteicon.jpg" type="image/x-icon">
+<link rel="icon" href="favicon.png" type="image/x-icon">
 <script src="inimitdev.js" defer></script>
 <link rel="stylesheet" href="inimitdev.css" type="text/css">
 
-<!-- Start of paste -->
 <nav class="sideWindow">
-  <span class="openSW">
-   <a onclick="openPane()">
-    <svg width="30" height="19">
-     <line x1="30" y1="1.5" y2="1.5" stroke="black" stroke-width="3"/>
-     <line x1="30" y1="9.5" y2="9.5" stroke="black" stroke-width="3"/>
-     <line x1="30" y1="17.5" y2="17.5" stroke="black" stroke-width="3"/>
-    </svg>
-   </a>
-  </span>
-  <ul class="listSW">
-   <li><a href="https://inimitable.dev" style="font-family: consolas">Inimitable Development</a></li>
-   <li><a id='navLinks' href="blog.html">Blog</a></li>
-   <li><a id='navLinks' href="feats.html">Feats</a></li>
-   <li><a id='navLinks' href="about.html">About</a></li>
-  </ul>
- </nav>
+ <span class="openSW">
+  <a onclick="openPane()">
+   <svg width="30" height="19">
+    <line x1="30" y1="1.5" y2="1.5" stroke="black" stroke-width="3"/>
+    <line x1="30" y1="9.5" y2="9.5" stroke="black" stroke-width="3"/>
+    <line x1="30" y1="17.5" y2="17.5" stroke="black" stroke-width="3"/>
+   </svg>
+  </a>
+ </span>
+ <ul class="listSW">
+  <li><a href="main.html" style="font-family: consolas">Inimitable Development</a></li>
+  <li><a id='navLinks' href="blog.html">Blog</a></li>
+  <li><a id='navLinks' href="feats.html">Feats</a></li>
+  <li><a id='navLinks' href="about.html">About</a></li>
+ </ul>
+</nav>
  
- <div class="sideSW" id="thirdSW">
-  <a class="closeButton" onclick="closePane()">Close</a>
-  <a href="https://inimitable.dev">ID</a>
-  <a href="blog.html">Blog</a>
-  <a href="feats.html">Feats</a>
-  <a href="about.html">About</a>
- </div>
- 
- <div id="primary">
- 
- <script>
-  function openPane(){
-   document.getElementById('thirdSW').style.width = '150px'
-   document.getElementById('primary').style.marginLeft = '150px'
-  }
-  function closePane(){
-   document.getElementById('thirdSW').style.width = '0'
-   document.getElementById('primary').style.marginLeft = '0'
-  }
- </script>
-<!-- End of paste -->
+<div class="sideSW" id="thirdSW">
+ <a class="closeButton" onclick="closePane()">&#10008</a>
+ <a id='commonLinks' href="main.html" style='color: rgb(0,56,168)'>Inimitable</a>
+ <a id='commonLinks' href="blog.html">Blog</a>
+ <a id='commonLinks' href="feats.html">Feats</a>
+ <a id='commonLinks' href="about.html">About</a>
+</div>
 
-<h1>Feats</h1>
 
-On this page I list demonstrations of web design or coding ability:
+<!-- background effect -->
+<br>
+<span id='bgScroll'>TECH FEATS</span>
+<br><br>
+<!-- background effect2 -->
 
-<br><br><br>
+
+<br><br>
 
 <a id='commonLinks' href="idfeats1.htm" id="cursor">Cursor trail particle network</a><br><br>
 <a id='commonLinks' href="idfeats6.htm" id="cursor">Geometry generation</a><br><br>
@@ -85,5 +74,29 @@ On this page I list demonstrations of web design or coding ability:
 <a id='commonLinks' href="https://twitter.com/AaronSGMT" target="_blank" rel="noopener noreferrer" class="nav">My Twitter</a> |
 <a id='commonLinks' href="https://www.youtube.com/channel/UC4jIHT-E4UahPAE-i31R5iA" target="_blank" rel="noopener noreferrer" class="nav">My YT</a><br><br>
 
-</html>
 
+
+<!-- scroll animation -->
+<style>
+#bgScroll{
+ font-size: 5.11rem;
+ font-weight: 1000;
+ font-family: brush script mt, tahoma;
+ color: transparent;
+ background: url('textBg.png');
+ background-clip: text;
+ -webkit-background-clip: text;
+ animation: bgAnim 18s infinite;
+ animation-timing-function: linear
+}
+@keyframes bgAnim{
+ from{background-position: 100% 27%}
+ 20%{background-position: 31% 2%}
+ 40%{background-position: 1% 92%}
+ 60%{background-position: 38% 6%}
+ 80%{background-position: 66% 88%}
+ to{background-position: 100% 27%}
+}
+</style>
+</html>
+<!-- scroll animation2 -->
