@@ -172,3 +172,27 @@ h2:hover {color: #b0ab1e}
 /* #iniDefPic:hover {
  cursor: url('inidef.png')
 } */
+
+
+/* background text pe */
+#bgScroll{
+ font-size: 5.11rem;
+ font-weight: 1000;
+ font-family: brush script mt, tahoma;
+ color: transparent;
+ background: url('textBg.png');
+ background-clip: text;
+ -webkit-background-clip: text;
+ animation: bgAnim 18s infinite;
+ animation-timing-function: linear
+}
+@keyframes bgAnim{
+ from{background-position: 100% 27%}
+ 20%{background-position: 31% 2%}
+ 40%{background-position: 1% 92%}
+ 60%{background-position: 38% 6%}
+ 80%{background-position: 66% 88%}
+ to{background-position: 100% 27%}
+}
+
+/* background text2 */
