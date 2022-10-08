@@ -15,7 +15,7 @@
 
 <div class='sideSW' id='thirdSW'>
  <a class='closeButton' onclick='closePane()'>&#10008</a>
- <a id='commonLinks' href='https://inimitable.dev' style='color: rgb(0,56,168)'>Inimitable</a>
+ <a id='commonLinks' href='main.html' style='color: rgb(0,56,168)'>Inimitable</a>
  <a id='commonLinks' href='blog.html'>BLOG</a>
  <a id='commonLinks' href='feats.html'>FEATS</a>
  <a id='commonLinks' href='gallery.html'>GALLERY</a>
@@ -90,11 +90,11 @@
   <div id='stockLink6'>Twitter</div>
  </div>
  <h2>Specifics:</h2><div id='stockLinks'>
-  <div id='stockLink7'>(options) Barchart</div><br>
-  <div id='stockLink8'>(PRs) Fintel</div><br>
-  <div id='stockLink9'>(news) GlobeNewswire</div><br>
-  <div id='stockLink10'>(SEC filings) Nasdaq</div><br>
-  <div id='stockLink11'>(report) Seeking Alpha</div><br>
+  <div id='stockLink7'><span style='font-family: oregano'>(options)</span> Barchart</div><br>
+  <div id='stockLink8'><span style='font-family: oregano'>(PRs)</span> Fintel</div><br>
+  <div id='stockLink9'><span style='font-family: oregano'>(news)</span> GlobeNewswire</div><br>
+  <div id='stockLink10'><span style='font-family: oregano'>(SEC filings)</span> Nasdaq</div><br>
+  <div id='stockLink11'><span style='font-family: oregano'>(report)</span> Seeking Alpha</div><br>
  </div>
 </div>
 
@@ -160,7 +160,7 @@ input[type=checkbox]:checked + label::before{
  border: 0.125rem solid #000000;
  border-radius: 12px;
  background: #ffebeb;
- width: 600px; height: 275px
+ width: 600px; height: 277px
 }
 #TGmodalDesc{
  font-size: 1.125rem;
@@ -248,11 +248,11 @@ tickerInput.addEventListener('input',function(){
  document.getElementById('stockLink4').innerHTML = '<a id="stockLinks2" href="' + 'https://stocktwits.com/symbol/' + tickerInput + '" target="_blank" rel="noopener noreferrer">Stocktwits</a>' + ' for ' + tickerInput
  document.getElementById('stockLink5').innerHTML = '<a id="stockLinks2" href="' + 'https://www.tradingview.com/symbols/' + tickerInput + '" target="_blank" rel="noopener noreferrer">TradingView</a>' + ' for ' + tickerInput
  document.getElementById('stockLink6').innerHTML = '<a id="stockLinks2" href="' + 'https://twitter.com/search?q=%24' + tickerInput + '&src=cashtag_click" target="_blank" rel="noopener noreferrer">Twitter</a>' + ' for ' + tickerInput
- document.getElementById('stockLink7').innerHTML = '(options) <a id="stockLinks2" href="' + 'https://www.barchart.com/stocks/quotes/' + tickerInput + '/options" target="_blank" rel="noopener noreferrer">Barchart</a>' + ' for ' + tickerInput
- document.getElementById('stockLink8').innerHTML = '(PRs) <a id="stockLinks2" href="' + 'https://fintel.io/sfpr/us/' + tickerInput + '" target="_blank" rel="noopener noreferrer">Fintel</a>' + ' for ' + tickerInput
- document.getElementById('stockLink9').innerHTML = '(news) <a id="stockLinks2" href="' + 'https://www.globenewswire.com/search/keyword/' + tickerInput + '" target="_blank" rel="noopener noreferrer">GlobeNewswire</a>' + ' for ' + tickerInput
- document.getElementById('stockLink10').innerHTML = '(SEC filings) <a id="stockLinks2" href="' + 'https://www.nasdaq.com/market-activity/stocks/' + tickerInput + '/sec-filings" target="_blank" rel="noopener noreferrer">Nasdaq</a>' + ' for ' + tickerInput
- document.getElementById('stockLink11').innerHTML = '(report) <a id="stockLinks2" href="' + 'https://seekingalpha.com/symbol/' + tickerInput + '/earnings" target="_blank" rel="noopener noreferrer">Seeking Alpha</a>' + ' for ' + tickerInput
+ document.getElementById('stockLink7').innerHTML = '<span style="font-family: oregano">(options)</span> <a id="stockLinks2" href="' + 'https://www.barchart.com/stocks/quotes/' + tickerInput + '/options" target="_blank" rel="noopener noreferrer">Barchart</a>' + ' for ' + tickerInput
+ document.getElementById('stockLink8').innerHTML = '<span style="font-family: oregano">(PRs)</span> <a id="stockLinks2" href="' + 'https://fintel.io/sfpr/us/' + tickerInput + '" target="_blank" rel="noopener noreferrer">Fintel</a>' + ' for ' + tickerInput
+ document.getElementById('stockLink9').innerHTML = '<span style="font-family: oregano">(news)</span> <a id="stockLinks2" href="' + 'https://www.globenewswire.com/search/keyword/' + tickerInput + '" target="_blank" rel="noopener noreferrer">GlobeNewswire</a>' + ' for ' + tickerInput
+ document.getElementById('stockLink10').innerHTML = '<span style="font-family: oregano">(SEC filings)</span> <a id="stockLinks2" href="' + 'https://www.nasdaq.com/market-activity/stocks/' + tickerInput + '/sec-filings" target="_blank" rel="noopener noreferrer">Nasdaq</a>' + ' for ' + tickerInput
+ document.getElementById('stockLink11').innerHTML = '<span style="font-family: oregano">(report)</span> <a id="stockLinks2" href="' + 'https://seekingalpha.com/symbol/' + tickerInput + '/earnings" target="_blank" rel="noopener noreferrer">Seeking Alpha</a>' + ' for ' + tickerInput
  if (tickerInput.length == 0){
   document.getElementById('stockLink1').innerHTML = 'Finviz'
   document.getElementById('stockLink2').innerHTML = 'FloatChecker'
@@ -260,11 +260,11 @@ tickerInput.addEventListener('input',function(){
   document.getElementById('stockLink4').innerHTML = 'Stocktwits'
   document.getElementById('stockLink5').innerHTML = 'TradingView'
   document.getElementById('stockLink6').innerHTML = 'Twitter'
-  document.getElementById('stockLink7').innerHTML = '(options) Barchart'
-  document.getElementById('stockLink8').innerHTML = '(PRs) Fintel'
-  document.getElementById('stockLink9').innerHTML = '(news) GlobeNewswire'
-  document.getElementById('stockLink10').innerHTML = '(SEC filings) Nasdaq'
-  document.getElementById('stockLink11').innerHTML = '(report) Seeking Alpha'
+  document.getElementById('stockLink7').innerHTML = '<span style="font-family: oregano">(options)</span> Barchart'
+  document.getElementById('stockLink8').innerHTML = '<span style="font-family: oregano">(PRs)</span> Fintel'
+  document.getElementById('stockLink9').innerHTML = '<span style="font-family: oregano">(news)</span> GlobeNewswire'
+  document.getElementById('stockLink10').innerHTML = '<span style="font-family: oregano">(SEC filings)</span> Nasdaq'
+  document.getElementById('stockLink11').innerHTML = '<span style="font-family: oregano">(report)</span> Seeking Alpha'
  }
 })
 
