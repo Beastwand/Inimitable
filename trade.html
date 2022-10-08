@@ -15,7 +15,7 @@
 
 <div class='sideSW' id='thirdSW'>
  <a class='closeButton' onclick='closePane()'>&#10008</a>
- <a id='commonLinks' href='https://inimitable.dev' style='color: rgb(0,56,168)'>Inimitable</a>
+ <a id='commonLinks' href='main.html' style='color: rgb(0,56,168)'>Inimitable</a>
  <a id='commonLinks' href='blog.html'>BLOG</a>
  <a id='commonLinks' href='feats.html'>FEATS</a>
  <a id='commonLinks' href='gallery.html'>GALLERY</a>
@@ -62,7 +62,7 @@
 <!-- Menu -->
 
 <dialog class='TGmodal' id='TGmodalSpecific'>
-<p style='font-family: verdana'><span id='TGqTitle'></span><button id='TGqCloseBtn' style='background: none; border: none; font-size: 1.875rem; position: absolute; top: 5%; right: 2%'>&times;</button><br><span id='TGqTitleDesc'></span></p>
+<p style='font-family: verdana'><span id='TGqTitle'></span><button id='TGqCloseBtn' style='background: none; border: none; font-size: 1.875rem; position: absolute; top: 5%; right: 2%'>&times;</button><br><span id='TGqTitleDesc' style='font-size: 1.25rem; font-family: oregano'></span></p>
 <p id='TGmodalDesc'></p>
 <div style='display: inline-grid; grid-auto-flow: column; gap: 0 3px; position: absolute; transform: translate(-50%,-50%); bottom: 0%; left: 50%'><button class='quizBtn' id='checkYes'>Yes</button>
 <button class='quizBtn' id='checkNo'>No</button></div>
@@ -160,11 +160,11 @@ input[type=checkbox]:checked + label::before{
  border: 0.125rem solid #000000;
  border-radius: 12px;
  background: #ffebeb;
- width: 600px; height: 246px
+ width: 600px; height: 275px
 }
 #TGmodalDesc{
- font-size: 1.5rem;
- font-family: brush script mt
+ font-size: 1.125rem;
+ font-family: walter turncoat
 }
 .quizBtn{
  cursor: pointer;
@@ -195,7 +195,8 @@ input[type=checkbox]:checked + label::before{
  top: 5%
 }
 #TGqTitle{
- font-size: 1.2rem;
+ font-size: 1.625rem;
+ font-family: tahoma;
  font-weight: bold
 }
 #partNetText{
@@ -209,6 +210,16 @@ input[type=checkbox]:checked + label::before{
 .sideSW{
  top: 100px
 }
+
+@font-face{
+ font-family: 'Oregano';
+ src: url('oregano-v13-latin-regular.woff')
+}
+@font-face{
+ font-family: 'Walter Turncoat';
+ src: url('walter-turncoat-v19-latin-regular.woff')
+}
+
 </style>
 
 <script>
@@ -295,7 +306,7 @@ const quizCont2 = [
  'The opinions of people about the stock',
  'Does the stock have options?',
  'Is there a large difference between the bid & the ask?',
- 'Has there been recent PT changes, financial documents or other news?',
+ 'Have there been recent PT changes, financial documents or other news?',
  'Is this a recent IPO or SPAC, or a ticker with a reputation?',
  'What is the relative volume on multiple timeframes?',
  'What does the landscape look like for the general market?',
@@ -314,18 +325,18 @@ const quizCont2 = [
  'Are you supposed to feel compelled to buy/sell?'
 ];
 const quizCont3 = [
- 'Some stocks may go down the entire day but never have a big move at any given minute. Knowing the likelihood of this is important and there are often behavioral hints that are even worth waiting for.',
- 'You can\'t know anything 100%. The best traders know it is about probability, not predictability. Do you know ahead of time at what level to sell/cover?',
- 'Whether it\'s in the premarket, near the market open, later in the day or after the 4pm close, the exact same stock with same news can behave differently. Some stocks typically experience no volume before 9:30am or after 4:00pm.',
+ 'Some stocks may go down the entire day yet never have a big move at any given minute. Knowing the likelihood of this can be important, and there are often behavioral hints that are even worth waiting for.',
+ 'You can\'t know anything 100%. A good mindset would be to understand successful trades as being about probability, not predictability. Do you already know at what levels that you want to sell or cover?',
+ 'Whether it\'s in the premarket, near the market open, later in the day or after the 4pm close, the same stock with the same news can behave differently. Some stocks typically experience no volume before 9:30am or after 4:00pm.',
  'There\'s usually another ticker with a \'W\' at the end or \'/WS\' sometimes such as on TDA. If warrants exist it\'s a good idea to check at what price they are exercisable. To find that you can check their most recent financial report.',
  'How much short interest the stock has, or any tendency of it to increase or decrease around time intervals can be taken to mean negative things, and if unexpectedly wrong can be positive for the stock.',
- 'You can zoom out to get the bigger picture. There may be no direct correlation between it going from $100 -> $1 over the last 2 years and what it will do today, but it is important to get as many puzzle pieces in place as possible.',
+ 'You can zoom out to get the bigger picture. There may be no direct correlation between it going from $100 to $1 over the last 2 years and what it will do today, but it is important to get as many puzzle pieces in place as possible.',
  'Social sentiment can be irrational, cause lots of retail buying, & have been planned ahead of time. News/rumors can have complex effects on stock price. Listening to others requires tactful judiciousness. Have you checked preferred online communities for their opinions?',
- 'If this is a stock that has options then there are entities that sold those contracts and don\'t want the price to go very high, especially if there is a lot of OI & minimal spread at given strike prices as well as volume.',
- '\'Market makers\' are responsible for tight spreads. A lot of stocks that move up like crazy tend to have wide spreads. All context is valuable.',
+ 'If this is a stock that has options then there are entities that sold those contracts and don\'t want the price to go very high, especially if there is a lot of OI & minimal spread at given strike prices.',
+ '\'Market makers\' are responsible for tight spreads. A lot of stocks that move up like crazy tend to have wide spreads. Having this context is valuable.',
  'If there has been any recent events that could influence the stock, the dynamics of when/how that is priced in provides a lot of context to how the given trading day is part of that equation.',
  'The type of stock can make a big difference in how it is traded. Recent IPOs can have big moves, and SPACs have to go through a less rigorous process to be listed. Some tickers have a reputation for frequent offerings as well.',
- 'Some traders specifically like to trade based on 1m, 5m, 1h, etc. candles. If several of these timeframes all look appealing simultaneously that can result in more active trading in the stock.',
+ 'Some traders specifically like to trade based on 1m, 5m, 1h, etc. candles. If several of these timeframes all look appealing simultaneously that can result in more active trading of the stock.',
  'If the overall market is having a big positive or negative day it can have an impact on a variety of other stocks, even penny stocks. Conversely, if they are trading flat with low volume there may be more interest in penny stocks.',
  'Patterns can cause resulting price action simply due to other traders believing that they work, and thus don\'t need to have any special logic. Aside from being intrinsically appealing, other traders will be looking at them as well.',
  'Chart technicals are used a lot by some traders, and hardly at all by others. If you have any preferred ones be sure to apply them, and be aware if any popular ones imply recent price action to be significant. Is the stock reacting to key levels?',
@@ -339,7 +350,7 @@ const quizCont3 = [
  'There is a lot more to position size than just the risk/reward. A small move down may require you to sell a large position, whereas if it was a small position and you kept holding it may reverse up shortly after.',
  'You might find that day trading is about being a professional speculator. Considering the reasoning being taking the opposite side of the trade, and knowing when you feel compelled to risk too much can be a good reflection.',
  'Especially if you are sizing in big, even if you haven\'t seen it happen in awhile, crazy things like fraudulent PRs, broker errors, connectivity issues, and halting awaiting news are possible.',
- 'If you listen carefully enough, every stock tells its own unique story. If not careful, you may let others tell you the story you\'re supposed to believe to trade how they want you to so that the zero-sum game works in their favor.'
+ 'If you listen carefully enough, every stock tells its own unique story. If not careful, you may let others tell you the story you\'re supposed to believe in order to trade how they want you to, so that the zero-sum game works in their favor.'
 ];
 const quizContScore = [4,2,2,2,2,2,3,2,1,3,1,2,1,1,2,1,2,1,2,1,1,1,3,2,4,2];
 
