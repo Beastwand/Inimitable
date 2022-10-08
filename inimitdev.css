@@ -193,7 +193,22 @@ h2:hover {color: #b0ab1e}
  font-size: 333px;
  /* color: transparent */
 }
-
+@font-face{
+ font-family: 'Oregano';
+ src: url('oregano-v13-latin-regular.woff')
+}
+@font-face{
+ font-family: 'Walter Turncoat';
+ src: url('walter-turncoat-v19-latin-regular.woff')
+}
+@font-face{
+ font-family: 'Reggae One';
+ src: url('reggae-one-v14-latin-regular.woff')
+}
+@font-face{
+ font-family: 'Rubik Marker Hatch';
+ src: url('rubik-marker-hatch-v1-latin-regular.woff')
+}
 
 /* background text */
 #bgScroll{
@@ -202,8 +217,8 @@ h2:hover {color: #b0ab1e}
  font-family: brush script mt, tahoma;
  color: transparent;
  background: url('textBg.png');
- background-clip: text;
  -webkit-background-clip: text;
+ background-clip: text;
  animation: bgAnim 18s infinite;
  animation-timing-function: linear
 }
