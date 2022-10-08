@@ -15,7 +15,7 @@
 
 <div class='sideSW' id='thirdSW'>
  <a class='closeButton' onclick='closePane()'>&#10008</a>
- <a id='commonLinks' href='https://inimitable.dev' style='color: rgb(0,56,168)'>Inimitable</a>
+ <a id='commonLinks' href='main.html' style='color: rgb(0,56,168)'>Inimitable</a>
  <a id='commonLinks' href='blog.html'>BLOG</a>
  <a id='commonLinks' href='feats.html'>FEATS</a>
  <a id='commonLinks' href='gallery.html'>GALLERY</a>
@@ -44,9 +44,10 @@
   <input id='secondTab' name='Tab Group Options' type='checkbox'>
   <label for='secondTab'>CHECKLIST</label>
   <div class='subCont'>
-   <p style='text-align: left'>The following is a familiarity checklist to bring to mind contextual aspects of trading that you may already understand, but might not have thought of when entering this given trade:</p>
+   <p style='text-align: left'>The following is a familiarity checklist to bring to mind contextual aspects of trading that you may already understand, but did not think of when entering the given trade.<br>
+   <p style='text-align: center'>Are you satisfied with your familiarity with this stock regarding...?</p></p>
    <button class='genBtn' id='TGmodalStart' style='width: 73%; font-family: lucida console'>Start &#128373</button><br>
-   <p style='font-size: 20px; font-family: comic sans ms'>Your self-assessment score (on covered topics): <span id='displayScorePercent' style='font-size: 1.32rem; color: #0000ff'></span><span id='displayScore'>0</span> / 18</p>
+   <p style='font-size: 20px; font-family: comic sans ms'>Your self-assessment score (on covered topics): <span id='displayScorePercent' style='font-size: 1.32rem; color: #0000ff'></span><span style='font-size: 1.0625rem'><span id='displayScore'>0</span>/50</span></p>
   </div>
  </div>
  <div>
@@ -61,51 +62,10 @@
 <!-- Menu -->
 
 <dialog class='TGmodal' id='TGmodalSpecific'>
-<p><h3>Are you satisfied with your familiarity with this stock regarding...? (+6) 1/29</h3></p>
-<p style='font-family: verdana'><span id='TGqTitle'>Volatility</span><br>Relative potential for the price to plummet on 1m chart</p>
-<p>Some stocks may go down the entire day but never have a big move at any given<br>minute. Knowing the likelihood of this is important and there are often behavioral<br>hints that are even worth waiting for.</p>
-<button class='genBtn' id='checkYes'>Yes</button>
-<button class='genBtn' id='checkNo'>No</button>
-</dialog>
-
-<dialog class='TGmodal' id='TGmodalSpecific2'>
-<p><h3>Are you satisfied with your familiarity with this stock regarding...? (+4)</h3></p>
-<p style='font-family: verdana'><span id='TGqTitle'>Exit level</span><br>At what level you can identify that you are wrong</p>
-<p>You can't know anything 100%. The best traders know it is about probability,<br>not predictability. Do you know ahead of time where to get out?</p>
-<button class='genBtn' id='checkYes2'>Yes</button>
-<button class='genBtn' id='checkNo2'>No</button>
-</dialog>
-
-<dialog class='TGmodal' id='TGmodalSpecific3'>
-<p><h3>Are you satisfied with your familiarity with this stock regarding...? (+3)</h3></p>
-<p style='font-family: verdana'><span id='TGqTitle'>Time</span><br>Time of day significance of potential price action</p>
-<p>Whether it's in the premarket, near the market open, later in the day or after the<br>4pm close, the exact same stock with same news can behave differently. Some<br>stocks typically experience no volume before 9:30am and after 4:00pm.</p>
-<button class='genBtn'id='checkYes3'>Yes</button>
-<button class='genBtn' id='checkNo3'>No</button>
-</dialog>
-
-<dialog class='TGmodal' id='TGmodalSpecific4'>
-<p><h3>Are you satisfied with your familiarity with this stock regarding...? (+1)</h3></p>
-<p style='font-family: verdana'><span id='TGqTitle'>Warrants</span><br>Are there warrants for this stock?</p>
-<p>There's usually another ticker with a 'W' at the end or '/WS' sometimes such as on<br>TDA. If warrants exist it's a good idea to check at what price they are exercisable.<br>To find that you can check their most recent financial report.</p>
-<button class='genBtn' id='checkYes4'>Yes</button>
-<button class='genBtn' id='checkNo4'>No</button>
-</dialog>
-
-<dialog class='TGmodal' id='TGmodalSpecific5'>
-<p><h3>Are you satisfied with your familiarity with this stock regarding...? (+2)</h3></p>
-<p style='font-family: verdana'><span id='TGqTitle'>Short interest</span><br>% of publicly tradeable shares sold short</p>
-<p>How much short interest the stock has, or any tendency of it to increase<br>or decrease around time intervals can be taken to mean negative things,<br>and if unexpectedly wrong can be positive for the stock.</p>
-<button class='genBtn' id='checkYes5'>Yes</button>
-<button class='genBtn' id='checkNo5'>No</button>
-</dialog>
-
-<dialog class='TGmodal' id='TGmodalSpecific6'>
-<p><h3>Are you satisfied with your familiarity with this stock regarding...? (+2)</h3></p>
-<p style='font-family: verdana'><span id='TGqTitle'>Multiyear chart & vol</span><br>The long-term chart & respective volume</p>
-<p>Always zoom out to get the bigger picture. There may be no direct correlation<br>between it going from $100 -> $1 over the last two years and what it will do today,<br>but it is important to get as many puzzle pieces in place as you can.</p>
-<button class='genBtn' id='checkYes6'>Yes</button>
-<button class='genBtn' id='checkNo6'>No</button>
+<p style='font-family: verdana'><span id='TGqTitle'></span><button id='TGqCloseBtn' style='background: none; border: none; font-size: 1.875rem; position: absolute; top: 5%; right: 2%'>&times;</button><br><span id='TGqTitleDesc'></span></p>
+<p id='TGmodalDesc'></p>
+<div style='display: inline-grid; grid-auto-flow: column; gap: 0 3px; position: absolute; transform: translate(-50%,-50%); bottom: 0%; left: 50%'><button class='quizBtn' id='checkYes'>Yes</button>
+<button class='quizBtn' id='checkNo'>No</button></div>
 </dialog>
 
 <br><br><br><br><br><br><br><br><br><br><br>
@@ -150,7 +110,9 @@ h1{
 /* Start of menu */
 .sectionCont{
  max-width: 481px;
- margin: 38px auto
+ min-width: 263px;
+ width: 42%;
+ margin: 38px auto 0
 }
 .sectionCont label{
  display: block;
@@ -170,7 +132,7 @@ h1{
  height: 0px;
  padding: 0px 14px;
  overflow: hidden;
- font-family: malgun gothic, cursive;
+ font-family: cursive;
  font-size: 15px;
  background: #9e94e3;
  transition: all 0.27s linear
@@ -191,7 +153,41 @@ input[type=checkbox]:checked + label::before{
 /* Menu */
 
 .TGmodal{
- background: lightblue
+ margin: 0;
+ top: 50%; left: 50%;
+ transform: translate(-50%,-50%);
+ position: fixed;
+ border: 0.125rem solid #000000;
+ border-radius: 12px;
+ background: #ffebeb;
+ width: 600px; height: 246px
+}
+#TGmodalDesc{
+ font-size: 1.5rem;
+ font-family: brush script mt
+}
+.quizBtn{
+ cursor: pointer;
+ border: none;
+ position: relative;
+ bottom: 0%;
+ padding: 0.25rem 0.9375rem;
+ font-size: 1.5rem;
+ font-family: ink free;
+ font-weight: 550;
+ color: #ffffff;
+ border-radius: 0.75rem;
+ background: #3737ff;
+ box-shadow: inset 0 -0.21875rem 0 rgba(0,0,0,0.5);
+ text-shadow: 0 0.125rem rgba(0,0,0,0.5);
+ transition: 0.12s
+}
+.quizBtn:hover{
+ box-shadow: inset 0 -0.1875rem 0 rgba(0,0,0,0.5)
+}
+.quizBtn:active{
+ box-shadow: inset 0 -0.0625rem 0 rgba(0,0,0,0.5);
+ text-shadow: 0 0 rgba(0,0,0,0.5)
 }
 .TGsidePanel{
  position: absolute;
@@ -224,27 +220,13 @@ function closePane(){
 }
 var openCounter = 1;
 var score = 0;
-const TGmodalStart = document.getElementById('TGmodalStart')
-const TGmodalSpecific = document.getElementById('TGmodalSpecific')
-const TGmodalSpecific2 = document.getElementById('TGmodalSpecific2')
-const TGmodalSpecific3 = document.getElementById('TGmodalSpecific3')
-const TGmodalSpecific4 = document.getElementById('TGmodalSpecific4')
-const TGmodalSpecific5 = document.getElementById('TGmodalSpecific5')
-const TGmodalSpecific6 = document.getElementById('TGmodalSpecific6')
-const checkYes = document.getElementById('checkYes')
-const checkYes2 = document.getElementById('checkYes2')
-const checkYes3 = document.getElementById('checkYes3')
-const checkYes4 = document.getElementById('checkYes4')
-const checkYes5 = document.getElementById('checkYes5')
-const checkYes6 = document.getElementById('checkYes6')
-const checkNo = document.getElementById('checkNo')
-const checkNo2 = document.getElementById('checkNo2')
-const checkNo3 = document.getElementById('checkNo3')
-const checkNo4 = document.getElementById('checkNo4')
-const checkNo5 = document.getElementById('checkNo5')
-const checkNo6 = document.getElementById('checkNo6')
+const TGmodalStart = document.getElementById('TGmodalStart');
+const TGmodalSpecific = document.getElementById('TGmodalSpecific');
+const TGqCloseBtn = document.getElementById('TGqCloseBtn');
+const checkYes = document.getElementById('checkYes');
+const checkNo = document.getElementById('checkNo');
 
-var tickerInput = document.getElementById('ticker')
+var tickerInput = document.getElementById('ticker');
 
 // use of function from inimitdev.js
 tickerInput.addEventListener('input',function(){
@@ -275,86 +257,151 @@ tickerInput.addEventListener('input',function(){
  }
 })
 
+const quizCont1 = [
+ 'Volatility (+4)',
+ 'Exit level (+2)',
+ 'Time of day (+2)',
+ 'Warrants (+2)',
+ 'Short interest (+2)',
+ 'Multiyear chart & vol (+2)',
+ 'Social sentiment (+3)',
+ 'Options (+2)',
+ 'Spread (+1)',
+ 'Recent events (+3)',
+ 'Brand name (+1)',
+ 'Rel vol (+2)',
+ 'Overall market (+1)',
+ 'Patterns (+1)',
+ 'Technicals (+2)',
+ 'Associated stocks (+1)',
+ 'Personal (+2)',
+ 'Recent landscape (+1)',
+ 'Expected moves (+2)',
+ 'Fundamentals (+1)',
+ 'Pre/post-session (+1)',
+ 'First day (+1)',
+ 'Position size (+3)',
+ 'Speculation (+2)',
+ 'Awareness (+4)',
+ 'Conditioning (+2)'
+];
+const quizCont2 = [
+ 'Relative potential for the price to plummet on 1m chart',
+ 'At what level you can identify that the trade is a liability',
+ 'Time of day significance of potential price action',
+ 'Are there warrants for this stock?',
+ '% of publicly tradeable shares sold short',
+ 'The long-term chart & respective volume',
+ 'The opinions of people about the stock',
+ 'Does the stock have options?',
+ 'Is there a large difference between the bid & the ask?',
+ 'Has there been recent PT changes, financial documents or other news?',
+ 'Is this a recent IPO or SPAC, or a ticker with a reputation?',
+ 'What is the relative volume on multiple timeframes?',
+ 'What does the landscape look like for the general market?',
+ 'Are there any obvious patterns shaping up?',
+ 'Is there any preferred or obvious technical significance?',
+ 'How are related stocks trading?',
+ 'Do you personally have any unique philosophies/perceptions?',
+ 'Have there been recent behavioral hallmarks?',
+ 'Has the stock gone up a lot already leading into a move?',
+ 'Is there a big differential in fundamentals and volatility?',
+ 'How active is this stock traded before/after standard market time?',
+ 'Is this the first day of a large move?',
+ 'Is/should this be a large or small position trade?',
+ 'Are you looking past how much you can know?',
+ 'Many crazy, rare and unreasonable things are common to trading',
+ 'Are you supposed to feel compelled to buy/sell?'
+];
+const quizCont3 = [
+ 'Some stocks may go down the entire day but never have a big move at any given minute. Knowing the likelihood of this is important and there are often behavioral hints that are even worth waiting for.',
+ 'You can\'t know anything 100%. The best traders know it is about probability, not predictability. Do you know ahead of time at what level to sell/cover?',
+ 'Whether it\'s in the premarket, near the market open, later in the day or after the 4pm close, the exact same stock with same news can behave differently. Some stocks typically experience no volume before 9:30am or after 4:00pm.',
+ 'There\'s usually another ticker with a \'W\' at the end or \'/WS\' sometimes such as on TDA. If warrants exist it\'s a good idea to check at what price they are exercisable. To find that you can check their most recent financial report.',
+ 'How much short interest the stock has, or any tendency of it to increase or decrease around time intervals can be taken to mean negative things, and if unexpectedly wrong can be positive for the stock.',
+ 'You can zoom out to get the bigger picture. There may be no direct correlation between it going from $100 -> $1 over the last 2 years and what it will do today, but it is important to get as many puzzle pieces in place as possible.',
+ 'Social sentiment can be irrational, cause lots of retail buying, & have been planned ahead of time. News/rumors can have complex effects on stock price. Listening to others requires tactful judiciousness. Have you checked preferred online communities for their opinions?',
+ 'If this is a stock that has options then there are entities that sold those contracts and don\'t want the price to go very high, especially if there is a lot of OI & minimal spread at given strike prices as well as volume.',
+ '\'Market makers\' are responsible for tight spreads. A lot of stocks that move up like crazy tend to have wide spreads. All context is valuable.',
+ 'If there has been any recent events that could influence the stock, the dynamics of when/how that is priced in provides a lot of context to how the given trading day is part of that equation.',
+ 'The type of stock can make a big difference in how it is traded. Recent IPOs can have big moves, and SPACs have to go through a less rigorous process to be listed. Some tickers have a reputation for frequent offerings as well.',
+ 'Some traders specifically like to trade based on 1m, 5m, 1h, etc. candles. If several of these timeframes all look appealing simultaneously that can result in more active trading in the stock.',
+ 'If the overall market is having a big positive or negative day it can have an impact on a variety of other stocks, even penny stocks. Conversely, if they are trading flat with low volume there may be more interest in penny stocks.',
+ 'Patterns can cause resulting price action simply due to other traders believing that they work, and thus don\'t need to have any special logic. Aside from being intrinsically appealing, other traders will be looking at them as well.',
+ 'Chart technicals are used a lot by some traders, and hardly at all by others. If you have any preferred ones be sure to apply them, and be aware if any popular ones imply recent price action to be significant. Is the stock reacting to key levels?',
+ 'Many stocks have other ones that move based on how that one is moving. One company could have a large stake in another and benefit if it goes up, or countless other variations where the behavior of one affects perception of the other.',
+ 'There might be something that stands out to you that you frequently tell yourself, like I notice when I feel the need to buy right away it tends to not be great timing, and once I give up can often be the best time to buy.',
+ 'Sometimes there are instances where, for example, for two weeks >95% of top % gainer penny stocks plummet as soon as the market opens. Being aware of the current landscape can be a good idea.',
+ 'If there is positive news and you check the recent chart and it has been going up for awhile, the news may have already been expected and the stock priced accordingly before the day even started. Same for negative news.',
+ 'Although fundamentals can be insignificant on any given day, there\'s a right time to buy manipulated lows or sell/short artificial highs. The stock market is not structured on logic, but it still has a place.',
+ 'Stocks that get a lot of volume and price moves before/after the standard market hours tend to either have something special going on or be a popular name.',
+ 'There are a lot of variables as far as how a stock is going to move or specifically react to news depending on if it is the first day of a big move, or is having a continuation 1 or several days later.',
+ 'There is a lot more to position size than just the risk/reward. A small move down may require you to sell a large position, whereas if it was a small position and you kept holding it may reverse up shortly after.',
+ 'You might find that day trading is about being a professional speculator. Considering the reasoning being taking the opposite side of the trade, and knowing when you feel compelled to risk too much can be a good reflection.',
+ 'Especially if you are sizing in big, even if you haven\'t seen it happen in awhile, crazy things like fraudulent PRs, broker errors, connectivity issues, and halting awaiting news are possible.',
+ 'If you listen carefully enough, every stock tells its own unique story. If not careful, you may let others tell you the story you\'re supposed to believe to trade how they want you to so that the zero-sum game works in their favor.'
+];
+const quizContScore = [4,2,2,2,2,2,3,2,1,3,1,2,1,1,2,1,2,1,2,1,1,1,3,2,4,2];
+
 TGmodalStart.addEventListener('click',()=>{
  if (openCounter == 1){
+  for (let i = 0; i < quizCont1.length; i++){
+   let r = Math.floor(Math.random()*quizCont1.length);
+   [quizCont1[i], quizCont1[r]] = [quizCont1[r], quizCont1[i]];
+   [quizCont2[i], quizCont2[r]] = [quizCont2[r], quizCont2[i]];
+   [quizCont3[i], quizCont3[r]] = [quizCont3[r], quizCont3[i]];
+   [quizContScore[i], quizContScore[r]] = [quizContScore[r], quizContScore[i]];
+  }
   score = 0;
   document.getElementById('displayScore').innerHTML = 0;
   document.getElementById('displayScorePercent').innerHTML = '';
   TGmodalSpecific.show();
   openCounter = 0;
+  document.getElementById('TGqTitle').innerHTML = quizCont1[0];
+  document.getElementById('TGqTitleDesc').innerHTML = quizCont2[0];
+  document.getElementById('TGmodalDesc').innerHTML = quizCont3[0];
  }else{
    TGmodalSpecific.close();
-   TGmodalSpecific2.close();
-   TGmodalSpecific3.close();
-   TGmodalSpecific4.close();
-   TGmodalSpecific5.close();
-   TGmodalSpecific6.close();
    openCounter = 1;
   }
 })
+let i = 0;
 checkYes.addEventListener('click',()=>{
- TGmodalSpecific.close();
- TGmodalSpecific2.show();
- score += 6;
+ i++;
+ score += quizContScore[i-1];
  document.getElementById('displayScore').innerHTML = score;
- openCounter = 0;
-})
-checkYes2.addEventListener('click',()=>{
- TGmodalSpecific2.close();
- TGmodalSpecific3.show();
- score += 4;
- document.getElementById('displayScore').innerHTML = score;
-})
-checkYes3.addEventListener('click',()=>{
- TGmodalSpecific3.close();
- TGmodalSpecific4.show();
- score += 3;
- document.getElementById('displayScore').innerHTML = score;
-})
-checkYes4.addEventListener('click',()=>{
- TGmodalSpecific4.close();
- TGmodalSpecific5.show();
- score += 1;
- document.getElementById('displayScore').innerHTML = score;
-})
-checkYes5.addEventListener('click',()=>{
- TGmodalSpecific5.close();
- TGmodalSpecific6.show();
- score += 2;
- document.getElementById('displayScore').innerHTML = score;
-})
-checkYes6.addEventListener('click',()=>{
- TGmodalSpecific6.close();
- score += 2;
- document.getElementById('displayScore').innerHTML = score;
- document.getElementById('displayScorePercent').innerHTML = parseInt(score/18*100) + '%';
- openCounter = 1;
+ if (i < quizCont1.length){
+  document.getElementById('TGqTitle').innerHTML = quizCont1[i];
+  document.getElementById('TGqTitleDesc').innerHTML = quizCont2[i];
+  document.getElementById('TGmodalDesc').innerHTML = quizCont3[i];
+  openCounter = 0;
+ }
+ else if (i >= quizCont1.length){
+  openCounter = 1;
+  i = 0;
+  TGmodalSpecific.close();
+  document.getElementById('displayScorePercent').innerHTML = parseInt(score/50*100) + '% ';
+ }
 })
 checkNo.addEventListener('click',()=>{
- TGmodalSpecific.close();
- TGmodalSpecific2.show();
- openCounter = 0;
+ i++;
+ if (i < quizCont1.length){
+  document.getElementById('TGqTitle').innerHTML = quizCont1[i];
+  document.getElementById('TGqTitleDesc').innerHTML = quizCont2[i];
+  document.getElementById('TGmodalDesc').innerHTML = quizCont3[i];
+  openCounter = 0;
+ }
+ else if (i >= quizCont1.length){
+  openCounter = 1;
+  i = 0;
+  TGmodalSpecific.close();
+  document.getElementById('displayScorePercent').innerHTML = parseInt(score/50*100) + '% ';
+ }
 })
-checkNo2.addEventListener('click',()=>{
- TGmodalSpecific2.close();
- TGmodalSpecific3.show();
-})
-checkNo3.addEventListener('click',()=>{
- TGmodalSpecific3.close();
- TGmodalSpecific4.show();
-})
-checkNo4.addEventListener('click',()=>{
- TGmodalSpecific4.close();
- TGmodalSpecific5.show();
-})
-checkNo5.addEventListener('click',()=>{
- TGmodalSpecific5.close();
- TGmodalSpecific6.show();
-})
-checkNo6.addEventListener('click',()=>{
- TGmodalSpecific6.close();
- document.getElementById('displayScorePercent').innerHTML = parseInt(score/18*100) + '%';
+TGqCloseBtn.addEventListener('click',()=>{
  openCounter = 1;
+ i = 0;
+ TGmodalSpecific.close();
 })
 
 var randQuote = Math.floor(4*Math.random());
@@ -365,6 +412,5 @@ const quoteCont = [
  '\"It is not the strongest of the species that survive, nor the most intelligent, but the one more responsive to change.\" ~Charles Darwin'
 ];
 document.getElementById('quoteDisplay').innerHTML = quoteCont[randQuote];
-
 
 </script>

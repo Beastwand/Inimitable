@@ -6,10 +6,21 @@
 <meta name="description" content="In development to become an AI blog & portfolio website">
 <title>Inimitable Constructs</title>
 <link rel="icon" href="favicon.png" type="image/x-icon">
-<script src="inimitdev.js" defer></script>
+<script src="inimitdev16.js" defer></script>
 <link rel="stylesheet" href="inimitdev.css" type="text/css">
 
-<h1>music playlist</h1>
+<a onclick='openPane()'><canvas id="partNetText"></canvas></a>
+
+<div class='sideSW' id='thirdSW'>
+ <a class='closeButton' onclick='closePane()'>&#10008</a>
+ <a id='commonLinks' href='main.html' style='color: rgb(0,56,168)'>Inimitable</a>
+ <a id='commonLinks' href='blog.html'>BLOG</a>
+ <a id='commonLinks' href='feats.html'>FEATS</a>
+ <a id='commonLinks' href='gallery.html'>GALLERY</a>
+ <a id='commonLinks' href='about.html'>ABOUT</a>
+</div>
+
+<p style='font-size: 30px'>music playlist</p>
 
 <p style='font-size: 1.61rem'><span id='textE1'>ULTIMATE <b>DBS</b> theme music playlist</span></p><br>
 <div class='listMusic'>
@@ -45,6 +56,9 @@ Goku versus Gas: https://youtu.be/JmqiNEN1BXw?t=2616 -->
 body{
  background: rgb(242,231,191)
 }
+h1{
+ background: none
+}
 #textE1{
  background: linear-gradient(to right, orange, blue, yellow);
  -webkit-background-clip: text;
@@ -55,7 +69,24 @@ body{
  display: grid;
  justify-content: center
 }
+#partNetText{
+ overflow: hidden;
+ background: rgb(242,231,191);
+ position: absolute;
+ top: 1px;
+ left: 0
+ /* border: 0.12rem solid rgb(0,56,168) */
+}
 </style>
+
+<script>
+function openPane(){
+ document.getElementById('thirdSW').style.width = '9rem'
+}
+function closePane(){
+ document.getElementById('thirdSW').style.width = '0'
+}
+</script>
 
 </html>
 
