@@ -193,6 +193,13 @@ h2:hover {color: #b0ab1e}
  font-size: 333px;
  /* color: transparent */
 }
+
+@media(max-width: 674px){
+ #navLinks{
+  visibility: hidden
+ }
+}
+
 @font-face{
  font-family: 'Oregano';
  src: url('oregano-v13-latin-regular.woff')
