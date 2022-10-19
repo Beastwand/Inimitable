@@ -10,7 +10,7 @@ body {
  color: orange;
  font-family: fantasy
 }
-#commonLinks{
+#commonLinks,.commonLinks{
  text-decoration: none;
  color: #ffa500
  font-family: walter turncoat
