@@ -5,10 +5,15 @@ body {
  margin: 0
 }
 
-#commonLinks,#navLinks {
+#navLinks {
  text-decoration: none;
  color: orange;
  font-family: fantasy
+}
+#commonLinks{
+ text-decoration: none;
+ color: #ffa500
+ font-family: walter turncoat
 }
 #blogLinks{
  text-decoration: none;
