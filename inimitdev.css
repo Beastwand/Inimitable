@@ -221,6 +221,10 @@ h2:hover {color: #b0ab1e}
  font-family: 'Rubik Marker Hatch';
  src: url('rubik-marker-hatch-v1-latin-regular.woff')
 }
+@font-face{
+ font-family: 'Quantico';
+ src: url('quantico-v15-latin-regular.woff')
+}
 
 /* background text */
 #bgScroll{
