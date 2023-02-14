@@ -5,16 +5,17 @@ body {
  margin: 0
 }
 
-#navLinks {
+.navLinks,#navLinks {
  text-decoration: none;
  color: orange;
  font-family: fantasy
 }
-.commonLinks{
+.commonLinks,#commonLinks{
  text-decoration: none;
- color: #ffa500;
+ color: orange;
  font-family: walter turncoat
 }
+
 #blogLinks{
  text-decoration: none;
  font-family: monospace;
@@ -81,6 +82,7 @@ body {
 .sideWindow {
  background-color: rgb(21, 96, 189);
  overflow: hidden;
+ /* min-width: 896px; */
  /* width: 105%; */
  height: 80px
 }
@@ -200,7 +202,7 @@ h2:hover {color: #b0ab1e}
 }
 
 @media(max-width: 674px){
- #navLinks{
+ #navLinks,.navLinks{
   visibility: hidden
  }
 }
@@ -224,6 +226,22 @@ h2:hover {color: #b0ab1e}
 @font-face{
  font-family: 'Quantico';
  src: url('quantico-v15-latin-regular.woff')
+}
+@font-face{
+ font-family: 'NTR';
+ src: url('ntr-v15-latin-regular.woff')
+}
+@font-face{
+ font-family: 'Yuji Boku';
+ src: url('yuji-boku-v5-latin-regular.woff')
+}
+@font-face{
+ font-family: 'Schoolbell';
+ src: url('schoolbell-v18-latin-regular.woff')
+}
+@font-face{
+ font-family: 'Yeseva One';
+ src: url('yeseva-one-v20-latin-regular.woff')
 }
 
 /* background text */
