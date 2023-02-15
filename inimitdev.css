@@ -40,12 +40,12 @@ body {
  transform: scale(1.8);
  transition: 0.82s
 }
-#stockLinks {
+.stockLinks {
  text-decoration: none;
  color: #0a5404;
  font-family: verdana
 }
-#stockLinks2 {
+.stockLinks2 {
  text-decoration: none;
  color: rgb(13,52,181);
  font-family: verdana
