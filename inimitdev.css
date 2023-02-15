@@ -4,11 +4,19 @@ body {
  user-select: none;
  margin: 0
 }
-
 .navLinks,#navLinks {
  text-decoration: none;
  color: orange;
- font-family: fantasy
+ font-family: fantasy;
+ text-transform: uppercase
+}
+.navLinks:hover {
+ color: blue
+}
+@media(max-width: 674px){
+ #navLinks,.navLinks{
+  visibility: hidden
+ }
 }
 .commonLinks,#commonLinks{
  text-decoration: none;
@@ -16,12 +24,21 @@ body {
  font-family: walter turncoat
 }
 
-#blogLinks{
+.blogLinks{
  text-decoration: none;
  font-family: monospace;
  font-size: 0.88rem;
  font-weight: bold;
  color: #0c34b3
+}
+.blogArticleItem:hover{
+ /* border-style: inset; */
+ box-shadow: 0.125rem 0.125rem 0.5rem;
+ transition-duration: 0.16s
+}
+.AILM1:hover{
+ transform: scale(1.8);
+ transition: 0.82s
 }
 #stockLinks {
  text-decoration: none;
@@ -106,11 +123,6 @@ body {
  background-color: orange;
  color: blue
 }
-
-#navLinks:hover {
- color: blue
-}
-
 .sideSW {
  width: 0;
  height: 100%;
@@ -146,10 +158,6 @@ body {
  margin-left: 50px
 }
 
-#navLinks{
- text-transform: uppercase
-}
-
 #primary {
  transition: 0.5s;
  /* padding: 22px; */
@@ -165,11 +173,6 @@ body {
  margin: 0 0;
  gap: 3.0625rem;
  justify-content: center
-}
-#blogArticleItem:hover{
- /* border-style: inset; */
- box-shadow: 0.125rem 0.125rem 0.5rem;
- transition-duration: 0.16s
 }
 
 h1:hover {color: orange;
@@ -200,13 +203,6 @@ h2:hover {color: #b0ab1e}
  font-size: 333px;
  /* color: transparent */
 }
-
-@media(max-width: 674px){
- #navLinks,.navLinks{
-  visibility: hidden
- }
-}
-
 @font-face{
  font-family: 'Oregano';
  src: url('oregano-v13-latin-regular.woff')
