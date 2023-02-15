@@ -85,7 +85,7 @@
  <input id='ticker' maxLength='5' autocomplete='off' spellcheck='false' onkeydown='return event.keyCode!=13' placeholder='Ticker' onclick='this.select()' autofocus><br><br>
  <h2>Links for <b><output id='genT' for='ticker' style='text-transform: uppercase'></output></b>:</h2><br>
  </form>
- <div id='stockLinks'>
+ <div class='stockLinks'>
   <div id='stockLink1'>Finviz</div><br>
   <div id='stockLink2'>FloatChecker</div><br>
   <div id='stockLink3'>MarketWatch</div><br>
@@ -93,7 +93,7 @@
   <div id='stockLink5'>TradingView</div><br>
   <div id='stockLink6'>Twitter</div>
  </div>
- <h2>Specifics:</h2><div id='stockLinks'>
+ <h2>Specifics:</h2><div class='stockLinks'>
   <div id='stockLink7'><span style='font-family: oregano'>(options)</span> Barchart</div><br>
   <div id='stockLink8'><span style='font-family: oregano'>(PRs)</span> Fintel</div><br>
   <div id='stockLink9'><span style='font-family: oregano'>(news)</span> GlobeNewswire</div><br>
@@ -246,17 +246,17 @@ var tickerInput = document.getElementById('ticker');
 // use of function from inimitdev.js
 tickerInput.addEventListener('input',function(){
  tickerInput = document.getElementById('ticker').value
- document.getElementById('stockLink1').innerHTML = '<a id="stockLinks2" href="' + 'https://finviz.com/quote.ashx?t=' + tickerInput + '" target="_blank" rel="noopener noreferrer">Finviz</a>' + ' for ' + tickerInput
- document.getElementById('stockLink2').innerHTML = '<a id="stockLinks2" href="' + 'https://www.floatchecker.com/stock?float=' + tickerInput + '" target="_blank" rel="noopener noreferrer">FloatChecker</a>' + ' for ' + tickerInput
- document.getElementById('stockLink3').innerHTML = '<a id="stockLinks2" href="' + 'https://www.marketwatch.com/investing/stock/' + tickerInput + '?mod=search_symbol" target="_blank" rel="noopener noreferrer">MarketWatch</a>' + ' for ' + tickerInput
- document.getElementById('stockLink4').innerHTML = '<a id="stockLinks2" href="' + 'https://stocktwits.com/symbol/' + tickerInput + '" target="_blank" rel="noopener noreferrer">Stocktwits</a>' + ' for ' + tickerInput
- document.getElementById('stockLink5').innerHTML = '<a id="stockLinks2" href="' + 'https://www.tradingview.com/symbols/' + tickerInput + '" target="_blank" rel="noopener noreferrer">TradingView</a>' + ' for ' + tickerInput
- document.getElementById('stockLink6').innerHTML = '<a id="stockLinks2" href="' + 'https://twitter.com/search?q=%24' + tickerInput + '&src=cashtag_click" target="_blank" rel="noopener noreferrer">Twitter</a>' + ' for ' + tickerInput
- document.getElementById('stockLink7').innerHTML = '<span style="font-family: oregano">(options)</span> <a id="stockLinks2" href="' + 'https://www.barchart.com/stocks/quotes/' + tickerInput + '/options" target="_blank" rel="noopener noreferrer">Barchart</a>' + ' for ' + tickerInput
- document.getElementById('stockLink8').innerHTML = '<span style="font-family: oregano">(PRs)</span> <a id="stockLinks2" href="' + 'https://fintel.io/sfpr/us/' + tickerInput + '" target="_blank" rel="noopener noreferrer">Fintel</a>' + ' for ' + tickerInput
- document.getElementById('stockLink9').innerHTML = '<span style="font-family: oregano">(news)</span> <a id="stockLinks2" href="' + 'https://www.globenewswire.com/search/keyword/' + tickerInput + '" target="_blank" rel="noopener noreferrer">GlobeNewswire</a>' + ' for ' + tickerInput
- document.getElementById('stockLink10').innerHTML = '<span style="font-family: oregano">(SEC filings)</span> <a id="stockLinks2" href="' + 'https://www.nasdaq.com/market-activity/stocks/' + tickerInput + '/sec-filings" target="_blank" rel="noopener noreferrer">Nasdaq</a>' + ' for ' + tickerInput
- document.getElementById('stockLink11').innerHTML = '<span style="font-family: oregano">(report)</span> <a id="stockLinks2" href="' + 'https://seekingalpha.com/symbol/' + tickerInput + '/earnings" target="_blank" rel="noopener noreferrer">Seeking Alpha</a>' + ' for ' + tickerInput
+ document.getElementById('stockLink1').innerHTML = '<a class="stockLinks2" href="' + 'https://finviz.com/quote.ashx?t=' + tickerInput + '" target="_blank" rel="noopener noreferrer">Finviz</a>' + ' for ' + tickerInput
+ document.getElementById('stockLink2').innerHTML = '<a class="stockLinks2" href="' + 'https://www.floatchecker.com/stock?float=' + tickerInput + '" target="_blank" rel="noopener noreferrer">FloatChecker</a>' + ' for ' + tickerInput
+ document.getElementById('stockLink3').innerHTML = '<a class="stockLinks2" href="' + 'https://www.marketwatch.com/investing/stock/' + tickerInput + '?mod=search_symbol" target="_blank" rel="noopener noreferrer">MarketWatch</a>' + ' for ' + tickerInput
+ document.getElementById('stockLink4').innerHTML = '<a class="stockLinks2" href="' + 'https://stocktwits.com/symbol/' + tickerInput + '" target="_blank" rel="noopener noreferrer">Stocktwits</a>' + ' for ' + tickerInput
+ document.getElementById('stockLink5').innerHTML = '<a class="stockLinks2" href="' + 'https://www.tradingview.com/symbols/' + tickerInput + '" target="_blank" rel="noopener noreferrer">TradingView</a>' + ' for ' + tickerInput
+ document.getElementById('stockLink6').innerHTML = '<a class="stockLinks2" href="' + 'https://twitter.com/search?q=%24' + tickerInput + '&src=cashtag_click" target="_blank" rel="noopener noreferrer">Twitter</a>' + ' for ' + tickerInput
+ document.getElementById('stockLink7').innerHTML = '<span style="font-family: oregano">(options)</span> <a class="stockLinks2" href="' + 'https://www.barchart.com/stocks/quotes/' + tickerInput + '/options" target="_blank" rel="noopener noreferrer">Barchart</a>' + ' for ' + tickerInput
+ document.getElementById('stockLink8').innerHTML = '<span style="font-family: oregano">(PRs)</span> <a class="stockLinks2" href="' + 'https://fintel.io/sfpr/us/' + tickerInput + '" target="_blank" rel="noopener noreferrer">Fintel</a>' + ' for ' + tickerInput
+ document.getElementById('stockLink9').innerHTML = '<span style="font-family: oregano">(news)</span> <a class="stockLinks2" href="' + 'https://www.globenewswire.com/search/keyword/' + tickerInput + '" target="_blank" rel="noopener noreferrer">GlobeNewswire</a>' + ' for ' + tickerInput
+ document.getElementById('stockLink10').innerHTML = '<span style="font-family: oregano">(SEC filings)</span> <a class="stockLinks2" href="' + 'https://www.nasdaq.com/market-activity/stocks/' + tickerInput + '/sec-filings" target="_blank" rel="noopener noreferrer">Nasdaq</a>' + ' for ' + tickerInput
+ document.getElementById('stockLink11').innerHTML = '<span style="font-family: oregano">(report)</span> <a class="stockLinks2" href="' + 'https://seekingalpha.com/symbol/' + tickerInput + '/earnings" target="_blank" rel="noopener noreferrer">Seeking Alpha</a>' + ' for ' + tickerInput
  if (tickerInput.length == 0){
   document.getElementById('stockLink1').innerHTML = 'Finviz'
   document.getElementById('stockLink2').innerHTML = 'FloatChecker'
