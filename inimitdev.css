@@ -37,8 +37,14 @@ body {
  transition-duration: 0.16s
 }
 .AILM1:hover{
- transform: scale(1.8);
+ transform: scale(3.5);
  transition: 0.82s
+}
+.promptTitles{
+ font-size: 2.125rem;
+ font-weight: bold;
+ font-family: arial;
+ justify-content: left
 }
 .stockLinks {
  text-decoration: none;
