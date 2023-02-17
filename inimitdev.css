@@ -78,6 +78,16 @@ body {
  font-family: monospace;
  /* text-shadow: -0.68rem -0.68rem 0.2rem #ffff00, 0.68rem 0.68rem 0.2rem #00ffff */
 }
+.blogReturn{
+ position: absolute;
+ left: 150px;
+ background: #f5f5fa;
+ border: none;
+ padding: 0.82rem;
+ cursor: pointer;
+ font-size: 1.6rem;
+ font-family: monospace
+}
 #partField{
  width: 100%;
  background: linear-gradient(90deg, rgb(15,138,48), rgb(166,162,85), rgb(15,138,48))
