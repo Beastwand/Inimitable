@@ -69,6 +69,22 @@ body {
  justify-content: center;
  gap: 0.625rem
 }
+#upscaleBlogImg{
+ width: 1.875rem;
+ height: 1.875rem;
+ background: #efefef;
+ /* border: none; */
+ border-radius: 100%;
+ cursor: pointer;
+ font-size: 0.875rem;
+ font-weight: bold;
+ font-family: monospace;
+ /* text-shadow: -0.68rem -0.68rem 0.2rem #ffff00, 0.68rem 0.68rem 0.2rem #00ffff */
+}
+#upscaleBlogImg:hover{
+ transform: scale(1.05);
+ transition: 0.35s
+}
 .footerBtn{
  background: #d3d3ff;
  border: none;
@@ -193,6 +209,30 @@ body {
 
 h1:hover {color: orange;
 background: green}
+.GCBbrand{
+ font-size: 1.375rem;
+ font-family: NTR;
+ font-weight: bold;
+ font-style: italic
+}
+.GCBdosage{
+ font-size: 1.125rem;
+ font-family: NTR
+}
+.oatBlogSource{
+ font-family: Yeseva One;
+ font-size: 2.125rem;
+ font-weight: 500
+}
+.GCBlink{
+ text-decoration: none;
+ color: #000;
+ background: linear-gradient(180deg, #fff 60%, #f7842f 80%, #fff)
+}
+.GCBproduct{
+ font-family: Rubik Marker Hatch;
+ font-size: 1.5rem
+}
 
 h2:hover {color: #b0ab1e}
 
