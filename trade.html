@@ -36,7 +36,6 @@
   <div class='subCont'>
    <p style='text-align: left'><u>TradeGrip</u> is beneficial for active day trading, facilitating better context to trades and quick access to data. The ticker search feature saves valuable time, and the checklist may bring to mind aspects of trading that were not thought of despite having an understanding of the given concept.<br><br>
    &#8226; <b>Finviz</b> is popular for various fundamental & share count data<br>
-   &#8226; <b>FloatChecker</b> is convenient for float & SI info<br>
    &#8226; <b>MarketWatch</b> is handy for pre/post-session vol<br>
    &#8226; <b>Stocktwits</b> is valuable for rumors & moves in lieu of news<br>
    &#8226; <b>TradingView</b> is useful for TA stats & a convenient chart<br>
@@ -87,7 +86,6 @@
  </form>
  <div class='stockLinks'>
   <div id='stockLink1'>Finviz</div><br>
-  <div id='stockLink2'>FloatChecker</div><br>
   <div id='stockLink3'>MarketWatch</div><br>
   <div id='stockLink4'>Stocktwits</div><br>
   <div id='stockLink5'>TradingView</div><br>
@@ -258,7 +256,6 @@ tickerInput.addEventListener('input',function(){
  document.getElementById('stockLink11').innerHTML = '<span style="font-family: oregano">(report)</span> <a class="stockLinks2" href="' + 'https://seekingalpha.com/symbol/' + tickerInput + '/earnings" target="_blank" rel="noopener noreferrer">Seeking Alpha</a>' + ' for ' + tickerInput
  if (tickerInput.length == 0){
   document.getElementById('stockLink1').innerHTML = 'Finviz'
-  document.getElementById('stockLink2').innerHTML = 'FloatChecker'
   document.getElementById('stockLink3').innerHTML = 'MarketWatch'
   document.getElementById('stockLink4').innerHTML = 'Stocktwits'
   document.getElementById('stockLink5').innerHTML = 'TradingView'
