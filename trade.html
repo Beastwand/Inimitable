@@ -247,7 +247,6 @@ var tickerInput = document.getElementById('ticker');
 tickerInput.addEventListener('input',function(){
  tickerInput = document.getElementById('ticker').value
  document.getElementById('stockLink1').innerHTML = '<a class="stockLinks2" href="' + 'https://finviz.com/quote.ashx?t=' + tickerInput + '" target="_blank" rel="noopener noreferrer">Finviz</a>' + ' for ' + tickerInput
- document.getElementById('stockLink2').innerHTML = '<a class="stockLinks2" href="' + 'https://www.floatchecker.com/stock?float=' + tickerInput + '" target="_blank" rel="noopener noreferrer">FloatChecker</a>' + ' for ' + tickerInput
  document.getElementById('stockLink3').innerHTML = '<a class="stockLinks2" href="' + 'https://www.marketwatch.com/investing/stock/' + tickerInput + '?mod=search_symbol" target="_blank" rel="noopener noreferrer">MarketWatch</a>' + ' for ' + tickerInput
  document.getElementById('stockLink4').innerHTML = '<a class="stockLinks2" href="' + 'https://stocktwits.com/symbol/' + tickerInput + '" target="_blank" rel="noopener noreferrer">Stocktwits</a>' + ' for ' + tickerInput
  document.getElementById('stockLink5').innerHTML = '<a class="stockLinks2" href="' + 'https://www.tradingview.com/symbols/' + tickerInput + '" target="_blank" rel="noopener noreferrer">TradingView</a>' + ' for ' + tickerInput
