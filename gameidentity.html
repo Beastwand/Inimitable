@@ -1,0 +1,151 @@
+<!doctype HTML>
+<html lang='en-US'>
+
+<head>
+ <meta charset='UTF-8'>
+ <meta name='author' content='Aaron S.'>
+ <meta name='description' property='description' content='Inimitable Development blog article exploring concepts for how AI can benefit gaming experiences.'>
+ <meta name='viewport' content='initial-scale=1 width=device-width'>
+ <link rel='icon' type='image/x-icon' href='favicon.png'>
+ <title>Inimitable Dev Blog</title>
+ <meta name='og:url' property='og:url' content='https://inimitable.dev/gameidentity.html'>
+ <meta name='og:type' property='og:type' content='website'>
+ <meta name='og:title' property='og:title' content='Exploring AI Game Character Identity Development'>
+ <meta name='og:description' property='og:description' content='Exploring concepts in how AI can improve gaming experiences.'>
+ <meta name='og:site_name' property='og:site_name' content='Inimitable Development'>
+ <meta name='og:image' property='og:image' content='https://inimitable.dev/gameAIsm.png'>
+ <meta name='twitter:card' content='summary_large_image'>
+ <meta name='twitter:title' content='Inimitable Development'>
+ <meta name='twitter:description' content='AI blog & portfolio website, containing JS/CSS projects, a gallery, an AI/technology blog, and more.'>
+ <meta name='twitter:image' content='https://inimitable.dev/gameAIsm.png'>
+ <link rel='stylesheet' type='text/css' href='inimitdev.css'>
+ <script src='inimitdev.js' defer></script>
+</head>
+
+<!-- Site navigation begin -->
+<nav class="sideWindow">
+ <span class="openSW">
+  <a onclick="openPane()">
+   <svg width="30" height="19">
+    <line x1="30" y1="1.5" y2="1.5" stroke="black" stroke-width="3"/>
+    <line x1="30" y1="9.5" y2="9.5" stroke="black" stroke-width="3"/>
+    <line x1="30" y1="17.5" y2="17.5" stroke="black" stroke-width="3"/>
+   </svg>
+  </a>
+ </span>
+ <ul class="listSW">
+  <li><a href="main.html" style="font-family: consolas">Inimitable Development</a></li>
+  <li><a class='navLinks' href="blog.html">Blog</a></li>
+  <li><a class='navLinks' href="feats.html">Feats</a></li>
+  <li><a class='navLinks' href="gallery.html">Gallery</a></li>
+  <li><a class='navLinks' href="about.html">About</a></li>
+ </ul>
+</nav>
+ 
+<div class="sideSW" id="thirdSW">
+ <a class="closeButton" onclick="closePane()">&#10008;</a>
+ <a class='commonLinks' href="main.html" style='color: rgb(0,56,168)'>Inimitable</a>
+ <a class='commonLinks' href="blog.html">Blog</a>
+ <a class='commonLinks' href="feats.html">Feats</a>
+ <a class='commonLinks' href="gallery.html">Gallery</a>
+ <a class='commonLinks' href="about.html">About</a>
+</div>
+<!-- Site navigation2 -->
+
+<a href='blog.html'><button class='blogReturn'>&#8617;ID Blog</button></a>
+
+<p style='font-size: 2.5rem; font-family: tahoma; margin: 1% 22%'>Exploring AI Game Character Identity Development</p><p style='font-family: Quantico'>Aaron S. | &#128197; August 1, 2024<br><i>updated</i> <span style='background: #f5ff50'>August 1, 2024</span></p>
+
+<img src='npcidentityintro.png' alt='Intro image' width='800' height='400'/>
+
+<br><br><br>
+<div style='margin: 0 21.5%; font-size: 1.125rem; font-family: trebuchet ms; text-align: left; user-select: text'>
+<span style='font-size: 2.125rem; font-family: arial; font-weight: bold; justify-content: left'>Intro</span><br><br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;In the—as yet—untapped world of integrating AI agents into games in a way that fits seamlessly with the <b>story</b>, <b>utility</b>, <b>balancing</b>, and <b>fun</b>, the coinciding interaction of prompts with each other has exponential downstream ramifications. A series of prompts is all that's needed to give an NPC (non-player character) identity, and how characters' experience can shape their uniqueness would lead to unpredictable results.<br><br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;In this article I review ideas of how AI-based implementations can affect gameplay—and although simple LLM discussions/dialogue is great by itself—this starts with understanding what the game is actually setting out to accomplish, and explores with newfound perspectives what different genres of games have to offer.<br><br><br>
+
+</div>
+<img src='gameAIbanner1.png' alt='Relevant abstract art' width='800' height='200'/><br><br><br>
+<div style='margin: 0 21.5%; font-size: 1.125rem; font-family: trebuchet ms; text-align: left; user-select: text'>
+
+<span class='promptTitles'>The Search For Meaning</span><br><br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;First, would be categorizing what qualitative objectives the game is aiming for. <b>Character development</b> is satisfying, such as becoming more powerful and unlocking new abilities. So is the focus of the game <b>competition</b>, where there is a winner and loser, or best player at a particular skill? Is the main draw of the game to play through an <b>intriguing story</b>, like reading a book? Can something <i>productive</i> be done from a learning/educational or other perspective? Is the task centered around the game world being influenced or improved, and unique to each player, like how they will <i>design houses</i> or <i>build cities?</i><br><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Adjectives of where AI can improve the game include: <b style='font-family: Yuji Boku, trebuchet ms'>interactive</b>, <b style='font-family: Yuji Boku, trebuchet ms'>adaptable</b>, <b style='font-family: Yuji Boku, trebuchet ms'>immersive</b>, <b style='font-family: Yuji Boku, trebuchet ms'>unique</b>, <b style='font-family: Yuji Boku, trebuchet ms'>personalized</b>, <b style='font-family: Yuji Boku, trebuchet ms'>uncharted</b>, and <b style='font-family: Yuji Boku, trebuchet ms'>sharable</b>. NPCs can have and evolve their own goals, opinions, attitudes, expressiveness, traits, motivations, education, and more. And not only the characters can be dynamic, but the natural environment, economic ecosystem, and other game world elements. Unique attributes of NPCs could simply contribute to enlightening/entertaining discussion & interaction, but it would be better to integrate contextual use cases.<br><br><br>
+
+</div>
+<img src='gameAIbanner2.png' alt='Relevant abstract art' width='800' height='200'/><br><br><br>
+<div style='margin: 0 21.5%; font-size: 1.125rem; font-family: trebuchet ms; text-align: left; user-select: text'>
+
+<span class='promptTitles'>Tangible Benefits</span><br><br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Just like AI is used to generate images, video, and voices, it can be used to generate entire <b>items</b>, <b>monsters</b>, <b>levels</b>, or even <b>laws</b>. This may come with all associated 3D models, icons, sound effects, game-specific attributes, and more. If a player overcomes obstacles easily, the game can increase in difficulty, or get easier if they are not making much progress. How far NPCs go from the initial series of prompts, to how interactions with others influence them can make for more native, natural identities.<br><br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Whether it be combat, racing, or sports games, competitors can get data on a person's style of play and exploit weaknesses, trying to predict their next move if they simply repeat the same tactics that worked previously. An allied AI companion can benefit from human exposure to imitate the player or offer statistics. Human players can provide free machine learning iterations of original data (that is relevant, real-world, inexpensive, and non-proprietary), and NPCs or game elements can become more valuable or superior.<br><br>
+
+<span class='vibrantText'>Implementation concepts:</span>
+<p style='line-height: 1.2; font-family: Walter Turncoat, trebuchet ms; font-size: 1.125rem'>
+&nbsp;&nbsp;&#8226;<b>Telepathy</b> can involve making what NPCs are thinking readable/audible<br>
+&nbsp;&nbsp;&#8226;NPCs can exhibit <b>clairvoyance</b> if provided information about future game events<br>
+&nbsp;&nbsp;&#8226;Avoiding security cameras can prevent the use of AI to adapt to playing style<br>
+&nbsp;&nbsp;&#8226;<b>Time travel</b> or <b>alternate timelines</b> can be calculated for and predicted<br>
+&nbsp;&nbsp;&#8226;An NPC guarding entry can ask a riddle, while another NPC may be good at solving<br>
+&nbsp;&nbsp;&#8226;Rather than scripted, an NPC betrayal could be due to their relationship with a player<br>
+</p><br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;As of this writing, software associated with gaming & creative AI assets includes Skybox AI (3D environment creation & editing for games), AI Dungeon (text-based game & storyline creation), obskur, and Inworld AI.<br><br><br>
+
+</div>
+<img src='gameAIbanner3.png' alt='Relevant abstract art' width='800' height='200'/><br><br><br>
+<div style='margin: 0 21.5%; font-size: 1.125rem; font-family: trebuchet ms; text-align: left; user-select: text'>
+
+<span class='promptTitles'>Summary</span><br><br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Responsive, emergent storytelling could lead to unique & personalized experiences, and the resulting game could provide insight about the player's personality, similar to answering psychological/situational questions and getting feedback. A player could discover a new plot development which leads to a new direction to take the game, and there could be a feature to reference & highlight that on social media, allowing the game to become exponentially more sociable & viral.<br><br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Despite the seemingly unrealistic technical impediments associated with the real-time use of LLMs as well as publicity concerns regarding possible exploitations, meteoric advances in AI include addressing the processing utilized to run capable models. The appropriate question to ask as more LLM & open-source features become ubiquitous, has been: <b>what would be the coolest thing you could do with a game</b>? There is a <b style='font-size: 1.25rem; font-family: Schoolbell, trebuchet ms'>metaverse</b> of possibilities.<br><br>
+
+<!-- "neurosymbolic AI"
+
+"Anticipated Effects"
+
+Concepts to consider:
+"start button picture" what other concepts like short ai video? gif?
+If I make something simple it makes it 1000x easier to be authoritative and !shareable.
+
+!maximum fun for me or whoever enough sense to make someone think and float it along
+
+"coordinate attacks" "pathfinding" "levels, maps, and quests" "manual creation", "NLP"
+
+Downstream eventual identity. Allow them to choose their own appearance?
+
+Introspection
+Pushing the edge of the utilized universe
+idea/concept/mind explorations
+imagination/ideas start image beginning of path
+game without 1 defined outcome of winning
+something with data, maybe stock market characters that you can present a ticker or data and they can do calculations, or come up with charts or graphs or whatever?
+
+image prompts:
+nature landscape, from one picture to another in development -->
+
+</p>
+
+<!-- <div class='blogArticleList'><span style='width: 56%'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I could -->
+
+<br><br><br><br><br><hr>
+<div class='bottomNavCont'>
+ <a href='https://twitter.com/AaronSGMT' target='_blank' rel='noopener'><button class='footerBtn'>Twitter</button></a>
+ <a href='https://www.youtube.com/channel/UC4jIHT-E4UahPAE-i31R5iA' target='_blank' rel='noopener'><button class='footerBtn'>YouTube</button></a>
+ <a href='https://www.instagram.com/succincthealth' target='_blank' rel='noopener'><button class='footerBtn'>Instagram</button></a>
+</div><br>
+
+<!-- beginning of added code -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3015237569865179"
+     crossorigin="anonymous"></script>
+<script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-63ebd1911b37988b"></script>
+<!-- end of added code -->
+
+</html>
