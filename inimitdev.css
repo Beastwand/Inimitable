@@ -24,6 +24,18 @@ body {
  font-family: walter turncoat
 }
 
+.vibrantText{
+ font-size: 3rem;
+ font-weight: 1000;
+ font-family: Oregano, tahoma;
+ color: transparent;
+ background: url('textBg.png');
+ -webkit-background-clip: text;
+ background-clip: text;
+ animation: bgAnim 18s infinite;
+ animation-timing-function: linear
+}
+
 .blogLinks{
  text-decoration: none;
  font-family: monospace;
