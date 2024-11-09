@@ -415,12 +415,13 @@ TGqCloseBtn.addEventListener('click',()=>{
  TGmodalSpecific.close();
 })
 
-var randQuote = Math.floor(4*Math.random());
+var randQuote = Math.floor(5*Math.random());
 const quoteCont = [
  '\"Earth provides enough to satisfy every man\'s needs, but not every man\'s greed.\" ~Mahatma Gandhi',
  '\"In matters of style, swim with the current; in matters of principle, stand like a rock.\" ~Thomas Jefferson',
  '\"A ship in harbor is safe, but that is not what ships are built for.\" ~John Shedd',
- '\"It is not the strongest of the species that survive, nor the most intelligent, but the one more responsive to change.\" ~Charles Darwin'
+ '\"It is not the strongest of the species that survive, nor the most intelligent, but the one more responsive to change.\" ~Charles Darwin',
+ '\"The sands of time are quicksands...so much can sink into them without a trace.\" ~Margaret Atwood'
 ];
 document.getElementById('quoteDisplay').innerHTML = quoteCont[randQuote];
 
