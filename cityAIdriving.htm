@@ -1,0 +1,180 @@
+<!doctype HTML>
+<html lang="en-US">
+
+<head>
+<!-- <meta charset="UTF-8">
+<meta name="author" content="Aaron Sutherland">
+<meta name="description" content="In development to become an AI blog & portfolio website"> -->
+<title>"World Editor"
+</title>
+<!-- <link rel="icon" href="siteicon.jpg" type="image/x-icon"> -->
+<!-- <script src="cityAIdrive.js" defer></script> -->
+<!-- <link rel="stylesheet" href="inimitdev18.css" type="text/css"> -->
+</head>
+
+<style>
+body{
+ background-color: black;
+ text-align: center;
+}
+h1{
+ color: white;
+ font-family: arial;
+}
+#myCanvas{
+ background-color: #2a5
+}
+button{
+ background-color: white;
+ font-size: 20px;
+ padding: 5px 7px 7px 5px;
+ border: none;
+ border-radius: 5px;
+ text-shadow: 1px 1px black;
+ cursor: pointer;
+}
+</style>
+
+<h1>"World Editor"</h1>
+
+<canvas id="myCanvas"></canvas>
+
+<div id="controls">
+ <button onclick='dispose()'>&nbsp;&#8855&nbsp;</button>
+ <button onclick='save()'>&#1422</button>&nbsp;
+ <button id='graphBtn' onclick='setMode("graph")'>&#3572</button>
+ <button id='stopBtn' onclick='setMode("stop")'>&#9200</button>
+ <!-- <button onclick="addRandomPoint()">Add Point</button>
+ <button onclick="addRandomSegment()">Add Segment</button>
+ <button onclick="removeRandomSegment()">Remove Segment</button>
+ <button onclick="removeRandomPoint()">Remove Pint</button>
+ <button onclick="removeAll()">Remove All</button> -->
+</div>
+
+<script src="cAIDgraph.js"></script>
+<script src="cAIDpoint.js"></script>
+<script src="cAIDsegment.js"></script>
+<script src="cAIDgrapheditor.js"></script>
+<script src="cAIDstopEditor.js"></script>
+<script src="cAIDutils.js"></script>
+<script src="cAIDviewport.js"></script>
+<script src="cAIDpolygon.js"></script>
+<script src="cAIDenvelope.js"></script>
+<script src="cAIDworld.js"></script>
+<script src="cAIDtree.js"></script>
+<script src="cAIDbuilding.js"></script>
+<script src="cAIDmarkingsStop.js"></script>
+
+<script>
+//  function removeAll(){
+//   graph.dispose();
+//   ctx.clearRect(0,0,myCanvas.width,myCanvas.height);
+//   graph.draw(ctx);
+//  }
+//  function removeRandomPoint(){
+//   if (graph.points.length == 0) {
+//    console.log("no points");
+//    return;
+//   }
+//   const index = Math.floor(Math.random() * graph.points.length);
+//   graph.removePoint(graph.points[index]);
+//   ctx.clearRect(0,0,myCanvas.width,myCanvas.height);
+//   graph.draw(ctx);
+//  }
+//  function removeRandomSegment(){
+//   if (graph.segments.length == 0) {
+//    console.log("no segments");
+//    return;
+//   }
+//   const index = Math.floor(Math.random() * graph.segments.length);
+//   graph.removeSegment(graph.segments[index]);
+//   ctx.clearRect(0,0,myCanvas.width,myCanvas.height);
+//   graph.draw(ctx);
+//  }
+//  function addRandomSegment(){
+//   const index1=Math.floor(Math.random()*graph.points.length);
+//   const index2=Math.floor(Math.random()*graph.points.length);
+//   const success=graph.tryAddSegment(
+//    new Segment(graph.points[index1],graph.points[index2])
+//   );
+//   ctx.clearRect(0,0,myCanvas.width,myCanvas.height);
+//   graph.draw(ctx);
+//   console.log(success);
+//  }
+//  function addRandomPoint(){
+//   const success=graph.tryAddPoint(
+//    new Point(
+//     Math.random()*myCanvas.width,
+//     Math.random()*myCanvas.height
+//    )
+//   )
+//   ctx.clearRect(0,0,myCanvas.width,myCanvas.height);
+//   graph.draw(ctx);
+//   console.log(success);
+//  }
+ myCanvas.width=600;
+ myCanvas.height=600;
+ const ctx=myCanvas.getContext("2d");
+ const graphString=localStorage.getItem('graph');
+ const graphInfo=graphString ? JSON.parse(graphString) : null;
+
+ const graph=graphInfo
+  ? Graph.load(graphInfo)
+  : new Graph();
+ const world=new World(graph);
+ const viewport=new Viewport(myCanvas);
+ const graphEditor = new GraphEditor(viewport,graph);
+ const stopEditor = new StopEditor(viewport,world);
+//  graph.draw(ctx);
+ let oldGraphHash=graph.hash();
+ setMode('graph');
+ animate();
+
+ function animate(){
+  viewport.reset();
+  if(graph.hash() != oldGraphHash){
+   world.generate();
+   oldGraphHash=graph.hash();
+  }
+  const viewPoint=scale(viewport.getOffset(),-1);
+  world.draw(ctx,viewPoint);
+  ctx.globalAlpha=0.3;
+  graphEditor.display();
+  stopEditor.display();
+  requestAnimationFrame(animate);
+ }
+ function dispose(){
+  graphEditor.dispose();
+  world.markings.length=0;
+ }
+ function save(){
+  localStorage.setItem('graph',JSON.stringify(graph));
+ }
+ function setMode(mode){
+  disableEditors();
+  switch(mode){
+   case 'graph':
+    graphBtn.style.backgroundColor='white';
+    graphBtn.style.filter='';
+    graphEditor.enable();
+    break;
+   case 'stop':
+    stopBtn.style.backgroundColor='white';
+    stopBtn.style.filter='';
+    stopEditor.enable();
+    break;
+  }
+ }
+ function disableEditors(){
+  graphBtn.style.backgroundColor='gray';
+  graphBtn.style.filter='grayscale(100%)';
+  graphEditor.disable();
+  stopBtn.style.backgroundColor='gray';
+  stopBtn.style.filter='grayscale(100%)';
+  stopEditor.disable();
+ }
+
+</script>
+
+</html>
+
