@@ -52,7 +52,7 @@ body {
  transform: scale(3.5);
  transition: 0.82s
 }
-.blogParagraphText{
+.blogChapterText{
  font-size: 2.125rem;
  font-weight: bold;
  font-family: arial;
@@ -329,4 +329,3 @@ h2:hover {color: #b0ab1e}
  to{background-position: 100% 27%}
 }
 /* background text2 */
-
