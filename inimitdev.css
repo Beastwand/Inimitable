@@ -58,6 +58,12 @@ body {
  font-family: arial;
  justify-content: left
 }
+.blogParagraphText{
+ font-size: 2.125rem;
+ font-weight: bold;
+ font-family: arial;
+ justify-content: left
+}
 .stockLinks {
  text-decoration: none;
  color: #0a5404;
@@ -329,3 +335,4 @@ h2:hover {color: #b0ab1e}
  to{background-position: 100% 27%}
 }
 /* background text2 */
+
