@@ -78,13 +78,27 @@ const player = {
     platform: null,
     frameX: 0,
     stage: 0,
-    gunLevel: 0 // 0: None, 1: Laser, 2: Plasma
+    gunLevel: 0, // 0: None, 1: Laser, 2: Plasma
+    vx: 0,
+    dashTimer: 0,
+    dashCooldown: 0,
+    isInvulnerable: false,
+    shieldActive: false,
+    speedBoostTimer: 0
 };
 
 // Gun & Bullets
 let bullets = [];
 let enemyBullets = []; // New for Stage 3
 let gunItem = null;
+let powerups = []; // New for Shield/Speed
+
+// Visual Juice Systems
+let particles = [];
+let damageTexts = [];
+let shakeAmount = 0;
+let boss = null; // New for Boss Fights
+let weatherParticles = []; // New for Rain/Leaves
 
 function drawGun(ctx, x, y, width, height, level = 1) {
     ctx.save();
@@ -156,8 +170,6 @@ function drawBullet(ctx, b) {
     if (type === 'pellet') {
         const lifeRatio = b.life / 60; // Fades out over 60 frames
         ctx.globalAlpha = lifeRatio;
-        ctx.shadowBlur = 5;
-        ctx.shadowColor = '#ffd700';
         ctx.fillStyle = '#fff7cc';
         ctx.beginPath();
         ctx.arc(x, y, width / 2, 0, Math.PI * 2);
@@ -196,10 +208,11 @@ function drawBullet(ctx, b) {
         ctx.shadowBlur = 0;
         ctx.strokeStyle = '#ffffff';
         ctx.lineWidth = 1.5;
-        for (let i = 0; i < 2; i++) {
+        // Optimized & Sanitized cosmetic effect
+        if (Number.isFinite(centerX) && Number.isFinite(centerY) && Number.isFinite(radius)) {
             ctx.beginPath();
-            const angle = Math.random() * Math.PI * 2;
-            ctx.arc(centerX, centerY, radius * 0.7, angle, angle + 1);
+            const angle = (Date.now() * 0.005) % (Math.PI * 2);
+            ctx.arc(centerX, centerY, radius * 0.7, angle, angle + 2);
             ctx.stroke();
         }
     } else if (type === 'entropy') {
@@ -211,8 +224,6 @@ function drawBullet(ctx, b) {
         ctx.arc(x + width / 2, y + height / 2, width / 2, 0, Math.PI * 2);
         ctx.fill();
     } else {
-        ctx.shadowBlur = 10;
-        ctx.shadowColor = '#00f3ff';
         ctx.fillStyle = '#00f3ff';
         ctx.beginPath();
         ctx.roundRect(x, y, width, height, 2);
@@ -243,6 +254,7 @@ let platforms = [];
 const minPlatformDistance = 1500;
 let lastPlatformSpawn = 0;
 let lastEnemySpawn = 0;
+let lastPowerupDistance = 0; // New for Power-up spacing
 let lastQuizDistance = 0; // Cooldown between quizzes
 let fireCooldown = 0;     // Rate limiting for auto-fire
 let gunTutorialTimer = 0; // Show "Press W" message
@@ -308,10 +320,7 @@ function resize() {
     // Re-initialize backgrounds with current canvas width
     backgrounds = [
         { x: 0, img: background1, speed: 0.5, isBg: true },
-        { x: canvas.width, img: background1, speed: 0.5, isBg: true },
-        // Anchor objects for Building silhouettes (None) or Trees (Stage 3)
-        { x: 0, speed: 0.8, isBuilding: true },
-        { x: canvas.width, speed: 0.8, isBuilding: true }
+        { x: canvas.width, img: background1, speed: 0.5, isBg: true }
     ];
 }
 window.addEventListener('resize', resize);
@@ -348,54 +357,42 @@ window.addEventListener('keyup', e => keys[e.code] = false);
 // Entities
 let enemies = [];
 
-function drawMolecule(ctx, x, y, size, type) {
-    ctx.lineWidth = 3;
-    const centerX = x + size / 2;
-    const centerY = y + size / 2;
+function drawMolecule(ctx, x, y, size, type, alpha = 1.0) {
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.translate(x + size / 2, y + size / 2);
 
-    if (type === 'cytokine') {
-        ctx.strokeStyle = '#ff00ff'; // Purple
-        ctx.beginPath();
-        for (let i = 0; i < 8; i++) {
-            const angle = (i * Math.PI) / 4;
-            ctx.moveTo(centerX, centerY);
-            ctx.lineTo(centerX + (size / 2) * Math.cos(angle), centerY + (size / 2) * Math.sin(angle));
-        }
-        ctx.stroke();
+    const isOxidant = type === 'oxidant';
+    const mainColor = isOxidant ? '#ffd700' : '#ff4500';
+    const subColor = isOxidant ? '#fffa65' : '#ff9f43';
 
-        // Label with background
-        const txt = "inflammatory cytokine";
-        ctx.font = 'bold 11px monospace';
-        const tw = ctx.measureText(txt).width;
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.9)'; // Max contrast
-        ctx.fillRect(centerX - tw / 2 - 4, y + size + 5, tw + 8, 15);
-        ctx.fillStyle = 'white';
-        ctx.textAlign = 'center';
-        ctx.fillText(txt, centerX, y + size + 16);
-    } else {
-        ctx.strokeStyle = '#ff3300'; // Red/Orange
-        ctx.beginPath();
-        const radius = size / 3;
-        for (let i = 0; i < 6; i++) {
-            const angle = (i * Math.PI) / 3;
-            const lx = centerX + radius * Math.cos(angle);
-            const ly = centerY + radius * Math.sin(angle);
-            if (i === 0) ctx.moveTo(lx, ly);
-            else ctx.lineTo(lx, ly);
-        }
-        ctx.closePath();
-        ctx.stroke();
+    // 1. Core Sphere (Using gradients instead of shadowBlur for performance)
+    const grad = ctx.createRadialGradient(0, 0, 0, 0, 0, size / 2);
+    grad.addColorStop(0, '#fff');
+    grad.addColorStop(0.7, mainColor);
+    grad.addColorStop(1, 'rgba(0,0,0,0)'); // Transparent edge
 
-        // Label with background
-        const txt = "oxidant molecule";
-        ctx.font = 'bold 11px monospace';
-        const tw = ctx.measureText(txt).width;
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.9)'; // Max contrast
-        ctx.fillRect(centerX - tw / 2 - 4, y + size + 5, tw + 8, 15);
-        ctx.fillStyle = 'white';
-        ctx.textAlign = 'center';
-        ctx.fillText(txt, centerX, y + size + 16);
-    }
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(0, 0, size / 2, 0, Math.PI * 2);
+    ctx.fill();
+
+    // 2. Orbiting Detail
+    ctx.rotate(Date.now() * 0.002);
+    ctx.strokeStyle = subColor;
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.ellipse(0, 0, size / 1.8, size / 4, 0, 0, Math.PI * 2);
+    ctx.stroke();
+
+    // 3. Label (Restored at smaller 8px size)
+    ctx.rotate(-(Date.now() * 0.002));
+    ctx.fillStyle = 'white';
+    ctx.font = 'bold 8px Courier New';
+    ctx.textAlign = 'center';
+    ctx.fillText(type, 0, size / 2 + 10);
+
+    ctx.restore();
 }
 
 function update() {
@@ -425,21 +422,64 @@ function update() {
                 });
             }
             fireCooldown = 80;
+            // Removed shakeScreen(4)
         } else {
             bullets.push({
                 x: player.x + player.width,
-                y: player.y + player.height / 2 - (isLvl3 ? 5 : (isLvl2 ? 15 : 2)),
-                width: isLvl3 ? 40 : (isLvl2 ? 30 : 20),
-                height: isLvl3 ? 8 : (isLvl2 ? 30 : 5),
+                y: player.y + player.height / 2 - (isLvl3 ? 5 : (isLvl2 ? 30 : 2)),
+                width: isLvl3 ? 40 : (isLvl2 ? 60 : 20),
+                height: isLvl3 ? 8 : (isLvl2 ? 60 : 5),
                 speed: isLvl3 ? 20 : (isLvl2 ? 8 : 12),
                 type: isLvl3 ? 'rail' : (isLvl2 ? 'plasma' : 'laser')
             });
+            if (isLvl3) {
+                spawnParticles(player.x + player.width, player.y + player.height / 2, '#bf00ff', 5, 'trail');
+                // Removed shakeScreen(6)
+            } else if (isLvl2) {
+                // Removed shakeScreen(4)
+            } else {
+                // Removed shakeScreen(1)
+            }
             fireCooldown = isLvl3 ? 60 : (isLvl2 ? 45 : 15);
         }
     }
 
+    // Visual Juice Update
+    updateParticles();
+    updateDamageTexts();
+    if (shakeAmount > 0) shakeAmount *= 0.9;
+
     // Tutorial Timer (Counts down)
     if (gunTutorialTimer > 0) gunTutorialTimer--;
+
+    // Dashboard / Dash Logic
+    if (keys['ShiftLeft'] && player.dashCooldown <= 0) {
+        player.dashTimer = 20;
+        player.dashCooldown = 80;
+        spawnParticles(player.x, player.y + player.height / 2, 'white', 10, 'trail');
+        shakeScreen(4);
+    }
+
+    if (player.dashTimer > 0) {
+        player.dashTimer--;
+        player.x += 12;
+        player.isInvulnerable = true;
+        // Ghost trail effect
+        if (player.dashTimer % 4 === 0) {
+            spawnParticles(player.x, player.y + player.height / 2, 'rgba(255,255,255,0.5)', 5, 'trail');
+        }
+    } else {
+        player.isInvulnerable = false;
+    }
+    if (player.dashCooldown > 0) player.dashCooldown--;
+
+    // Speed Boost Logic
+    if (player.speedBoostTimer > 0) {
+        player.speedBoostTimer--;
+        gameSpeed = 5; // Temporary boost
+    } else {
+        gameSpeed = 3; // Reset
+    }
 
     // Jump logic: Space or ArrowUp
     if ((keys['Space'] || keys['ArrowUp']) && player.isGrounded) {
@@ -451,6 +491,11 @@ function update() {
     // Horizontal steering: Adding ArrowLeft/ArrowRight to nudge player
     if (keys['ArrowRight']) player.x = Math.min(canvas.width - player.width, player.x + 5);
     if (keys['ArrowLeft']) player.x = Math.max(0, player.x - 5);
+
+    // Apply Horizontal Velocity (Knockback)
+    player.x += player.vx;
+    player.vx *= 0.9;
+    if (Math.abs(player.vx) < 0.1) player.vx = 0;
 
     player.dy += player.gravity;
     player.y += player.dy;
@@ -491,13 +536,43 @@ function update() {
         const ePadding = enemy.width * 0.2;
 
         if (
+            !player.isInvulnerable && !enemy.phasingOut &&
             player.x + pPadding < enemy.x + enemy.width - ePadding &&
             player.x + player.width - pPadding > enemy.x + ePadding &&
             player.y + pPadding < enemy.y + enemy.height - ePadding &&
             player.y + player.height - pPadding > enemy.y + ePadding
         ) {
-            gameState = 'gameOver';
-            showUI('game-over');
+            if (player.shieldActive) {
+                player.shieldActive = false;
+                player.isInvulnerable = true;
+                player.dashTimer = 30; // Brief invun post-hit
+                spawnDamageText(player.x, player.y, "SHIELD BROKEN!", "#4facfe");
+                shakeScreen(15);
+                spawnParticles(player.x + player.width / 2, player.y + player.height / 2, '#4facfe', 20);
+
+                // Directional Knockback (Push AWAY from impact)
+                const midPX = player.x + player.width / 2;
+                const midPY = player.y + player.height / 2;
+                const midEX = enemy.x + enemy.width / 2;
+                const midEY = enemy.y + enemy.height / 2;
+
+                const dx = midPX - midEX;
+                const dy = midPY - midEY;
+
+                if (Math.abs(dx) > Math.abs(dy)) {
+                    // Impact from side: Push AWAY from enemy center
+                    // If monster is on right (midEX > midPX), dx is negative, player.vx = -5 (Left)
+                    player.vx = dx > 0 ? 5 : -5;
+                } else {
+                    // Impact from above/below
+                    player.dy = dy > 0 ? 3 : -3;
+                }
+
+                return false; // Remove enemy on shield break for safety
+            } else {
+                gameState = 'gameOver';
+                showUI('game-over');
+            }
         }
 
         // Up/down movement for molecules
@@ -513,6 +588,7 @@ function update() {
                     width: 15,
                     height: 15,
                     speed: -gameSpeed - 2,
+                    dy: (Math.random() - 0.5) * 0,
                     type: 'entropy'
                 });
             }
@@ -534,8 +610,13 @@ function update() {
             }
         }
 
-        // Keep only if on screen
-        return enemy.x + enemy.width > -200;
+        // Update Phasing Out
+        if (enemy.phasingOut) {
+            enemy.opacity = (enemy.opacity || 1.0) - 0.05;
+        }
+
+        // Keep only if visible and on screen
+        return (enemy.opacity === undefined || enemy.opacity > 0) && enemy.x + enemy.width > -200;
     });
 
     // Update Platforms
@@ -580,12 +661,136 @@ function update() {
     spawnEnemy();
     spawnPlatform();
     spawnGunItem();
+    spawnPowerup();
     updateBullets();
+    updateBoss(); // New boss logic
+    updateWeather();
     updateHUD();
+}
+
+function updateWeather() {
+    // Spawn weather
+    const isStage3 = currentQuestionIndex >= 10;
+    // Increased rain chance from 0.2 to 0.35
+    if (Math.random() < (isStage3 ? 0.05 : 0.35)) {
+        weatherParticles.push({
+            x: Math.random() * canvas.width,
+            y: -20,
+            vx: isStage3 ? (Math.random() - 0.5) * 2 : 1, // Wind
+            vy: isStage3 ? 2 + Math.random() * 2 : 10 + Math.random() * 5,
+            size: isStage3 ? 8 : 2,
+            type: isStage3 ? 'leaf' : 'rain',
+            angle: Math.random() * Math.PI * 2
+        });
+    }
+
+    weatherParticles.forEach((p, i) => {
+        p.x += p.vx;
+        p.y += p.vy;
+        if (p.type === 'leaf') p.angle += 0.05;
+        if (p.y > canvas.height) weatherParticles.splice(i, 1);
+    });
+}
+
+function updateBoss() {
+    if (!boss) {
+        // Trigger boss every 5 questions
+        if (currentQuestionIndex > 0 && currentQuestionIndex % 5 === 0 && !hasSpawnedBossForCurrent) {
+            spawnBoss();
+        }
+        return;
+    }
+
+    // Move Boss
+    if (boss.x > canvas.width * 0.7) {
+        boss.x -= 2; // Entry
+    } else {
+        boss.phase += 0.02;
+        boss.y = boss.baseY + Math.sin(boss.phase) * 100;
+        const hpPercent = boss.health / boss.maxHealth;
+        // Basic Attack Logic (Reverted)
+        const attackChance = hpPercent > 0.6 ? 0.03 : 0.06;
+        if (Math.random() < attackChance) {
+            enemyBullets.push({
+                x: boss.x,
+                y: boss.y + boss.height / 2,
+                width: 15,
+                height: 15,
+                speed: -6 - (Math.random() * 4),
+                dy: (Math.random() - 0.5) * 2,
+                type: 'entropy'
+            });
+        }
+    }
+}
+
+function spawnBoss() {
+    // Reverted to Basic Boss (No complex types) to prevent freezing
+    const bossType = 'sugar';
+    const bossName = 'BIG SUGAR';
+    const bossColor = '#ff0000';
+
+    boss = {
+        x: canvas.width + 200,
+        y: canvas.height / 2 - 100,
+        baseY: canvas.height / 2 - 100,
+        width: 200,
+        height: 200,
+        health: 200 + (currentQuestionIndex * 20),
+        maxHealth: 200 + (currentQuestionIndex * 20),
+        phase: 0,
+        hitTimer: 0,
+        type: bossType,
+        color: bossColor
+    };
+    hasSpawnedBossForCurrent = true;
+    console.log(`Spawned Basic Boss at Q${currentQuestionIndex}`);
+    spawnDamageText(canvas.width / 2, canvas.height / 2, `${bossName} APPROACHES!`, bossColor);
+}
+
+let hasSpawnedBossForCurrent = false;
+
+function spawnPowerup() {
+    // Speed Boost: Increased frequency
+    // Distance reduced from 3000 to 1500, chance increased
+    if (distance - lastPowerupDistance > 1500 && Math.random() < 0.003) {
+        powerups.push({
+            x: canvas.width,
+            y: canvas.height - 250 - Math.random() * 200,
+            width: 35,
+            height: 35,
+            type: Math.random() > 0.5 ? 'speed' : 'shield' // Balanced 50/50
+        });
+        lastPowerupDistance = distance;
+    }
+
+    powerups = powerups.filter(pu => {
+        pu.x -= gameSpeed;
+        if (
+            player.x < pu.x + pu.width &&
+            player.x + player.width > pu.x &&
+            player.y < pu.y + pu.height &&
+            player.y + player.height > pu.y
+        ) {
+            if (pu.type === 'shield') {
+                player.shieldActive = true;
+                spawnDamageText(player.x, player.y, "SHIELD!", "#4facfe");
+            } else {
+                player.speedBoostTimer = 300; // 5 seconds
+                distance += 500; // WARP: Skip distance to next question
+                spawnDamageText(player.x, player.y, "BROCCOLI SPEED!", "#32cd32");
+            }
+            shakeScreen(5);
+            spawnParticles(pu.x + pu.width / 2, pu.y + pu.height / 2, pu.type === 'shield' ? '#4facfe' : '#32cd32', 20);
+            return false;
+        }
+        return pu.x + pu.width > 0;
+    });
 }
 
 
 function spawnEnemy() {
+    if (boss) return; // No regular enemies during boss
     // Aggressive spawn rates for constant action
     const minSpawnDist = fitnessLevel === 3 ? 150 : (fitnessLevel === 2 ? 250 : 400);
 
@@ -666,9 +871,12 @@ function updateBullets() {
         bullets = bullets.filter(b => {
             if (b.type === 'pellet') {
                 b.life--;
-                if (b.life < 40) {
-                    b.speed *= 0.9;
-                    b.dy = (b.dy || 0) - 0.3;
+                if (b.life < 40) { // Start evaporating
+                    b.speed *= 0.9;  // Friction
+                    b.dy = (b.dy || 0) - 0.3;     // Drift up
+                    if (Math.random() < 0.2) {
+                        spawnParticles(b.x, b.y, '#ffd700', 1, 'trail');
+                    }
                 }
                 b.x += b.speed;
                 b.y += (b.dy || 0);
@@ -685,21 +893,38 @@ function updateBullets() {
             eb.x += eb.speed;
             // Check player collision
             if (
+                !player.isInvulnerable &&
                 eb.x < player.x + player.width &&
                 eb.x + eb.width > player.x &&
                 eb.y < player.y + player.height &&
                 eb.y + eb.height > player.y
             ) {
-                gameState = 'gameOver';
-                showUI('game-over');
-                return false;
+                if (player.shieldActive) {
+                    player.shieldActive = false;
+                    player.isInvulnerable = true;
+                    player.isInvulnerable = true;
+                    player.dashTimer = 30;
+                    spawnDamageText(player.x, player.y, "SHIELD BROKEN!", "#4facfe");
+                    shakeScreen(15);
+                    spawnParticles(player.x + player.width / 2, player.y + player.height / 2, '#4facfe', 20);
+
+                    // Bullet Knockback: Always push LEFT (Away from projectile trajectory)
+                    player.vx = -4;
+                    player.dy = -2;
+
+                    return false;
+                } else {
+                    gameState = 'gameOver';
+                    showUI('game-over');
+                    return false;
+                }
             }
             return eb.x + eb.width > 0;
         });
     }
 
     // 2. Collision detection
-    if (bullets.length === 0 || enemies.length === 0) {
+    if (bullets.length === 0 || (enemies.length === 0 && !boss)) {
         // Still update hit timers even if no bullets
         enemies.forEach(e => {
             if (e.hitTimer > 0) e.hitTimer--;
@@ -714,7 +939,7 @@ function updateBullets() {
         const b = bullets[i];
         for (let j = 0; j < enemies.length; j++) {
             const e = enemies[j];
-            if (hitEnemies.has(j)) continue;
+            if (hitEnemies.has(j) || e.phasingOut) continue;
 
             if (
                 b.x < e.x + e.width &&
@@ -734,18 +959,75 @@ function updateBullets() {
 
                 e.health -= damage;
                 e.hitTimer = 10;
+                const isMolecule = e.type !== 'microbe';
+                spawnDamageText(e.x + e.width / 2, e.y, `-${damage}`, damage >= 6 ? '#ff8c00' : '#ff0000', isMolecule ? 14 : 20);
 
                 if (e.health <= 0) {
                     hitEnemies.add(j);
+                    const splatColor = e.type === 'microbe' ? '#39ff14' : (e.type === 'oxidant' ? '#ffd700' : '#ff4500');
+                    spawnParticles(e.x + e.width / 2, e.y + e.height / 2, splatColor, 8); // Reduced from 15 for Lag FIX
                 }
 
                 // If it's a rail shot, we don't break; we continue through other enemies
                 if (b.type !== 'rail') break;
             }
         }
+
+        // Boss Collision
+        if (boss && !hitBullets.has(i)) {
+            if (
+                b.x < boss.x + boss.width &&
+                b.x + b.width > boss.x &&
+                b.y < boss.y + boss.height &&
+                b.y + boss.height > boss.y
+            ) {
+                if (b.type !== 'rail') hitBullets.add(i);
+
+                let damage = 1;
+                if (b.type === 'rail') damage = 12; // Rail does extra to boss
+                else if (b.type === 'plasma') damage = 8;
+                else if (b.type === 'laser') damage = 4;
+                else if (b.type === 'pellet') damage = 3;
+
+                boss.health -= damage;
+                boss.hitTimer = 10;
+                spawnDamageText(boss.x + boss.width / 2, boss.y, `-${damage}`, '#ff00ff');
+
+                if (boss.health <= 0) {
+                    spawnParticles(boss.x + boss.width / 2, boss.y + boss.height / 2, '#ff0000', 50);
+                    spawnDamageText(boss.x, boss.y, "CRITICAL DETOX!", "#39ff14");
+                    boss = null;
+                    shakeScreen(20);
+                    return; // Stop processing boss collisions this frame
+                }
+            }
+        }
     }
 
-    // 3. Apply removals
+    // --- 3. Plasma vs Projectile Interception ---
+    // Level 2 Plasma balls can destroy enemy projectiles
+    for (let i = bullets.length - 1; i >= 0; i--) {
+        const b = bullets[i];
+        if (b.type !== 'plasma') continue;
+
+        for (let j = enemyBullets.length - 1; j >= 0; j--) {
+            const eb = enemyBullets[j];
+            if (
+                b.x < eb.x + eb.width &&
+                b.x + b.width > eb.x &&
+                b.y < eb.y + eb.height &&
+                b.y + b.height > eb.y
+            ) {
+                // Interception!
+                spawnParticles(eb.x + eb.width / 2, eb.y + eb.height / 2, '#ffcc00', 5);
+                enemyBullets.splice(j, 1);
+                // Reduce checks per frame (optimization)
+                break;
+            }
+        }
+    }
+
+    // 4. Apply removals
     if (hitBullets.size > 0) bullets = bullets.filter((_, i) => !hitBullets.has(i));
     if (hitEnemies.size > 0) enemies = enemies.filter((_, i) => !hitEnemies.has(i));
 
@@ -774,150 +1056,188 @@ function spawnPlatform() {
     }
 }
 
-// Comic Book Style Building Logic
-function drawSilhouettes(ctx, startX, color, isNature = false) {
-    let bx = startX;
-
-    // Comic Book Palette (Dark Blues/Purples)
-    const buildingColors = ['#0d1b2a', '#1b263b', '#2e1c3b', '#1c2541'];
-
-    for (let i = 0; i < 6; i++) {
-        const seed = Math.abs(Math.sin(i * 12.34));
-        const baseW = 80 + seed * 60;
-        const totalH = isNature ? (100 + seed * 80) : (300 + seed * 250);
-
-        // --- 1. Main Structure (Gradient + Outline) ---
-        const bColor = buildingColors[i % buildingColors.length];
-
-        ctx.fillStyle = isNature ? color : bColor;
-        // Add a gradient for depth if city
-        if (!isNature) {
-            const grad = ctx.createLinearGradient(bx, canvas.height - totalH, bx + baseW, canvas.height);
-            grad.addColorStop(0, bColor);
-            grad.addColorStop(1, '#000000');
-            ctx.fillStyle = grad;
-        }
-
-        ctx.strokeStyle = '#000000'; // Bold Inked Outline
-        ctx.lineWidth = 3;
-
-        const bY = canvas.height - totalH - 100;
-
-        ctx.fillRect(bx, bY, baseW, totalH);
-        ctx.strokeRect(bx, bY, baseW, totalH);
-
-        // --- 2. Architectural Details (Art Deco / Comic) ---
-        if (!isNature) {
-            // Roof Spire/Steps
-            ctx.fillStyle = bColor;
-            ctx.fillRect(bx + 10, bY - 30, baseW - 20, 30);
-            ctx.strokeRect(bx + 10, bY - 30, baseW - 20, 30);
-
-            // Vertical "Girders" lines
-            ctx.beginPath();
-            ctx.moveTo(bx + baseW / 2, bY);
-            ctx.lineTo(bx + baseW / 2, canvas.height - 100);
-            ctx.lineWidth = 2;
-            ctx.strokeStyle = 'rgba(0,0,0,0.5)';
-            ctx.stroke();
-        }
-
-        // --- 3. Windows (Lit squares) ---
-        // Warm yellow/orange for distinct "comic city" feel
-        const windowColor = isNature ? 'rgba(255,255,255,0.05)' : (currentQuestionIndex >= 5 ? '#feca57' : '#ff9ff3');
-
-        ctx.fillStyle = windowColor;
-        for (let wy = bY + 40; wy < canvas.height - 150; wy += 50) {
-            for (let wx = bx + 15; wx < bx + baseW - 15; wx += 20) {
-                // Randomly unlit windows
-                if (Math.sin(wx * wy + i) > -0.5) {
-                    ctx.fillRect(wx, wy, 10, 15);
-                }
-            }
-        }
-
-        bx += baseW + 300 + seed * 100; // Wide spacing
-
-        // Safety: Don't draw into next tile (prevents overlap)
-        if (bx - startX > canvas.width) break;
+// --- Visual Juice Helpers ---
+function spawnParticles(x, y, color, count = 10, type = 'splat') {
+    for (let i = 0; i < count; i++) {
+        particles.push({
+            x: x,
+            y: y,
+            vx: (Math.random() - 0.5) * (type === 'trail' ? 2 : 10),
+            vy: (Math.random() - 0.5) * (type === 'trail' ? 2 : 10),
+            size: Math.random() * (type === 'trail' ? 3 : 5) + 2,
+            color: color,
+            life: 1.0,
+            decay: 0.02 + Math.random() * 0.02,
+            gravity: type === 'splat' ? 0.3 : 0
+        });
     }
 }
 
-function drawNature(ctx) {
-    // 1. Clear Cyan Sky
-    const skyGrad = ctx.createLinearGradient(0, 0, 0, canvas.height);
-    skyGrad.addColorStop(0, '#00d2ff'); // Bright Cyan
-    skyGrad.addColorStop(0.6, '#92fe9d'); // Transition to soft green
-    skyGrad.addColorStop(1, '#667eea'); // Deep horizon
-    ctx.fillStyle = skyGrad;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+function updateParticles() {
+    for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += p.gravity;
+        p.life -= p.decay;
+        if (p.life <= 0) particles.splice(i, 1);
+    }
+}
 
-    // 2. The Sun
-    const sunX = canvas.width * 0.8;
-    const sunY = 150;
-    const sunGrad = ctx.createRadialGradient(sunX, sunY, 0, sunX, sunY, 150);
-    sunGrad.addColorStop(0, 'rgba(255, 255, 200, 1)');
-    sunGrad.addColorStop(0.2, 'rgba(255, 255, 100, 0.8)');
-    sunGrad.addColorStop(1, 'rgba(255, 255, 50, 0)');
-    ctx.fillStyle = sunGrad;
-    ctx.beginPath();
-    ctx.arc(sunX, sunY, 150, 0, Math.PI * 2);
-    ctx.fill();
+function drawParticles(ctx) {
+    ctx.save();
+    particles.forEach(p => {
+        ctx.globalAlpha = p.life;
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fill();
+    });
+    ctx.restore();
+}
 
-    // 3. Far Distant Silhouettes (City fading away)
-    backgrounds.forEach(bg => {
-        if (bg.isBuilding) {
-            drawSilhouettes(ctx, bg.x * 0.5, 'rgba(40, 60, 80, 0.15)', true);
-        }
+function spawnDamageText(x, y, text, color = '#ff0000', size = 20) {
+    damageTexts.push({
+        x: x,
+        y: y,
+        text: text,
+        color: color,
+        life: 1.0,
+        vy: -2,
+        size: size
     });
 }
 
-function drawTrees(ctx, startX) {
-    let tx = startX;
-    for (let i = 0; i < 5; i++) {
-        const seed = Math.abs(Math.sin(i * 7.89));
-        const treeH = 80 + seed * 60;
-
-        // Trunk
-        ctx.fillStyle = '#4b2e1e';
-        ctx.fillRect(tx, canvas.height - 100 - treeH, 10, treeH);
-
-        // Leaves (Lush layered circles)
-        ctx.fillStyle = '#2d5a27';
-        ctx.beginPath();
-        ctx.arc(tx + 5, canvas.height - 100 - treeH - 20, 30 + seed * 10, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = '#3a7d34';
-        ctx.beginPath();
-        ctx.arc(tx - 10, canvas.height - 100 - treeH - 40, 25, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.beginPath();
-        ctx.arc(tx + 20, canvas.height - 100 - treeH - 40, 25, 0, Math.PI * 2);
-        ctx.fill();
-
-        tx += 250 + seed * 200;
-        if (tx - startX > canvas.width) break;
+function updateDamageTexts() {
+    for (let i = damageTexts.length - 1; i >= 0; i--) {
+        const dt = damageTexts[i];
+        dt.y += dt.vy;
+        dt.life -= 0.02;
+        if (dt.life <= 0) damageTexts.splice(i, 1);
     }
+}
+
+function drawDamageTexts(ctx) {
+    ctx.save();
+    damageTexts.forEach(dt => {
+        ctx.globalAlpha = dt.life;
+        ctx.fillStyle = dt.color;
+        // Optimization: Removed shadowBlur
+        ctx.font = `bold ${dt.size || 20}px Courier New`;
+        ctx.textAlign = 'center';
+        ctx.fillText(dt.text, dt.x, dt.y);
+    });
+    ctx.restore();
+}
+
+function shakeScreen(amount) {
+    if (isNaN(amount)) return;
+    shakeAmount = Math.max(shakeAmount, amount);
+}
+
+
+
+function drawPowerup(ctx, pu) {
+    ctx.save();
+    const isShield = pu.type === 'shield';
+
+    if (pu.type === 'speed') {
+        // Detailed Broccoli Icon (Formerly Shield)
+        const cx = pu.x + pu.width / 2;
+        const cy = pu.y + pu.height / 2;
+
+        // Stem with branching detail
+        ctx.fillStyle = '#8b4513';
+        ctx.fillRect(cx - 3, cy, 6, 12);
+
+        // Minor side branch
+        ctx.beginPath();
+        ctx.moveTo(cx - 2, cy + 4);
+        ctx.lineTo(cx - 8, cy - 2);
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = '#8b4513';
+        ctx.stroke();
+
+        // High-Detail Florets (Layered clusters)
+        const floretColors = ['#1e5d1e', '#228b22', '#32cd32', '#90ee90'];
+
+        // Base Layer (Darker)
+        floretColors.forEach((color, idx) => {
+            ctx.fillStyle = color;
+            const rowCount = 3 + idx;
+            for (let i = 0; i < rowCount; i++) {
+                const ang = (i / rowCount) * Math.PI * 2 + (idx * 0.5);
+                const dist = 6 + idx * 2;
+                const rx = cx + Math.cos(ang) * dist;
+                const ry = cy - 6 + Math.sin(ang) * (dist * 0.5);
+                ctx.beginPath();
+                ctx.arc(rx, ry, 10 - idx * 1.5, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        });
+
+        // Highlights/Texture (Tiny dots for "grain")
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+        for (let i = 0; i < 15; i++) {
+            const tx = cx + (Math.random() - 0.5) * 25;
+            const ty = cy - 10 + (Math.random() - 0.5) * 15;
+            ctx.beginPath();
+            ctx.arc(tx, ty, 1.5, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+    } else {
+        // Draw Blueberries (Shield)
+        const cx = pu.x + pu.width / 2;
+        const cy = pu.y + pu.height / 2;
+
+        // Cluster of berries
+        const berryOffsets = [
+            { x: -6, y: -6 }, { x: 6, y: -6 },
+            { x: -6, y: 6 }, { x: 6, y: 6 },
+            { x: 0, y: 0 }
+        ];
+
+        berryOffsets.forEach(off => {
+            ctx.beginPath();
+            ctx.arc(cx + off.x, cy + off.y, 8, 0, Math.PI * 2);
+            ctx.fillStyle = '#4facfe'; // Blueberry Blue
+            ctx.fill();
+            // Shine
+            ctx.beginPath();
+            ctx.arc(cx + off.x - 2, cy + off.y - 2, 2, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(255,255,255,0.6)';
+            ctx.fill();
+        });
+    }
+
+    // Label
+    ctx.fillStyle = 'white';
+    ctx.font = 'bold 10px Courier New'; // Increased size
+    ctx.textAlign = 'center';
+    ctx.fillText(isShield ? "SHIELD" : "SPEED", pu.x + pu.width / 2, pu.y - 12);
+
+    ctx.restore();
 }
 
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.textAlign = 'left'; // Default
-    if (currentQuestionIndex >= 10) {
-        drawNature(ctx);
-        backgrounds.forEach(bg => {
-            if (bg.isBuilding) {
-                drawTrees(ctx, bg.x);
-            }
-        });
-    } else {
-        // City Stage
-        backgrounds.forEach(bg => {
-            if (bg.img) {
-                ctx.drawImage(bg.img, bg.x, 0, canvas.width, canvas.height);
-            }
-        });
+
+    ctx.save();
+    // Screen Shake
+    if (shakeAmount > 0.1) {
+        const sx = (Math.random() - 0.5) * shakeAmount;
+        const sy = (Math.random() - 0.5) * shakeAmount;
+        ctx.translate(sx, sy);
     }
+
+    // Draw Backgrounds
+    backgrounds.forEach(bg => {
+        if (bg.isBg && bg.img) {
+            ctx.drawImage(bg.img, bg.x, 0, canvas.width, canvas.height);
+        }
+    });
+
 
     // 2. Copyright Patch (Drawn as part of background so actors stay in front)
     backgrounds.forEach(bg => {
@@ -941,23 +1261,75 @@ function draw() {
         }
     });
 
-    // 3. Actors & Entities
+    // Draw Boss
+    if (boss) {
+        ctx.save();
+        // Hit effect removed by request to prevent freeze
+
+        const centerX = boss.x + boss.width / 2;
+        const centerY = boss.y + boss.height / 2;
+
+        // Basic Boss Rendering (Reverted)
+
+        // Body
+        const grad = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, boss.width / 2);
+        grad.addColorStop(0, '#ff0000');
+        grad.addColorStop(1, '#660000');
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, boss.width / 2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = 'white';
+        ctx.lineWidth = 5;
+        ctx.stroke();
+
+        // Simple Spikes
+        ctx.beginPath();
+        for (let i = 0; i < 12; i++) {
+            const ang = (i * Math.PI * 2) / 12 + boss.phase;
+            const ox = centerX + (boss.width / 2) * Math.cos(ang);
+            const oy = centerY + (boss.width / 2) * Math.sin(ang);
+            const ex = centerX + (boss.width * 0.8) * Math.cos(ang);
+            const ey = centerY + (boss.width * 0.8) * Math.sin(ang);
+            ctx.moveTo(ox, oy);
+            ctx.lineTo(ex, ey);
+        }
+        ctx.stroke();
+
+        // Boss Health Bar
+        ctx.fillStyle = 'rgba(0,0,0,0.5)';
+        ctx.fillRect(centerX - 100, boss.y - 40, 200, 15);
+        ctx.fillStyle = '#ff0000';
+        ctx.fillRect(centerX - 100, boss.y - 30, 200 * (boss.health / boss.maxHealth), 15);
+        ctx.strokeStyle = 'white';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(centerX - 100, boss.y - 30, 200, 15);
+
+        ctx.restore();
+    }
+
     // Draw Enemies
     enemies.forEach(enemy => {
+        if (enemy.opacity <= 0) return;
         ctx.save();
+        if (enemy.phasingOut) ctx.globalAlpha = enemy.opacity;
         if (enemy.hitTimer > 0) {
             ctx.filter = 'brightness(2) sepia(1) hue-rotate(-50deg) saturate(5)'; // Reddish hurt flash
         }
 
         if (enemy.type === 'microbe') {
             if (microbeImg.complete && microbeImg.naturalWidth > 0) {
-                ctx.drawImage(microbeImg, enemy.x, enemy.y, enemy.width, enemy.height);
+                // Pulse Effect for "Detail"
+                const pulse = 1 + Math.sin(Date.now() * 0.005) * 0.05;
+                const pw = enemy.width * pulse;
+                const ph = enemy.height * pulse;
+                ctx.drawImage(microbeImg, enemy.x - (pw - enemy.width) / 2, enemy.y - (ph - enemy.height) / 2, pw, ph);
             } else {
                 ctx.fillStyle = 'green';
                 ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
             }
         } else {
-            drawMolecule(ctx, enemy.x, enemy.y, enemy.width, enemy.type);
+            drawMolecule(ctx, enemy.x, enemy.y, enemy.width, enemy.type, enemy.phasingOut ? enemy.opacity : 1.0);
         }
         ctx.restore();
     });
@@ -972,13 +1344,45 @@ function draw() {
         drawBullet(ctx, eb);
     });
 
+    // --- Visual Juice Layer ---
+    drawParticles(ctx);
+    drawDamageTexts(ctx);
+
+    // Draw Weather
+    ctx.save();
+    weatherParticles.forEach(p => {
+        if (p.type === 'rain') {
+            ctx.strokeStyle = 'rgba(174, 194, 224, 0.5)';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(p.x + p.vx, p.y + 5);
+            ctx.stroke();
+        } else {
+            // Leaf
+            ctx.translate(p.x, p.y);
+            ctx.rotate(p.angle);
+            ctx.fillStyle = '#ff6b6b';
+            ctx.beginPath();
+            ctx.ellipse(0, 0, p.size, p.size / 2, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.setTransform(1, 0, 0, 1, 0, 0); // Reset for next particle
+        }
+    });
+    ctx.restore();
+
+    // Draw Powerups
+    powerups.forEach(pu => {
+        drawPowerup(ctx, pu);
+    });
+
     // Draw Gun Item Pickup
     if (gunItem) {
         drawGun(ctx, gunItem.x, gunItem.y, gunItem.width, gunItem.height, gunItem.level);
         ctx.fillStyle = 'white';
         ctx.font = 'bold 10px Arial';
         ctx.textAlign = 'center';
-        ctx.fillText(gunItem.level === 2 ? "UPGRADE" : "PICKUP", gunItem.x + gunItem.width / 2, gunItem.y - 10);
+        ctx.fillText(gunItem.level === 2 ? "PLASMA" : (gunItem.level >= 3 ? "UPGRADE" : "PICKUP"), gunItem.x + gunItem.width / 2, gunItem.y - 10);
     }
 
     // Draw Platforms
@@ -1013,15 +1417,43 @@ function draw() {
     const animFrame = Math.floor(Date.now() / 220) % 4;
 
     if (currentImg.complete && currentImg.naturalWidth > 0) {
+        ctx.save();
+        if (player.dashTimer > 0) {
+            ctx.globalAlpha = 0.6;
+        }
         ctx.drawImage(
             currentImg,
             animFrame * spriteW, (fitnessLevel - 1) * spriteH + labelOffset, spriteW, spriteH - labelOffset,
             safeX, safeY, player.width, player.height
         );
+        ctx.restore();
+    }
+
+    // Shield Visual (Blueberries Theme)
+    if (player.shieldActive) {
+        ctx.strokeStyle = '#4facfe';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        const rad = player.width * 0.7;
+        const cx = player.x + player.width / 2;
+        const cy = player.y + player.height / 2;
+
+        // Bumpy perimeter
+        for (let a = 0; a < Math.PI * 2; a += 0.2) {
+            const bump = Math.sin(a * 10) * 5;
+            const px = cx + (rad + bump) * Math.cos(a);
+            const py = cy + (rad + bump) * Math.sin(a);
+            if (a === 0) ctx.moveTo(px, py);
+            else ctx.lineTo(px, py);
+        }
+        ctx.closePath();
+        ctx.stroke();
+        ctx.fillStyle = 'rgba(79, 172, 254, 0.15)';
+        ctx.fill();
     }
 
     if (player.gunLevel > 0) {
-        drawGun(ctx, safeX + player.width - 25, safeY + player.height / 2, isLvl2 ? 50 : 40, isLvl2 ? 25 : 20, player.gunLevel);
+        drawGun(ctx, player.x + player.width * 0.4, player.y + player.height * 0.45, 60, 30, player.gunLevel);
     }
 
     // Gun Tutorial Message
@@ -1056,6 +1488,8 @@ function draw() {
         ctx.textAlign = 'center';
         ctx.fillText("PAUSED", canvas.width / 2, canvas.height / 2);
     }
+
+    ctx.restore(); // Restore shake translation
 }
 
 function startQuiz() {
@@ -1091,8 +1525,14 @@ function checkAnswer(isCorrect) {
         gameState = 'playing';
         hideUI('quiz-container');
 
-        // Clear all microbes after answering to ensure a safe transition
-        enemies = [];
+        // Reset boss flag so a new one can spawn at the next milestone
+        hasSpawnedBossForCurrent = false;
+
+        // Phase out all microbes after answering
+        enemies.forEach(e => {
+            e.phasingOut = true;
+            e.opacity = 1.0;
+        });
         lastEnemySpawn = distance + 600; // Extra buffer before next spawn
     } else {
         // Penalty or Reset
@@ -1104,6 +1544,23 @@ function checkAnswer(isCorrect) {
 // Robust initialization
 function init() {
     console.log("SodaHealth Quest: Initializing...");
+
+    // Global Error Handler for Canvas
+    window.onerror = function (msg, url, lineNo, columnNo, error) {
+        const ctx = canvas.getContext('2d');
+        ctx.save();
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = '#ff0000';
+        ctx.font = '20px Courier New';
+        ctx.textAlign = 'left';
+        ctx.fillText("ERROR: " + msg, 50, 100);
+        ctx.fillText("Line: " + lineNo, 50, 130);
+        ctx.restore();
+        gameState = 'error'; // Stop loop
+        return false;
+    };
+
     try {
         resize();
         updateHUD();
@@ -1143,12 +1600,32 @@ function hideUI(id) {
 }
 
 // Game Loop
+// Game Loop
 function loop() {
-    if (gameState === 'playing' || gameState === 'paused') {
-        update();
+    try {
+        if (gameState === 'playing' || gameState === 'paused') {
+            update();
+        }
+        draw();
+        requestAnimationFrame(loop);
+    } catch (e) {
+        console.error("Game Loop Error:", e);
+        // Force draw error to screen
+        const ctx = canvas.getContext('2d');
+        ctx.save();
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.9)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = '#ff0000';
+        ctx.font = '16px Courier New';
+        ctx.textAlign = 'left';
+        ctx.fillText("CRASH TRACE:", 20, 50);
+        const lines = e.stack ? e.stack.split('\n') : [e.toString()];
+        lines.forEach((line, i) => {
+            ctx.fillText(line.substring(0, 80), 20, 80 + i * 20);
+        });
+        ctx.restore();
+        gameState = 'error';
     }
-    draw();
-    requestAnimationFrame(loop);
 }
 
 // Wait for DOM and then start
