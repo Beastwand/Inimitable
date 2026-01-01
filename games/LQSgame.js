@@ -525,7 +525,8 @@ function update() {
 
     // Shooting (W, Z, X keys) - Rate limited Auto-fire
     if (fireCooldown > 0) fireCooldown--;
-    if ((keys['KeyW'] || keys['KeyZ'] || keys['KeyX']) && player.gunLevel > 0 && gameState === 'playing' && fireCooldown <= 0) {
+    const isFiring = (keys['KeyW'] || keys['KeyZ'] || keys['KeyX']);
+    if (isFiring && player.gunLevel > 0 && gameState === 'playing' && fireCooldown <= 0) {
         const isLvl2 = player.gunLevel === 2;
         const isLvl3 = player.gunLevel === 3;
         const isLvl4 = player.gunLevel === 4;
@@ -620,13 +621,13 @@ function update() {
             });
             if (isLvl3) {
                 spawnParticles(player.x + player.width, player.y + player.height / 2, '#bf00ff', 5, 'trail');
-                soundManager.play('shoot');
+                try { soundManager.play('shoot'); } catch (e) { }
             } else if (isLvl2) {
-                soundManager.play('plasma');
+                try { soundManager.play('plasma'); } catch (e) { }
             } else {
-                soundManager.play('shoot');
+                try { soundManager.play('shoot'); } catch (e) { }
             }
-            fireCooldown = isLvl3 ? 60 : (isLvl2 ? 45 : 15);
+            fireCooldown = isLvl3 ? 60 : (isLvl2 ? 70 : 15); // Nerfed plasma fire rate (was 45)
             player.muzzleTimer = 4;
         }
     }
@@ -1440,7 +1441,7 @@ function updateBullets() {
                 // Damage Logic
                 let damage = b.damage || 1;
                 if (b.type === 'rail') damage = 8;
-                else if (b.type === 'plasma') damage = 6;
+                else if (b.type === 'plasma') damage = 12; // Buffed from 6 to one-shot regular mobs
                 else if (b.type === 'laser') damage = 3;
                 else if (b.type === 'pellet') damage = 2;
                 else if (b.type === 'spread') damage = 3; // Buffed from 2
@@ -2500,8 +2501,9 @@ function init() {
         if (key === 'p') toggleDailyChallenge();
 
         // Restart Game (Enter)
-        if (key === 'enter' && (gameState === 'gameOver' || gameState === 'victory')) {
-            location.reload();
+        if (key === 'enter') {
+            if (gameState === 'start') startGame();
+            else if (gameState === 'gameOver' || gameState === 'victory') location.reload();
         }
     });
 
@@ -2541,6 +2543,12 @@ function startGame() {
         soundManager.init();
         soundManager.startMusic();
     }
+
+    // Explicitly reset combat state
+    player.gunLevel = 0;
+    fireCooldown = 0;
+    weaponTimer = 0;
+    currentWeapon = 'laser';
 }
 
 function updateHUD() {
