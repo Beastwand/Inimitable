@@ -165,7 +165,8 @@ html {
 #options-container {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 8px;
+    gap: 2px;
+    /* Tighter spacing as requested */
     /* Slightly more space as requested */
     margin-top: 40px;
     width: 92%;

@@ -735,7 +735,12 @@ function update() {
 
     // Update Enemies (Stable removal using filter)
     enemies = enemies.filter(enemy => {
-        enemy.x -= enemy.speed;
+        // Horizontal Movement
+        if (enemy.isFrozen) {
+            enemy.x -= gameSpeed; // Drift with background
+        } else {
+            enemy.x -= enemy.speed;
+        }
 
         // Forgiving Collision detection (using inner 60% of sprite)
         const pPadding = player.width * 0.2;
@@ -790,12 +795,16 @@ function update() {
 
         if (enemy.type === 'flyer') {
             // Sine wave movement
-            enemy.phase += 0.08;
-            enemy.y = enemy.baseY + Math.sin(enemy.phase) * 60;
+            if (!enemy.isFrozen) {
+                enemy.phase += 0.08;
+                enemy.y = enemy.baseY + Math.sin(enemy.phase) * 60;
+            }
         } else if (enemy.type !== 'microbe' && enemy.type !== 'tank' && enemy.type !== 'splitter' && enemy.type !== 'bomber' && enemy.type !== 'mini') {
             // Original molecule movement
-            enemy.phase += 0.05;
-            enemy.y = enemy.baseY + Math.sin(enemy.phase) * (enemy.type === 'cytokine' ? 80 : 30);
+            if (!enemy.isFrozen) {
+                enemy.phase += 0.05;
+                enemy.y = enemy.baseY + Math.sin(enemy.phase) * (enemy.type === 'cytokine' ? 80 : 30);
+            }
 
             // Extreme Hazard: Fire at player
             if (currentQuestionIndex >= 10 && Math.random() < 0.005) {
@@ -811,18 +820,20 @@ function update() {
             }
         } else if (enemy.type === 'microbe' && currentQuestionIndex >= 10) {
             // Jumping Microbes logic
-            if (!enemy.dy) enemy.dy = 0;
-            if (!enemy.isGrounded) {
-                enemy.dy += 0.6;
-                enemy.y += enemy.dy;
-                if (enemy.y >= enemy.baseY) {
-                    enemy.y = enemy.baseY;
-                    enemy.dy = 0;
-                    enemy.isGrounded = true;
+            if (!enemy.isFrozen) {
+                if (!enemy.dy) enemy.dy = 0;
+                if (!enemy.isGrounded) {
+                    enemy.dy += 0.6;
+                    enemy.y += enemy.dy;
+                    if (enemy.y >= enemy.baseY) {
+                        enemy.y = enemy.baseY;
+                        enemy.dy = 0;
+                        enemy.isGrounded = true;
+                    }
+                } else if (Math.random() < 0.01 && enemy.x < canvas.width * 0.8) {
+                    enemy.dy = -12;
+                    enemy.isGrounded = false;
                 }
-            } else if (Math.random() < 0.01 && enemy.x < canvas.width * 0.8) {
-                enemy.dy = -12;
-                enemy.isGrounded = false;
             }
         }
 
@@ -1934,7 +1945,7 @@ function draw() {
             ctx.fillStyle = 'white';
             ctx.font = 'bold 10px Courier New';
             ctx.textAlign = 'center';
-            ctx.fillText("CORN SYRUP", cx, cy + 30);
+            ctx.fillText("sticky gum", cx, cy + 30);
         } else if (enemy.type === 'bomber') {
             // Explosive enemy
             ctx.fillStyle = cfg.color;
