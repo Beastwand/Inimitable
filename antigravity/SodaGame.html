@@ -28,6 +28,13 @@
                         <div id="power-bar"></div>
                     </div>
                 </div>
+                <div class="stat-box">
+                    <span class="label">Audio:</span>
+                    <div id="audio-stat" style="font-size: 0.9rem;">
+                        <span id="sfx-stat">[I] SFX: ON</span><br>
+                        <span id="music-stat" style="color: #aaa;">[O] Music: OFF</span>
+                    </div>
+                </div>
             </div>
 
             <div id="quiz-container" class="hidden">
@@ -43,8 +50,19 @@
                 <div class="glass-card">
                     <h1>SODA OVERLOAD!</h1>
                     <p>The microbes have overwhelmed you. Try to make healthier choices next time!</p>
+                    <p id="high-score-display" style="color: #ffd700; font-weight: bold; margin: 10px 0;"></p>
                     <button onclick="location.reload()">Reset Odyssey</button>
                     <a href="sodahealth2.html" class="back-link">Return to Article</a>
+                </div>
+            </div>
+
+            <div id="start-screen">
+                <div class="glass-card">
+                    <h1>Lunch Quiz Survival</h1>
+                    <p style="margin-bottom: 20px;">Use <strong>W, Z, or X</strong> to
+                        Shoot.<br><strong>Space/Up</strong> to Jump.</p>
+                    <button onclick="startGame()">PLAY</button>
+                    <a href="sodahealth2.html" class="back-link">Back to Article</a>
                 </div>
             </div>
 

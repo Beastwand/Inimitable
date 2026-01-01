@@ -98,6 +98,18 @@ html {
     pointer-events: auto;
 }
 
+#start-screen {
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: url('SHintro.png') no-repeat center center/cover;
+    background-color: #000;
+    pointer-events: auto;
+    z-index: 100;
+    /* Ensure it stays on top */
+}
+
 .hidden {
     display: none !important;
 }
