@@ -13,7 +13,7 @@ const playerImg = new Image();
 playerImg.src = 'LQSplayer.png';
 
 const microbeImg = new Image();
-microbeImg.src = 'microbe_enemy.png';
+microbeImg.src = 'LQSmicrobe.png';
 
 const background1 = new Image();
 background1.src = 'LQSbg1.png';
@@ -468,6 +468,13 @@ window.addEventListener('keydown', e => {
         if (e.code === 'Digit3') handleNumericSelection(2);
     }
 });
+
+function handleNumericSelection(index) {
+    const options = document.querySelectorAll('.option-btn');
+    if (options[index]) {
+        options[index].click();
+    }
+}
 
 function playerJump() {
     if (player.isGrounded && (gameState === 'playing' || gameState === 'start')) {
