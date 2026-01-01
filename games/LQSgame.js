@@ -10,7 +10,7 @@ let gameSpeed = 3;
 
 // Assets (Paths to local workspace)
 const playerImg = new Image();
-playerImg.src = 'player_consistent.png';
+playerImg.src = 'LQSplayer.png';
 
 const microbeImg = new Image();
 microbeImg.src = 'microbe_enemy.png';
