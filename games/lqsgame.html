@@ -62,7 +62,25 @@
                     <p style="margin-bottom: 20px;">Use <strong>W, Z, or X</strong> to
                         Shoot.<br><strong>Space/Up</strong> to Jump.</p>
                     <button onclick="startGame()">PLAY</button>
+                    <button onclick="toggleControlsMenu()" class="btn-secondary"
+                        style="background: var(--neon-blue);">CONTROLS</button>
                     <a href="https://inimitable.dev/sodahealth" class="back-link">Back to Article</a>
+                </div>
+            </div>
+
+            <div id="controls-menu" class="hidden">
+                <div class="glass-card">
+                    <h1>Custom Controls</h1>
+                    <div id="controls-list" style="text-align: left; margin: 20px 0;">
+                        <!-- Injected by JS -->
+                    </div>
+                    <p id="rebind-prompt" style="color: var(--neon-green); min-height: 1.5em; font-weight: bold;"></p>
+                    <div
+                        style="display: flex; flex-direction: column; gap: 5px; justify-content: center; align-items: center;">
+                        <button onclick="toggleControlsMenu()" style="width: 240px;">CLOSE</button>
+                        <button onclick="resetControls()"
+                            style="background: #ff4757; width: 240px; margin-top: 5px;">RESET</button>
+                    </div>
                 </div>
             </div>
 

@@ -192,6 +192,32 @@ let musicIntensity = 'calm'; // 'calm', 'action', 'boss', 'victory'
 let sfxVolume = 1.0;
 let musicVolume = 1.0;
 
+// Customizable Controls
+let userControls = {
+    jump: ['Space', 'ArrowUp'],
+    left: ['ArrowLeft'],
+    right: ['ArrowRight'],
+    down: ['ArrowDown', 'KeyS'],
+    fire: ['KeyW', 'KeyZ', 'KeyX']
+};
+let isRebinding = null; // Stores action name currently being rebinded
+
+function saveControls() {
+    localStorage.setItem('sodaHealthControls', JSON.stringify(userControls));
+}
+
+function loadControls() {
+    const saved = localStorage.getItem('sodaHealthControls');
+    if (saved) {
+        try {
+            userControls = JSON.parse(saved);
+        } catch (e) {
+            console.error("Failed to load controls:", e);
+        }
+    }
+}
+loadControls(); // Immediate load
+
 function drawGun(ctx, x, y, width, height, level = 1) {
     ctx.save();
     ctx.translate(x, y);
@@ -401,7 +427,7 @@ const allQuestions = [
     { q: "According to the article, dietary engineering can lead to a:", options: ["Net health gain", "Guaranteed loss", "Sugar crash"], correct: 0 },
     { q: "Which plant contains sulforaphane for liver detoxification?", options: ["Broccoli", "Garlic", "Blueberry"], correct: 0 },
     // 15 New Questions
-    { q: "Which antioxidant found in natural extracts counteracts inflammation?", options: ["Hesperidin", "Melatonin", "Caffeine"], correct: 0 },
+    { q: "The article cites 2025 research on inulin, a type of fiber. What did this research suggest about inulin's effect on fructose?", options: ["It provides a source of natural sugar that is healthier than fructose.", "It completely blocks the absorption of fructose in the digestive system.", "It can alter fructose digestion, causing it to be used for health-promoting purposes."], correct: 2 },
     { q: "The article discusses addressing health concerns related to:", options: ["Microplastics", "Radiowaves", "Solar flares"], correct: 0 },
     { q: "Which mineral is explicitly mentioned as being restored by healthy foods?", options: ["Magnesium (Mg)", "Iron (Fe)", "Zinc (Zn)"], correct: 0 },
     { q: "Matcha has been studied for its ability to block effects on:", options: ["DNA", "Eyelashes", "Nail growth"], correct: 0 },
@@ -452,12 +478,41 @@ resize();
 // Input
 const keys = {};
 window.addEventListener('keydown', e => {
+    // Handling Rebinding State
+    if (isRebinding) {
+        e.preventDefault();
+        // Don't allow Escape to be bound (used for cancel/close)
+        if (e.code === 'Escape') {
+            isRebinding = null;
+            updateControlsUI();
+            return;
+        }
+
+        // Update the control (keeping it simple: one key per action for remapping UI)
+        userControls[isRebinding] = [e.code];
+        saveControls();
+        isRebinding = null;
+        updateControlsUI();
+        return;
+    }
+
     keys[e.code] = true;
 
     // Pause Logic
-    if (e.code === 'Escape' && gameState === 'playing') {
+    const isPauseKey = e.code === 'Escape';
+    const isSecondaryPlayKey = userControls.jump.includes(e.code);
+
+    if (isPauseKey) {
+        const controlsMenu = document.getElementById('controls-menu');
+        if (controlsMenu && !controlsMenu.classList.contains('hidden')) {
+            toggleControlsMenu();
+            return;
+        }
+    }
+
+    if (isPauseKey && gameState === 'playing') {
         gameState = 'paused';
-    } else if (gameState === 'paused' && (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'Escape')) {
+    } else if (gameState === 'paused' && (isSecondaryPlayKey || isPauseKey)) {
         gameState = 'playing';
     }
 
@@ -495,8 +550,8 @@ window.addEventListener('keyup', e => keys[e.code] = false);
 
 // Mobile/Pointer Jump Support
 window.addEventListener('pointerdown', (e) => {
-    // Don't jump if tapping UI elements (like quiz buttons or start button)
-    if (e.target.tagName === 'BUTTON' || e.target.closest('.option-btn') || e.target.closest('#start-screen')) return;
+    // Don't jump if tapping UI elements (like quiz buttons, start screen, or controls menu)
+    if (e.target.tagName === 'BUTTON' || e.target.closest('.option-btn') || e.target.closest('#start-screen') || e.target.closest('#controls-menu')) return;
 
     if (gameState === 'playing' || gameState === 'start') {
         playerJump();
@@ -549,9 +604,9 @@ function update() {
 
     distance += gameSpeed;
 
-    // Shooting (W, Z, X keys) - Rate limited Auto-fire
+    // Shooting - Rate limited Auto-fire
     if (fireCooldown > 0) fireCooldown--;
-    const isFiring = (keys['KeyW'] || keys['KeyZ'] || keys['KeyX']);
+    const isFiring = userControls.fire.some(k => keys[k]);
     if (isFiring && player.gunLevel > 0 && gameState === 'playing' && fireCooldown <= 0) {
         const isLvl2 = player.gunLevel === 2;
         const isLvl3 = player.gunLevel === 3;
@@ -697,14 +752,17 @@ function update() {
         gameSpeed = 3; // Reset
     }
 
-    // Jump logic: Space or ArrowUp
-    if ((keys['Space'] || keys['ArrowUp'])) {
+    // Jump logic
+    const isJumping = userControls.jump.some(k => keys[k]);
+    if (isJumping) {
         playerJump();
     }
 
-    // Horizontal steering: Adding ArrowLeft/ArrowRight to nudge player
-    if (keys['ArrowRight']) player.x = Math.min(canvas.width - player.width, player.x + 5);
-    if (keys['ArrowLeft']) player.x = Math.max(0, player.x - 5);
+    // Horizontal steering
+    const isRight = userControls.right.some(k => keys[k]);
+    const isLeft = userControls.left.some(k => keys[k]);
+    if (isRight) player.x = Math.min(canvas.width - player.width, player.x + 5);
+    if (isLeft) player.x = Math.max(0, player.x - 5);
 
     // Apply Horizontal Velocity (Knockback)
     player.x += player.vx;
@@ -872,7 +930,9 @@ function update() {
         p.x -= gameSpeed;
 
         // Platform Collision (One-way: only land from top)
+        const isDown = userControls.down.some(k => keys[k]);
         if (
+            !isDown && // Fall through platforms when Down is pressed
             player.dy > 0 && // Only collide while falling
             player.x + player.width * 0.7 > p.x && // Slightly tighter collision
             player.x + player.width * 0.3 < p.x + p.width &&
@@ -2748,6 +2808,65 @@ function checkAnswer(selectedIndex) {
 }
 
 // Final housekeeping code removed to keep file clean
+
+// --- Controls Menu Logic ---
+function toggleControlsMenu() {
+    const el = document.getElementById('controls-menu');
+    if (el) {
+        const isHidden = el.classList.contains('hidden');
+        if (isHidden) {
+            el.classList.remove('hidden');
+            updateControlsUI();
+        } else {
+            el.classList.add('hidden');
+            isRebinding = null;
+        }
+    }
+}
+
+function updateControlsUI() {
+    const list = document.getElementById('controls-list');
+    const prompt = document.getElementById('rebind-prompt');
+    if (!list) return;
+
+    prompt.innerText = isRebinding ? `Press any key to bind to ${isRebinding.toUpperCase()}` : "";
+
+    list.innerHTML = "";
+    Object.keys(userControls).forEach(action => {
+        const item = document.createElement('div');
+        item.className = 'control-item';
+
+        const label = document.createElement('span');
+        label.innerText = action.charAt(0).toUpperCase() + action.slice(1);
+
+        const btn = document.createElement('div');
+        btn.className = 'rebind-btn' + (isRebinding === action ? ' rebinding' : '');
+        btn.innerText = userControls[action].join(' / ').replace(/Key|Digit|Arrow/g, '');
+        btn.onclick = () => startRemapping(action);
+
+        item.appendChild(label);
+        item.appendChild(btn);
+        list.appendChild(item);
+    });
+}
+
+function startRemapping(action) {
+    isRebinding = action;
+    updateControlsUI();
+}
+
+function resetControls() {
+    userControls = {
+        jump: ['Space', 'ArrowUp'],
+        left: ['ArrowLeft'],
+        right: ['ArrowRight'],
+        down: ['ArrowDown', 'KeyS'],
+        fire: ['KeyW', 'KeyZ', 'KeyX']
+    };
+    saveControls();
+    isRebinding = null;
+    updateControlsUI();
+}
 
 // Wait for DOM and then start
 if (document.readyState === 'complete' || document.readyState === 'interactive') {
