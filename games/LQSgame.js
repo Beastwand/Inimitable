@@ -2729,6 +2729,12 @@ function checkAnswer(selectedIndex) {
         if (stats.questionsAnswered === 10) unlockAchievement('quizMaster');
         score += 500;
         spawnDamageText(player.x, player.y, "CORRECT!", "#39ff14");
+
+        // Reward: Phase out current enemies
+        enemies.forEach(en => {
+            en.phasingOut = true;
+            if (en.opacity === undefined) en.opacity = 1.0;
+        });
     } else {
         soundManager.play('explosion');
         spawnDamageText(player.x, player.y, "WRONG!", "#ff0000");
