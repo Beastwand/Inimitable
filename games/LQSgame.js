@@ -469,13 +469,32 @@ window.addEventListener('keydown', e => {
     }
 });
 
-function handleNumericSelection(index) {
-    const options = document.querySelectorAll('.option-btn');
-    if (options[index]) {
-        options[index].click();
+function playerJump() {
+    if (player.isGrounded && (gameState === 'playing' || gameState === 'start')) {
+        if (gameState === 'start') {
+            startGame();
+        }
+        player.dy = -player.jumpForce - (fitnessLevel * 1.5);
+        player.isGrounded = false;
+        player.platform = null; // Detach from platform
+        try { soundManager.play('jump'); } catch (e) { }
+        // Jump Stretch
+        player.scaleX = 0.7;
+        player.scaleY = 1.3;
     }
 }
+
 window.addEventListener('keyup', e => keys[e.code] = false);
+
+// Mobile/Pointer Jump Support
+window.addEventListener('pointerdown', (e) => {
+    // Don't jump if tapping UI elements (like quiz buttons or start button)
+    if (e.target.tagName === 'BUTTON' || e.target.closest('.option-btn') || e.target.closest('#start-screen')) return;
+
+    if (gameState === 'playing' || gameState === 'start') {
+        playerJump();
+    }
+});
 
 // Entities
 let enemies = [];
@@ -672,14 +691,8 @@ function update() {
     }
 
     // Jump logic: Space or ArrowUp
-    if ((keys['Space'] || keys['ArrowUp']) && player.isGrounded) {
-        player.dy = -player.jumpForce - (fitnessLevel * 1.5);
-        player.isGrounded = false;
-        player.platform = null; // Detach from platform
-        soundManager.play('jump'); // Audio
-        // Jump Stretch
-        player.scaleX = 0.7;
-        player.scaleY = 1.3;
+    if ((keys['Space'] || keys['ArrowUp'])) {
+        playerJump();
     }
 
     // Horizontal steering: Adding ArrowLeft/ArrowRight to nudge player
@@ -737,7 +750,7 @@ function update() {
     enemies = enemies.filter(enemy => {
         // Horizontal Movement
         if (enemy.isFrozen) {
-            enemy.x -= gameSpeed; // Drift with background
+            enemy.x -= 0; // Stop horizontal approach relative to character
         } else {
             enemy.x -= enemy.speed;
         }
@@ -2570,17 +2583,24 @@ function startGame() {
 }
 
 function updateHUD() {
-    const fitnessEl = document.getElementById('fitness-stat');
-    const scoreEl = document.getElementById('score-val');
-    const powerEl = document.getElementById('power-bar');
+    // Fitness Text
+    const fitEl = document.getElementById('fitness-stat');
+    if (fitEl) {
+        let text = "Sedentary (Slow & Low Jump)";
+        if (fitnessLevel === 2) text = "Active (Average Speed)";
+        if (fitnessLevel === 3) text = "Athletic (High Speed & Jump)";
+        fitEl.innerText = text;
 
-    if (fitnessEl) {
-        const stats = ["Average", "Agile & Fit", "Peak Human Performance"];
-        fitnessEl.innerText = stats[fitnessLevel - 1];
+        // Color coding
+        fitEl.style.color = fitnessLevel === 1 ? '#ff6b6b' : (fitnessLevel === 2 ? '#ffff00' : '#39ff14');
     }
-    if (scoreEl) {
-        scoreEl.innerText = Math.floor(distance);
-    }
+
+    // Score: Distance value
+    const distEl = document.getElementById('score-val');
+    if (distEl) distEl.innerText = Math.floor(distance);
+
+    // Power Bar (Quiz Progress)
+    const powerEl = document.getElementById('power-bar');
     if (powerEl) {
         const progress = (currentQuestionIndex / questions.length) * 100;
         powerEl.style.width = progress + '%';
@@ -2714,23 +2734,7 @@ function checkAnswer(selectedIndex) {
     gameState = 'playing';
 }
 
-function updateHUD() {
-    // Fitness Text
-    const fitEl = document.getElementById('fitness-stat');
-    if (fitEl) {
-        let text = "Sedentary (Slow & Low Jump)";
-        if (fitnessLevel === 2) text = "Active (Average Speed)";
-        if (fitnessLevel === 3) text = "Athletic (High Speed & Jump)";
-        fitEl.innerText = text;
-
-        // Color coding
-        fitEl.style.color = fitnessLevel === 1 ? '#ff6b6b' : (fitnessLevel === 2 ? '#ffff00' : '#39ff14');
-    }
-
-    // Score: Distance value
-    const distEl = document.getElementById('score-val');
-    if (distEl) distEl.innerText = Math.floor(distance);
-}
+// Final housekeeping code removed to keep file clean
 
 // Wait for DOM and then start
 if (document.readyState === 'complete' || document.readyState === 'interactive') {

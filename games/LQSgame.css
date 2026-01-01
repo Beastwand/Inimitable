@@ -166,8 +166,7 @@ html {
     display: grid;
     grid-template-columns: 1fr;
     gap: 2px;
-    /* Tighter spacing as requested */
-    /* Slightly more space as requested */
+    /* Tighter spacing for better fit */
     margin-top: 40px;
     width: 92%;
     /* Increased width (tincy bit bigger) */
