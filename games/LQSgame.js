@@ -580,16 +580,18 @@ function update() {
                 fireCooldown = wpn.fireRate;
                 soundManager.play('shoot');
             } else if (currentWeapon === 'beam') {
-                // Continuous beam (special handling)
-                bullets.push({
-                    x: player.x + player.width,
-                    y: player.y + player.height / 2 - 3,
-                    width: canvas.width,
-                    height: 6,
-                    speed: 0,
-                    type: 'beam',
-                    damage: wpn.damage,
-                    life: 10
+                // Continuous beam (Dual Beam upgrade)
+                [-8, 8].forEach(offset => {
+                    bullets.push({
+                        x: player.x + player.width,
+                        y: player.y + player.height / 2 + offset,
+                        width: canvas.width,
+                        height: 6,
+                        speed: 0,
+                        type: 'beam',
+                        damage: wpn.damage,
+                        life: 10
+                    });
                 });
                 fireCooldown = wpn.fireRate;
             }
@@ -615,7 +617,7 @@ function update() {
                 x: player.x + player.width,
                 y: player.y + player.height / 2 - (isLvl3 ? 5 : (isLvl2 ? 30 : 2)),
                 width: isLvl3 ? 40 : (isLvl2 ? 60 : 20),
-                height: isLvl3 ? 8 : (isLvl2 ? 60 : 5),
+                height: isLvl3 ? 4 : (isLvl2 ? 60 : 5), // Thinner rail (was 8) for skill requirement
                 speed: isLvl3 ? 20 : (isLvl2 ? 8 : 12),
                 type: isLvl3 ? 'rail' : (isLvl2 ? 'plasma' : 'laser')
             });
@@ -627,7 +629,7 @@ function update() {
             } else {
                 try { soundManager.play('shoot'); } catch (e) { }
             }
-            fireCooldown = isLvl3 ? 60 : (isLvl2 ? 70 : 15); // Nerfed plasma fire rate (was 45)
+            fireCooldown = isLvl3 ? 66 : (isLvl2 ? 70 : 15); // Nerfed rail (was 60, +10% slower)
             player.muzzleTimer = 4;
         }
     }
@@ -1275,8 +1277,8 @@ function spawnGunItem() {
         gunItem = {
             x: canvas.width,
             y: canvas.height - 300 - Math.random() * 150,
-            width: 50,
-            height: 35,
+            width: 55, // Slightly larger
+            height: 40,
             weaponType: chosen,
             isSpecial: true
         };
@@ -2020,10 +2022,15 @@ function draw() {
     // Draw Gun Item Pickup
     if (gunItem) {
         drawGun(ctx, gunItem.x, gunItem.y, gunItem.width, gunItem.height, gunItem.level);
-        ctx.fillStyle = 'white';
-        ctx.font = 'bold 10px Arial';
+        ctx.fillStyle = gunItem.isSpecial ? WEAPONS[gunItem.weaponType].color : '#fff';
+        ctx.font = 'bold 12px Courier New';
         ctx.textAlign = 'center';
-        ctx.fillText(gunItem.level === 2 ? "PLASMA" : (gunItem.level >= 3 ? "UPGRADE" : "PICKUP"), gunItem.x + gunItem.width / 2, gunItem.y - 10);
+        let label = gunItem.level === 1 ? "LASER" :
+            (gunItem.level === 2 ? "PLASMA" :
+                (gunItem.level === 3 ? "RAILGUN" :
+                    (gunItem.level === 4 ? "SHOTGUN" : "LVL UP")));
+        if (gunItem.isSpecial) label = gunItem.weaponType.toUpperCase();
+        ctx.fillText(label, gunItem.x + gunItem.width / 2, gunItem.y - 12);
     }
 
     // Draw Platforms
@@ -2163,7 +2170,7 @@ function draw() {
         const barWidth = 200;
         const barHeight = 12;
         const barX = canvas.width - barWidth - 20;
-        const barY = 80;
+        const barY = 160; // Lowered from 80 to avoid HUD overlap
         const progress = weaponTimer / wpn.duration;
 
         // Background
@@ -2632,10 +2639,91 @@ function handleGameOver() {
     showUI('game-over');
 }
 
+
+// --- Quiz Logic ---
+function startQuiz() {
+    gameState = 'quiz';
+    const container = document.getElementById('quiz-container');
+    if (container) container.classList.remove('hidden');
+
+    const q = questions[currentQuestionIndex];
+    if (!q) return; // Safety check
+
+    const qText = document.getElementById('question-text');
+    const optionsCont = document.getElementById('options-container');
+
+    if (qText) qText.innerText = q.q;
+    if (optionsCont) {
+        optionsCont.innerHTML = '';
+        q.options.forEach((opt, i) => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            // Structure: Number on left, Text centered, using idx+1.
+            btn.innerHTML = `<span class="opt-num">${i + 1}</span><span class="opt-text">${opt}</span>`;
+
+            btn.onclick = () => checkAnswer(i);
+            optionsCont.appendChild(btn);
+        });
+    }
+}
+
+function checkAnswer(selectedIndex) {
+    const q = questions[currentQuestionIndex];
+    let isCorrect = false;
+
+    if (Array.isArray(q.correct)) {
+        isCorrect = q.correct.includes(selectedIndex);
+    } else {
+        isCorrect = selectedIndex === q.correct;
+    }
+
+    if (isCorrect) {
+        soundManager.play('powerup');
+        stats.questionsAnswered++;
+
+        // Progression Logic: Level up every 3 correct answers
+        if (stats.questionsAnswered % 3 === 0) {
+            fitnessLevel = Math.min(3, fitnessLevel + 1);
+            spawnDamageText(player.x, player.y, "FITNESS UP!", "#39ff14");
+        }
+        updateHUD(); // Update text
+
+        if (stats.questionsAnswered === 10) unlockAchievement('quizMaster');
+        score += 500;
+        spawnDamageText(player.x, player.y, "CORRECT!", "#39ff14");
+    } else {
+        soundManager.play('explosion');
+        spawnDamageText(player.x, player.y, "WRONG!", "#ff0000");
+    }
+
+    const container = document.getElementById('quiz-container');
+    if (container) container.classList.add('hidden');
+
+    currentQuestionIndex++;
+    gameState = 'playing';
+}
+
+function updateHUD() {
+    // Fitness Text
+    const fitEl = document.getElementById('fitness-stat');
+    if (fitEl) {
+        let text = "Sedentary (Slow & Low Jump)";
+        if (fitnessLevel === 2) text = "Active (Average Speed)";
+        if (fitnessLevel === 3) text = "Athletic (High Speed & Jump)";
+        fitEl.innerText = text;
+
+        // Color coding
+        fitEl.style.color = fitnessLevel === 1 ? '#ff6b6b' : (fitnessLevel === 2 ? '#ffff00' : '#39ff14');
+    }
+
+    // Score: Distance value
+    const distEl = document.getElementById('score-val');
+    if (distEl) distEl.innerText = Math.floor(distance);
+}
+
 // Wait for DOM and then start
 if (document.readyState === 'complete' || document.readyState === 'interactive') {
     init();
 } else {
     window.addEventListener('DOMContentLoaded', init);
 }
-
