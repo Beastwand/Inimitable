@@ -1,0 +1,177 @@
+:root {
+    --glass: rgba(255, 255, 255, 0.15);
+    --glass-border: rgba(255, 255, 255, 0.3);
+    --neon-green: #39ff14;
+    --neon-blue: #00f3ff;
+    --neon-pink: #ff00ff;
+}
+
+body,
+html {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #000;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+#game-wrapper {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+}
+
+#gameCanvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+#ui-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+}
+
+#hud {
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    pointer-events: auto;
+}
+
+.stat-box {
+    background: var(--glass);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    padding: 10px 20px;
+    border-radius: 12px;
+    color: white;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+    min-width: 200px;
+}
+
+.label {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 5px;
+    color: var(--neon-blue);
+}
+
+#fitness-stat {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+#power-bar-container {
+    width: 100%;
+    height: 10px;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+    margin-top: 5px;
+    overflow: hidden;
+}
+
+#power-bar {
+    width: 20%;
+    height: 100%;
+    background: linear-gradient(90deg, var(--neon-blue), var(--neon-green));
+    transition: width 0.5s ease;
+}
+
+#quiz-container,
+#game-over,
+#victory {
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.4);
+    pointer-events: auto;
+}
+
+#start-screen {
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: url('LQSintro.png') no-repeat center center;
+    background-size: 100% 100%;
+    background-color: #000;
+    pointer-events: auto;
+    z-index: 100;
+    /* Ensure it stays on top */
+}
+
+.hidden {
+    display: none !important;
+}
+
+.glass-card {
+    background: rgba(20, 20, 20, 0.85);
+    backdrop-filter: blur(20px);
+    border: 2px solid var(--glass-border);
+    padding: 40px;
+    border-radius: 24px;
+    color: white;
+    text-align: center;
+    max-width: 600px;
+    box-shadow: 0 0 50px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(255, 255, 255, 0.1);
+}
+
+#options-container {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 15px;
+    margin-top: 30px;
+}
+
+.option-btn {
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    padding: 15px;
+    border-radius: 12px;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1.1rem;
+}
+
+.option-btn:hover {
+    background: rgba(255, 255, 255, 0.25);
+    border-color: var(--neon-green);
+    transform: scale(1.02);
+}
+
+button {
+    background: var(--neon-green);
+    color: black;
+    border: none;
+    padding: 15px 30px;
+    border-radius: 12px;
+    font-weight: bold;
+    font-size: 1.1rem;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: 0.3s;
+}
+
+button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 20px var(--neon-green);
+}
+
+.back-link {
+    display: block;
+    margin-top: 20px;
+    color: var(--neon-blue);
+    text-decoration: none;
+}
