@@ -137,6 +137,17 @@ html {
     transform: scale(1.05);
 }
 
+.tiny-note {
+    font-size: 0.65rem;
+    color: #888;
+    margin-top: 10px;
+    font-style: italic;
+    max-width: 280px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.2;
+}
+
 #controls-menu {
     position: absolute;
     top: 0;

@@ -412,7 +412,7 @@ let hasShownGunTutorial = false;
 // Quiz Data - 15 Questions based on the article
 const allQuestions = [
     { q: "Which 'natural sugar' helps prevent sugar metabolism when consumed simultaneously?", options: ["Allulose", "Fructose", "Sucralose"], correct: 0 },
-    { q: "Which fruit can attenuate a reduced serum antioxidant effect of sugar?", options: ["Blueberry", "Apple", "Banana"], correct: 0 },
+    { q: "What specific health benefit is attributed to Brassica (cruciferous) vegetables like broccoli in the source material?", options: ["They help the body clear synthetic chemicals and carcinogens.", "They alter how fructose is digested to prevent it from increasing liver fat.", "They are the most powerful food for downregulating inflammation."], correct: 0 },
     { q: "What specialized muscle exercise can be performed while seated?", options: ["Soleus Push-up", "Bicep Curl", "Squat"], correct: 0 },
     { q: "Garlic is a natural source of which prebiotic fiber?", options: ["Inulin", "Pectin", "Cellulose"], correct: 0 },
     { q: "Which vegetable enhances the breakdown of synthetic compounds in the liver?", options: ["Broccoli", "Carrot", "Potato"], correct: 0 },
