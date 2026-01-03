@@ -135,16 +135,17 @@ const ENEMY_TYPES = {
     oxidant: { health: 10, speed: 0.8, color: '#ffd700', unlockDist: 1500 }
 };
 
-// Weapon Variety
+// Weapon Tier System
 const WEAPONS = {
-    laser: { damage: 3, fireRate: 15, duration: Infinity, color: '#00f3ff' },
-    spread: { damage: 3, fireRate: 25, duration: 900, color: '#ff6b6b' }, // Buffed
-    homing: { damage: 4, fireRate: 40, duration: 600, color: '#9b59b6' },
-    freeze: { damage: 4, fireRate: 20, duration: 720, color: '#00ffff' }, // Buffed
-    beam: { damage: 0.5, fireRate: 1, duration: 480, color: '#ffff00' }
+    laser: { name: 'LASER', color: '#00f3ff', baseRate: 15, damage: 3 },
+    plasma: { name: 'PLASMA', color: '#ff4500', baseRate: 70, damage: 10 },
+    spray: { name: 'SPRAY', color: '#ffff00', baseRate: 45, damage: 3 },
+    rail: { name: 'RAIL', color: '#bf00ff', baseRate: 66, damage: 12 }
 };
 let currentWeapon = 'laser';
-let weaponTimer = 0;
+let lastSpawnedType = null;
+let weaponTier = 1;
+let weaponTimer = Infinity; // Tiered weapons don't expire unless swapped
 
 // Achievements System
 const ACHIEVEMENTS = {
@@ -394,6 +395,26 @@ function drawBullet(ctx, b) {
         ctx.fillRect(x + 5, y + 1, width - 10, height - 2);
     }
 
+    if (b.type === 'molecule') {
+        drawMolecule(ctx, b.x, b.y, b.width * 2, b.moleculeType || 'oxidant', 1.0);
+    } else if (b.type === 'missile') {
+        ctx.fillStyle = '#ff4500';
+        ctx.beginPath();
+        // Pointing LEFT (Horizontal)
+        ctx.moveTo(b.x, b.y + b.height / 2);
+        ctx.lineTo(b.x + b.width, b.y);
+        ctx.lineTo(b.x + b.width, b.y + b.height);
+        ctx.fill();
+        // Thruster smoke
+        spawnParticles(b.x + b.width, b.y + b.height / 2, '#555', 1, 'trail');
+    } else if (b.type === 'inflammation') {
+        ctx.fillStyle = 'rgba(255, 69, 0, 0.8)';
+        ctx.beginPath();
+        ctx.arc(b.x, b.y, b.width / 2, 0, Math.PI * 2);
+        ctx.fill();
+        if (Math.random() < 0.3) spawnParticles(b.x, b.y, '#ff4500', 1, 'trail');
+    }
+
     ctx.restore();
 }
 
@@ -608,77 +629,43 @@ function update() {
     if (fireCooldown > 0) fireCooldown--;
     const isFiring = userControls.fire.some(k => keys[k]);
     if (isFiring && player.gunLevel > 0 && gameState === 'playing' && fireCooldown <= 0) {
-        const isLvl2 = player.gunLevel === 2;
-        const isLvl3 = player.gunLevel === 3;
-        const isLvl4 = player.gunLevel === 4;
+        const wpn = WEAPONS[currentWeapon];
+        let damage = wpn.damage;
+        let rate = wpn.baseRate;
 
-        // Check for special weapons first
-        if (currentWeapon !== 'laser' && weaponTimer > 0) {
-            const wpn = WEAPONS[currentWeapon];
-
-            if (currentWeapon === 'spread') {
-                // 3-way spread shot
-                for (let angle = -0.3; angle <= 0.3; angle += 0.3) {
-                    bullets.push({
-                        x: player.x + player.width,
-                        y: player.y + player.height / 2,
-                        width: 12,
-                        height: 8,
-                        speed: 14,
-                        dy: angle * 10,
-                        type: 'spread',
-                        damage: wpn.damage
-                    });
-                }
-                fireCooldown = wpn.fireRate;
-                soundManager.play('shoot');
-            } else if (currentWeapon === 'homing') {
-                // Homing missile
-                bullets.push({
-                    x: player.x + player.width,
-                    y: player.y + player.height / 2,
-                    width: 20,
-                    height: 10,
-                    speed: 8,
-                    dy: 0,
-                    type: 'homing',
-                    damage: wpn.damage,
-                    target: null
-                });
-                fireCooldown = wpn.fireRate;
-                soundManager.play('shoot');
-            } else if (currentWeapon === 'freeze') {
-                // Freeze ray
-                bullets.push({
-                    x: player.x + player.width,
-                    y: player.y + player.height / 2,
-                    width: 30,
-                    height: 20,
-                    speed: 10,
-                    type: 'freeze',
-                    damage: wpn.damage
-                });
-                fireCooldown = wpn.fireRate;
-                soundManager.play('shoot');
-            } else if (currentWeapon === 'beam') {
-                // Continuous beam (Dual Beam upgrade)
-                [-8, 8].forEach(offset => {
-                    bullets.push({
-                        x: player.x + player.width,
-                        y: player.y + player.height / 2 + offset,
-                        width: canvas.width,
-                        height: 6,
-                        speed: 0,
-                        type: 'beam',
-                        damage: wpn.damage,
-                        life: 10
-                    });
-                });
-                fireCooldown = wpn.fireRate;
-            }
-            player.muzzleTimer = 4;
-        } else if (isLvl4) {
-            const count = 5 + Math.floor(Math.random() * 3);
+        if (currentWeapon === 'laser') {
+            // Laser Scaling: Speed
+            // Tier 1 is 10% slower than base (15 -> 16.5), then 20% faster each tier
+            const baseDelay = wpn.baseRate * 1.1;
+            rate = Math.round(baseDelay * Math.pow(0.8, weaponTier - 1));
+            bullets.push({
+                x: player.x + player.width,
+                y: player.y + player.height / 2 - 2,
+                width: 20,
+                height: 5,
+                speed: 12,
+                type: 'laser',
+                damage: damage
+            });
+            soundManager.play('shoot');
+        } else if (currentWeapon === 'plasma') {
+            // Plasma Scaling: Size (15% per tier) + Speed (10% faster per tier)
+            const scale = Math.pow(1.15, weaponTier - 1);
+            const size = 60 * scale;
+            rate = Math.round(wpn.baseRate * Math.pow(0.9, weaponTier - 1));
+            bullets.push({
+                x: player.x + player.width,
+                y: player.y + player.height / 2 - size / 2,
+                width: size,
+                height: size,
+                speed: 8,
+                type: 'plasma',
+                damage: damage
+            });
+            soundManager.play('plasma');
+        } else if (currentWeapon === 'spray') {
+            // Spray Scaling: Floating Pellets (Start at 5, +1 per tier)
+            const count = 5 + (weaponTier - 1);
             for (let i = 0; i < count; i++) {
                 bullets.push({
                     x: player.x + player.width,
@@ -686,33 +673,33 @@ function update() {
                     width: 10,
                     height: 10,
                     speed: 12 + Math.random() * 5,
-                    dy: (Math.random() - 0.5) * 8,
+                    dy: (Math.random() - 0.5) * 8, // Up/down spread
                     type: 'pellet',
+                    damage: damage,
                     life: 60 + Math.floor(Math.random() * 20)
                 });
             }
-            fireCooldown = 80;
             soundManager.play('shoot');
-        } else {
+            rate = wpn.baseRate; // Use baseRate (now 35)
+        } else if (currentWeapon === 'rail') {
             bullets.push({
                 x: player.x + player.width,
-                y: player.y + player.height / 2 - (isLvl3 ? 5 : (isLvl2 ? 30 : 2)),
-                width: isLvl3 ? 40 : (isLvl2 ? 60 : 20),
-                height: isLvl3 ? 4 : (isLvl2 ? 60 : 5), // Thinner rail (was 8) for skill requirement
-                speed: isLvl3 ? 20 : (isLvl2 ? 8 : 12),
-                type: isLvl3 ? 'rail' : (isLvl2 ? 'plasma' : 'laser')
+                y: player.y + player.height / 2 - 2,
+                width: 40,
+                height: 4,
+                speed: 20,
+                type: 'rail',
+                damage: damage,
+                pierceCount: weaponTier + 1, // Tier 1: 2 pierces (3 hits), Tier 4: 5 pierces (6 hits)
+                hitHistory: [] // Track unique enemies hit
             });
-            if (isLvl3) {
-                spawnParticles(player.x + player.width, player.y + player.height / 2, '#bf00ff', 5, 'trail');
-                try { soundManager.play('shoot'); } catch (e) { }
-            } else if (isLvl2) {
-                try { soundManager.play('plasma'); } catch (e) { }
-            } else {
-                try { soundManager.play('shoot'); } catch (e) { }
-            }
-            fireCooldown = isLvl3 ? 66 : (isLvl2 ? 70 : 15); // Nerfed rail (was 60, +10% slower)
-            player.muzzleTimer = 4;
+            spawnParticles(player.x + player.width, player.y + player.height / 2, '#bf00ff', 5, 'trail');
+            soundManager.play('shoot');
+            rate = wpn.baseRate;
         }
+
+        fireCooldown = rate;
+        player.muzzleTimer = 4;
     }
 
     // Visual Juice Update
@@ -803,7 +790,9 @@ function update() {
     });
 
     // Environment Transitions
-    const targetBg = currentQuestionIndex < 5 ? background1 : (currentQuestionIndex < 10 ? background2 : background3);
+    // Stage progress pauses while boss is alive (backgrounds stay the same)
+    const effectiveIndex = boss ? Math.min(currentQuestionIndex, boss.spawnIndex - 1) : currentQuestionIndex;
+    const targetBg = effectiveIndex < 5 ? background1 : (effectiveIndex < 10 ? background2 : background3);
 
     backgrounds.forEach(bg => {
         if (bg.isBg) {
@@ -959,7 +948,8 @@ function update() {
         if (currentQuestionIndex < questions.length) {
             lastQuizDistance = distance;
             startQuiz();
-        } else {
+        } else if (!boss && hasSpawnedBossForCurrent) {
+            // Victory only after 15th question AND final boss defeated
             gameState = 'victory';
             showUI('victory');
         }
@@ -1010,6 +1000,9 @@ function updateBoss() {
         // Trigger boss every 5 questions
         if (currentQuestionIndex > 0 && currentQuestionIndex % 5 === 0 && !hasSpawnedBossForCurrent) {
             spawnBoss();
+        } else if (currentQuestionIndex % 5 !== 0) {
+            // Reset for next boss interval
+            hasSpawnedBossForCurrent = false;
         }
         return;
     }
@@ -1020,28 +1013,110 @@ function updateBoss() {
     } else {
         boss.phase += 0.02;
         boss.y = boss.baseY + Math.sin(boss.phase) * 100;
+
+        // Decrement Attack Cooldown
+        if (boss.attackCooldown > 0) boss.attackCooldown--;
+
         const hpPercent = boss.health / boss.maxHealth;
-        // Basic Attack Logic (Reverted)
-        const attackChance = hpPercent > 0.6 ? 0.03 : 0.06;
-        if (Math.random() < attackChance) {
-            enemyBullets.push({
-                x: boss.x,
+        // Basic Attack Logic: Reduced chances and added cooldown check
+        const attackChance = hpPercent > 0.6 ? 0.02 : 0.04;
+        if (Math.random() < attackChance && !boss.streamTimer && boss.attackCooldown <= 0) {
+            const bul = {
+                x: boss.x + boss.width / 2,
                 y: boss.y + boss.height / 2,
                 width: 15,
                 height: 15,
-                speed: -6 - (Math.random() * 4),
-                dy: (Math.random() - 0.5) * 2,
+                speed: -7 - (Math.random() * 3), // Faster, less drift
+                dy: (Math.random() - 0.5) * 1.2, // Further reduced vertical spread for fairer patterns
+                type: 'entropy'
+            };
+
+            // Boss 1: Rare Horizontal Missile (approx once every 10s at 60fps)
+            if (boss.canShootDownMissile && Math.random() < 0.0016) {
+                bul.type = 'missile';
+                bul.speed = -12;
+                bul.dy = 0;
+                bul.width = 30; // Shortened for dodgeability
+                bul.height = 15; // Slimmer for dodgeability
+            }
+
+            // Experimental Ingredients Attack: Molecule graphics at player
+            if (boss.canShootMolecules) {
+                const dx = (player.x + player.width / 2) - bul.x;
+                const dy = (player.y + player.height / 2) - bul.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                bul.speed = (dx / dist) * 8;
+                bul.dy = (dy / dist) * 8;
+                bul.type = 'molecule';
+                bul.moleculeType = Math.random() > 0.5 ? 'oxidant' : 'inflammatory';
+            }
+
+            enemyBullets.push(bul);
+            boss.attackCooldown = 40 + Math.random() * 40; // Cooldown between ~0.6 and 1.3 seconds
+        }
+
+        // --- Rare Aimed Shot (Every 8-12 seconds) ---
+        // Prevents safe spots at bottom of screen
+        if (!boss.lastAimedShotTime) boss.lastAimedShotTime = Date.now();
+        const nowTime = Date.now();
+        if (nowTime - boss.lastAimedShotTime > 10000) {
+            const dx = (player.x + player.width / 2) - (boss.x + boss.width / 2);
+            const dy = (player.y + player.height / 2) - (boss.y + boss.height / 2);
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            enemyBullets.push({
+                x: boss.x + boss.width / 2,
+                y: boss.y + boss.height / 2,
+                width: 12,
+                height: 12,
+                speed: (dx / dist) * 5, // Slower (was 7.5)
+                dy: (dy / dist) * 5,    // Slower (was 7.5)
                 type: 'entropy'
             });
+            boss.lastAimedShotTime = nowTime;
+            spawnDamageText(boss.x, boss.y - 30, "TAKE AIM!", "#ff0000", 16);
+        }
+
+        // Boss 2: Inflation Stream
+        if (boss.canShootStream) {
+            if (boss.streamTimer > 0) {
+                boss.streamTimer--;
+                if (boss.streamTimer % 3 === 0) {
+                    enemyBullets.push({
+                        x: boss.x + boss.width / 2,
+                        y: boss.y + boss.height / 2,
+                        width: 12,
+                        height: 12,
+                        speed: -10, // Horizontal only
+                        dy: 0,
+                        type: 'inflammation'
+                    });
+                    // Steam effect along the horizontal path
+                    spawnParticles(boss.x - (60 - boss.streamTimer) * 10, boss.y + boss.height / 2, '#fff', 1, 'trail');
+                }
+            } else if (Math.random() < 0.005 && boss.attackCooldown <= 0) { // Reduced from 0.01 for better pacing
+                boss.streamTimer = 60; // 1 second spray
+                boss.attackCooldown = 120; // 2 second pause after a big stream
+                spawnDamageText(boss.x, boss.y - 50, "INFLAMMATION SPRAY!", "#ff4500");
+            }
         }
     }
 }
 
 function spawnBoss() {
-    // Reverted to Basic Boss (No complex types) to prevent freezing
-    const bossType = 'sugar';
-    const bossName = 'BIG SUGAR';
-    const bossColor = '#ff0000';
+    let bossType = 'sugar';
+    let bossName = 'BIG SUGAR';
+    let bossColor = '#ff4500'; // FD&C Red No. 40 (Orange-Red)
+    let subName = '';
+
+    if (currentQuestionIndex >= 15) {
+        bossName = 'EXPERIMENTAL INGREDIENTS';
+        bossColor = '#9b59b6'; // Purple
+    } else if (currentQuestionIndex >= 10) {
+        bossName = 'HYDROGENATED OILS';
+        bossColor = '#ffa500'; // Orange/Gold for oil
+    } else {
+        subName = 'FD&C Red No. 40';
+    }
 
     boss = {
         x: canvas.width + 200,
@@ -1049,19 +1124,28 @@ function spawnBoss() {
         baseY: canvas.height / 2 - 100,
         width: 200,
         height: 200,
-        health: 200 + (currentQuestionIndex * 20),
-        maxHealth: 200 + (currentQuestionIndex * 20),
+        health: 200 + (currentQuestionIndex * 35), // Buffed health scaling
+        maxHealth: 200 + (currentQuestionIndex * 35),
         phase: 0,
         hitTimer: 0,
         type: bossType,
-        color: bossColor
+        name: bossName,
+        subName: subName,
+        color: bossColor,
+        isSticky: false, // Hydrogenated Oils and Experimental Ingredients don't leave gum (User Request)
+        canShootMolecules: (currentQuestionIndex >= 15),
+        canShootDownMissile: (currentQuestionIndex < 10 || currentQuestionIndex >= 15), // Boss 3 can also shoot missiles
+        canShootStream: (currentQuestionIndex >= 10 && currentQuestionIndex < 15),
+        isBottle: (currentQuestionIndex >= 10 && currentQuestionIndex < 15),
+        streamTimer: 0,
+        attackCooldown: 0, // Pause between special attacks
+        spawnIndex: currentQuestionIndex
     };
     hasSpawnedBossForCurrent = true;
-    console.log(`Spawned Basic Boss at Q${currentQuestionIndex}`);
+    console.log(`Spawned Boss: ${bossName} at Q${currentQuestionIndex}`);
     spawnDamageText(canvas.width / 2, canvas.height / 2, `${bossName} APPROACHES!`, bossColor);
 }
 
-let hasSpawnedBossForCurrent = false;
 
 function spawnPowerup() {
     // Speed Boost: Increased frequency
@@ -1344,33 +1428,24 @@ function toggleDailyChallenge() {
 }
 
 function spawnGunItem() {
-    // Regular gun upgrades
-    if (!gunItem && Math.random() < 0.004 && distance > 500) {
-        const lvls = [1, 2, 3, 4];
-        const randomLvl = lvls[Math.floor(Math.random() * lvls.length)];
-
-        if (randomLvl !== player.gunLevel) {
-            gunItem = {
-                x: canvas.width,
-                y: canvas.height - 250 - Math.random() * 100,
-                width: 40,
-                height: 30,
-                level: randomLvl,
-                isSpecial: false
-            };
+    // Weighted spawn for weapon tiers
+    if (!gunItem && Math.random() < 0.007 && distance > 500) {
+        // Increase variety: lower weight for laser after 1000m. Prevent direct duplicates.
+        let pool = distance > 1000 ? ['plasma', 'spray', 'rail', 'plasma', 'spray', 'rail', 'laser'] : ['laser', 'plasma', 'spray', 'rail'];
+        // Filter out the last spawned type to ensure variety
+        if (lastSpawnedType) {
+            pool = pool.filter(t => t !== lastSpawnedType);
         }
-    }
+        const chosen = pool[Math.floor(Math.random() * pool.length)];
+        lastSpawnedType = chosen;
 
-    // Special weapon pickups (new!)
-    if (!gunItem && Math.random() < 0.002 && distance > 1500 && weaponTimer <= 0) {
-        const specialWeapons = ['spread', 'homing', 'freeze', 'beam'];
-        const chosen = specialWeapons[Math.floor(Math.random() * specialWeapons.length)];
         gunItem = {
             x: canvas.width,
-            y: canvas.height - 300 - Math.random() * 150,
-            width: 55, // Slightly larger
-            height: 40,
+            y: canvas.height - 250 - Math.random() * 150,
+            width: 45, // Slimmer (was 50)
+            height: 35, // Slimmer (was 40)
             weaponType: chosen,
+            color: WEAPONS[chosen].color,
             isSpecial: true
         };
     }
@@ -1383,36 +1458,26 @@ function spawnGunItem() {
             player.y < gunItem.y + gunItem.height &&
             player.y + player.height > gunItem.y
         ) {
-            if (gunItem.isSpecial) {
-                // Equip special weapon
-                currentWeapon = gunItem.weaponType;
-                weaponTimer = WEAPONS[currentWeapon].duration;
-                spawnDamageText(player.x, player.y, `${currentWeapon.toUpperCase()}!`, WEAPONS[currentWeapon].color);
-                soundManager.play('powerup');
+            const pickedType = gunItem.weaponType;
+            if (pickedType === currentWeapon && player.gunLevel > 0) {
+                weaponTier = Math.min(4, weaponTier + 1);
+                spawnDamageText(player.x, player.y, `TIER UP: ${weaponTier}/4`, WEAPONS[pickedType].color);
             } else {
-                player.gunLevel = gunItem.level;
-                fireCooldown = 0; // Reset cooldown for immediate firing
-                if (!hasShownGunTutorial || player.gunLevel >= 2) {
-                    gunTutorialTimer = 180;
-                    hasShownGunTutorial = true;
-                }
+                currentWeapon = pickedType;
+                weaponTier = 1;
+                player.gunLevel = 1; // Enable shooting
+                spawnDamageText(player.x, player.y, `${WEAPONS[pickedType].name} EQUIP!`, WEAPONS[pickedType].color);
             }
+            fireCooldown = 0; // Immediate fire
+            soundManager.play('powerup');
             gunItem = null;
         }
         else if (gunItem.x + gunItem.width < 0) {
             gunItem = null;
         }
     }
-
-    // Update weapon timer
-    if (weaponTimer > 0) {
-        weaponTimer--;
-        if (weaponTimer <= 0) {
-            currentWeapon = 'laser'; // Revert to base
-            spawnDamageText(player.x, player.y, "WEAPON EXPIRED", "#888");
-        }
-    }
 }
+
 
 function updateBullets() {
     // 1. Update positions
@@ -1473,6 +1538,7 @@ function updateBullets() {
     if (enemyBullets.length > 0) {
         enemyBullets = enemyBullets.filter(eb => {
             eb.x += eb.speed;
+            eb.y += (eb.dy || 0);
             // Check player collision
             if (
                 !player.isInvulnerable &&
@@ -1529,12 +1595,24 @@ function updateBullets() {
                 b.y + b.height > e.y
             ) {
                 // Pierce logic: rail and beam pierce, others don't
-                if (b.type !== 'rail' && b.type !== 'beam') hitBullets.add(i);
+                if (b.type === 'rail') {
+                    // Check if we already hit this specific enemy instance
+                    if (b.hitHistory && b.hitHistory.includes(e)) continue;
+
+                    if (b.pierceCount <= 0) {
+                        hitBullets.add(i);
+                    } else {
+                        b.pierceCount--;
+                        if (b.hitHistory) b.hitHistory.push(e);
+                    }
+                } else if (b.type !== 'beam') {
+                    hitBullets.add(i);
+                }
 
                 // Damage Logic
                 let damage = b.damage || 1;
-                if (b.type === 'rail') damage = 8;
-                else if (b.type === 'plasma') damage = 12; // Buffed from 6 to one-shot regular mobs
+                if (b.type === 'rail') damage = 14; // Tuned: beats Oxidants (10) but Tank (15) remains as per User Request
+                else if (b.type === 'plasma') damage = 12; // Beats Oxidant (10) in 1 shot
                 else if (b.type === 'laser') damage = 3;
                 else if (b.type === 'pellet') damage = 2;
                 else if (b.type === 'spread') damage = 3; // Buffed from 2
@@ -1587,7 +1665,35 @@ function updateBullets() {
                 }
 
                 // If it's a rail shot, we don't break; we continue through other enemies
-                if (b.type !== 'rail') break;
+                // Rail pierces until pierceCount is exhausted
+                if (b.type !== 'rail' || hitBullets.has(i)) break;
+            }
+        }
+
+        // Consolidated Interception Logic (Plasma + Standard vs Missiles)
+        const iPadding = (b.type === 'plasma') ? b.width * 0.3 : 0; // 30% padding for Plasma "eat" zone
+        for (let k = enemyBullets.length - 1; k >= 0; k--) {
+            const eb = enemyBullets[k];
+            if (
+                b.x - iPadding < eb.x + eb.width &&
+                b.x + b.width + iPadding > eb.x &&
+                b.y - iPadding < eb.y + eb.height &&
+                b.y + b.height + iPadding > eb.y
+            ) {
+                // Plasma eats EVERYTHING and persists
+                if (b.type === 'plasma') {
+                    enemyBullets.splice(k, 1);
+                    spawnParticles(eb.x, eb.y, '#ff4500', 5);
+                    spawnDamageText(eb.x, eb.y, "EATEN!", "#ff8c00", 12);
+                }
+                // Other bullets (except beam) can destroy missiles but are consumed
+                else if (b.type !== 'beam' && eb.type === 'missile') {
+                    hitBullets.add(i);
+                    enemyBullets.splice(k, 1);
+                    spawnParticles(eb.x, eb.y, '#ff4500', 10);
+                    spawnDamageText(eb.x, eb.y, "DESTROYED!", "#ff4500", 12);
+                    break; // Bullet is gone, stop checking other enemy bullets
+                }
             }
         }
 
@@ -1599,7 +1705,12 @@ function updateBullets() {
                 b.y < boss.y + boss.height &&
                 b.y + boss.height > boss.y
             ) {
-                if (b.type !== 'rail') hitBullets.add(i);
+                if (b.type === 'rail') {
+                    if (b.hitHistory && b.hitHistory.includes(boss)) return; // Don't multi-hit boss same bullet
+                    if (b.hitHistory) b.hitHistory.push(boss);
+                } else {
+                    hitBullets.add(i);
+                }
 
                 let damage = 1;
                 if (b.type === 'rail') damage = 12; // Rail does extra to boss
@@ -1612,8 +1723,18 @@ function updateBullets() {
                 spawnDamageText(boss.x + boss.width / 2, boss.y, `-${damage}`, '#ff00ff');
 
                 if (boss.health <= 0) {
-                    spawnParticles(boss.x + boss.width / 2, boss.y + boss.height / 2, '#ff0000', 50);
+                    spawnParticles(boss.x + boss.width / 2, boss.y + boss.height / 2, boss.color, 50);
                     spawnDamageText(boss.x, boss.y, "CRITICAL DETOX!", "#39ff14");
+
+                    // Level 2 Special: Spawn many small sticky gums
+                    if (boss.isSticky) {
+                        for (let i = 0; i < 15; i++) {
+                            const rx = boss.x + (Math.random() - 0.5) * boss.width;
+                            const ry = boss.y + (Math.random() - 0.5) * boss.height;
+                            spawnMiniEnemy(rx, ry);
+                        }
+                    }
+
                     boss = null;
                     shakeScreen(20);
                     soundManager.play('explosion');
@@ -1631,28 +1752,8 @@ function updateBullets() {
         }
     }
 
-    // --- 3. Plasma vs Projectile Interception ---
-    // Level 2 Plasma balls can destroy enemy projectiles
-    for (let i = bullets.length - 1; i >= 0; i--) {
-        const b = bullets[i];
-        if (b.type !== 'plasma') continue;
-
-        for (let j = enemyBullets.length - 1; j >= 0; j--) {
-            const eb = enemyBullets[j];
-            if (
-                b.x < eb.x + eb.width &&
-                b.x + b.width > eb.x &&
-                b.y < eb.y + eb.height &&
-                b.y + b.height > eb.y
-            ) {
-                // Interception!
-                spawnParticles(eb.x + eb.width / 2, eb.y + eb.height / 2, '#ffcc00', 5);
-                enemyBullets.splice(j, 1);
-                // Reduce checks per frame (optimization)
-                break;
-            }
-        }
-    }
+    // Removal pass handled at end of function
+    // (Redundant loop removed)
 
     // 4. Apply removals
     if (hitBullets.size > 0) bullets = bullets.filter((_, i) => !hitBullets.has(i));
@@ -1900,16 +2001,63 @@ function draw() {
         // Basic Boss Rendering (Reverted)
 
         // Body
-        const grad = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, boss.width / 2);
-        grad.addColorStop(0, '#ff0000');
-        grad.addColorStop(1, '#660000');
-        ctx.fillStyle = grad;
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, boss.width / 2, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.strokeStyle = 'white';
-        ctx.lineWidth = 5;
-        ctx.stroke();
+        if (boss.isBottle) {
+            // Draw Bottle Appearance (Hydrogenated Oils)
+            const bX = centerX - boss.width * 0.3;
+            const bY = boss.y;
+            const bW = boss.width * 0.6;
+            const bH = boss.height;
+
+            // Bottle Body
+            ctx.fillStyle = boss.color;
+            ctx.beginPath();
+            ctx.roundRect(bX, bY + 40, bW, bH - 40, 10);
+            ctx.fill();
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+
+            // Bottle Neck
+            ctx.fillStyle = boss.color;
+            ctx.fillRect(centerX - 20, bY + 10, 40, 30);
+            ctx.strokeRect(centerX - 20, bY + 10, 40, 30);
+
+            // Cap
+            ctx.fillStyle = '#ff0000';
+            ctx.fillRect(centerX - 25, bY, 50, 15);
+
+            // Label
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold 10px Courier New'; // Smaller font for longer text
+            ctx.textAlign = 'center';
+            ctx.fillText("HYDROGENATED", centerX, bY + bH * 0.65);
+            ctx.fillText("OILS", centerX, bY + bH * 0.75);
+        } else {
+            const grad = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, boss.width / 2);
+            grad.addColorStop(0, boss.color);
+            grad.addColorStop(1, '#000000');
+            ctx.fillStyle = grad;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, boss.width / 2, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 5;
+            ctx.stroke();
+        }
+
+        // Sub-text for BIG SUGAR
+        if (boss.subName) {
+            ctx.fillStyle = 'rgba(255,255,255,0.8)';
+            ctx.font = 'italic 18px Courier New';
+            ctx.textAlign = 'center';
+            ctx.fillText(`"${boss.subName}"`, centerX, boss.y + boss.height + 40);
+        } else {
+            // Main Boss Name Display (User Request for Boss 3)
+            ctx.fillStyle = boss.color;
+            ctx.font = 'bold 22px Courier New';
+            ctx.textAlign = 'center';
+            ctx.fillText(boss.name, centerX, boss.y + boss.height + 40);
+        }
 
         // Simple Spikes
         ctx.beginPath();
@@ -2112,16 +2260,34 @@ function draw() {
 
     // Draw Gun Item Pickup
     if (gunItem) {
-        drawGun(ctx, gunItem.x, gunItem.y, gunItem.width, gunItem.height, gunItem.level);
-        ctx.fillStyle = gunItem.isSpecial ? WEAPONS[gunItem.weaponType].color : '#fff';
-        ctx.font = 'bold 12px Courier New';
+        const wpnData = WEAPONS[gunItem.weaponType] || WEAPONS.laser;
+        ctx.save();
+
+        // REVERTED: Slimmer, cleaner box
+        ctx.fillStyle = wpnData.color;
+        ctx.globalAlpha = 0.7;
+        ctx.fillRect(gunItem.x, gunItem.y, gunItem.width, gunItem.height);
+        ctx.strokeStyle = '#fff';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(gunItem.x, gunItem.y, gunItem.width, gunItem.height);
+
+        // Glow effect
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = wpnData.color;
+
+        // Small icon inside
+        let visualLvl = 1;
+        if (gunItem.weaponType === 'plasma') visualLvl = 2;
+        if (gunItem.weaponType === 'rail') visualLvl = 3;
+        if (gunItem.weaponType === 'spray') visualLvl = 4;
+        drawGun(ctx, gunItem.x + 5, gunItem.y + 10, gunItem.width - 10, gunItem.height - 20, visualLvl);
+
+        ctx.globalAlpha = 1.0;
+        ctx.fillStyle = 'white';
+        ctx.font = 'bold 12px Courier New'; // Revert font size
         ctx.textAlign = 'center';
-        let label = gunItem.level === 1 ? "LASER" :
-            (gunItem.level === 2 ? "PLASMA" :
-                (gunItem.level === 3 ? "RAILGUN" :
-                    (gunItem.level === 4 ? "SHOTGUN" : "LVL UP")));
-        if (gunItem.isSpecial) label = gunItem.weaponType.toUpperCase();
-        ctx.fillText(label, gunItem.x + gunItem.width / 2, gunItem.y - 12);
+        ctx.fillText(wpnData.name, gunItem.x + gunItem.width / 2, gunItem.y - 12);
+        ctx.restore();
     }
 
     // Draw Platforms
@@ -2206,7 +2372,13 @@ function draw() {
     if (player.gunLevel > 0) {
         const gunX = player.x + player.width * 0.4;
         const gunY = player.y + player.height * 0.45;
-        drawGun(ctx, gunX, gunY, 60, 30, player.gunLevel);
+
+        let visualLvl = 1;
+        if (currentWeapon === 'plasma') visualLvl = 2;
+        if (currentWeapon === 'rail') visualLvl = 3;
+        if (currentWeapon === 'spray') visualLvl = 4;
+
+        drawGun(ctx, gunX, gunY, 60, 30, visualLvl);
 
         // Muzzle Flash
         if (player.muzzleTimer > 0) {
@@ -2224,14 +2396,14 @@ function draw() {
     // Gun Tutorial Message
     if (gunTutorialTimer > 0) {
         ctx.save();
-        const isLvl4 = player.gunLevel === 4;
-        const msg = isLvl4 ? "GOLD SHOTGUN ACQUIRED!" : (isLvl2 ? "UPGRADED PLASMA CANNON!" : "NEW WEAPON ACQUIRED!");
-        const subMsg = isLvl4 ? "SHORT RANGE BUSTER" : (isLvl2 ? "SLOW BUT POWERFUL" : "HOLD 'W' OR 'Z' TO FIRE");
+        const gunName = WEAPONS[currentWeapon].name;
+        const msg = `${gunName} ACQUIRED!`;
+        const subMsg = currentWeapon === 'spray' ? "YELLOW SPRAYER" : (currentWeapon === 'plasma' ? "SLOW BUT POWERFUL" : "NEW WEAPON ACQUIRED!");
 
-        ctx.fillStyle = isLvl4 ? 'rgba(255, 215, 0, 0.2)' : (isLvl2 ? 'rgba(255, 140, 0, 0.2)' : 'rgba(0, 243, 255, 0.2)');
+        ctx.fillStyle = WEAPONS[currentWeapon].color + '33'; // 20% alpha
         ctx.fillRect(0, canvas.height / 2 - 100, canvas.width, 100);
 
-        ctx.fillStyle = isLvl4 ? '#ffd700' : (isLvl2 ? '#ff8c00' : '#00f3ff');
+        ctx.fillStyle = WEAPONS[currentWeapon].color;
         ctx.font = 'bold 30px Courier New';
         ctx.textAlign = 'center';
         ctx.shadowBlur = 10;
@@ -2254,34 +2426,52 @@ function draw() {
         ctx.fillText("PAUSED", canvas.width / 2, canvas.height / 2);
     }
 
-    // ===== WEAPON TIMER DISPLAY =====
-    if (weaponTimer > 0 && currentWeapon !== 'laser') {
+    // ===== NEW WEAPON HUD =====
+    if ((gameState === 'playing' || gameState === 'paused') && weaponTier > 0) {
         ctx.save();
         const wpn = WEAPONS[currentWeapon];
-        const barWidth = 200;
-        const barHeight = 12;
-        const barX = canvas.width - barWidth - 20;
-        const barY = 160; // Lowered from 80 to avoid HUD overlap
-        const progress = weaponTimer / wpn.duration;
+        const hudWidth = 220;
+        const hudHeight = 70;
+        const hudX = canvas.width - hudWidth - 20;
+        const hudY = 140;
 
-        // Background
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
-        ctx.fillRect(barX - 5, barY - 5, barWidth + 10, barHeight + 25);
-
-        // Progress bar
-        ctx.fillStyle = wpn.color;
-        ctx.fillRect(barX, barY, barWidth * progress, barHeight);
-
-        // Border
-        ctx.strokeStyle = 'white';
+        // Glass-morphism card
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = wpn.color;
+        ctx.beginPath();
+        ctx.roundRect(hudX, hudY, hudWidth, hudHeight, 8);
+        ctx.fill();
+        ctx.strokeStyle = wpn.color;
         ctx.lineWidth = 2;
-        ctx.strokeRect(barX, barY, barWidth, barHeight);
+        ctx.stroke();
 
-        // Label
+        // Gun Icon
+        let gunLvl = 1;
+        if (currentWeapon === 'plasma') gunLvl = 2;
+        if (currentWeapon === 'rail') gunLvl = 3;
+        if (currentWeapon === 'spray') gunLvl = 4;
+        drawGun(ctx, hudX + 15, hudY + 15, 60, 30, gunLvl);
+
+        // Text Info
+        ctx.shadowBlur = 0;
         ctx.fillStyle = wpn.color;
-        ctx.font = 'bold 14px Courier New';
-        ctx.textAlign = 'center';
-        ctx.fillText(`${currentWeapon.toUpperCase()}`, barX + barWidth / 2, barY + barHeight + 15);
+        ctx.font = 'bold 18px Courier New';
+        ctx.textAlign = 'left';
+        ctx.fillText(wpn.name, hudX + 90, hudY + 30);
+
+        // Tier Indicator Pips
+        for (let i = 0; i < 4; i++) {
+            ctx.fillStyle = i < weaponTier ? wpn.color : '#333';
+            ctx.shadowBlur = i < weaponTier ? 5 : 0;
+            ctx.shadowColor = wpn.color;
+            ctx.fillRect(hudX + 90 + i * 30, hudY + 42, 25, 8);
+        }
+
+        ctx.font = 'bold 11px Courier New';
+        ctx.fillStyle = '#888';
+        ctx.fillText(`TIER ${weaponTier}/4`, hudX + 90, hudY + 64);
+
         ctx.restore();
     }
 
@@ -2342,53 +2532,7 @@ function draw() {
     ctx.restore(); // Restore shake translation
 }
 
-function startQuiz() {
-    gameState = 'quiz';
-    const q = questions[currentQuestionIndex];
-    document.getElementById('question-text').innerText = q.q;
-    const optionsDiv = document.getElementById('options-container');
-    optionsDiv.innerHTML = '';
 
-    // Create option objects and shuffle them
-    const shuffledOptions = shuffle(q.options.map((opt, i) => ({
-        text: opt,
-        isCorrect: Array.isArray(q.correct) ? q.correct.includes(i) : i === q.correct
-    })));
-
-    shuffledOptions.forEach((opt, idx) => {
-        const btn = document.createElement('div');
-        btn.className = 'option-btn';
-        // Add numeric prefix for accessibility
-        btn.innerHTML = `<span style="color: #39ff14; margin-right: 10px;">${idx + 1}.</span> ${opt.text}`;
-        btn.onclick = () => checkAnswer(opt.isCorrect);
-        optionsDiv.appendChild(btn);
-    });
-
-    showUI('quiz-container');
-}
-
-function checkAnswer(isCorrect) {
-    if (isCorrect) {
-        fitnessLevel = Math.min(3, fitnessLevel + 1);
-        updateHUD();
-        currentQuestionIndex++;
-        gameState = 'playing';
-        hideUI('quiz-container');
-
-        // Reset boss flag so a new one can spawn at the next milestone
-        hasSpawnedBossForCurrent = false;
-
-        // Phase out all microbes after answering
-        enemies.forEach(e => {
-            e.phasingOut = true;
-            e.opacity = 1.0;
-        });
-        lastEnemySpawn = distance + 600; // Extra buffer before next spawn
-    } else {
-        // Penalty or Reset
-        handleGameOver();
-    }
-}
 
 // --- Audio System (Web Audio API) ---
 const soundManager = {
@@ -2644,6 +2788,7 @@ function startGame() {
 
     // Explicitly reset combat state
     player.gunLevel = 0;
+    weaponTier = 0;
     fireCooldown = 0;
     weaponTimer = 0;
     currentWeapon = 'laser';
@@ -2740,22 +2885,46 @@ function handleGameOver() {
 
 // --- Quiz Logic ---
 function startQuiz() {
+    if (gameState === 'quiz') return;
     gameState = 'quiz';
+    enemyBullets = []; // Clear all projectiles on screen for a fair transition
+
+    // During boss, serve random questions from the current stage
+    if (boss) {
+        const stageStart = Math.max(0, boss.spawnIndex - (boss.spawnIndex % 5)); // Start of the 5-question block
+        currentQuizIndex = stageStart + Math.floor(Math.random() * 5); // Random question within that block
+    } else {
+        currentQuizIndex = currentQuestionIndex;
+    }
+
     const container = document.getElementById('quiz-container');
     if (container) container.classList.remove('hidden');
 
-    const q = questions[currentQuestionIndex];
+    const q = questions[currentQuizIndex];
     if (!q) return; // Safety check
 
     const qText = document.getElementById('question-text');
     const optionsCont = document.getElementById('options-container');
 
-    if (qText) qText.innerText = q.q;
+    if (qText) {
+        qText.innerText = q.q;
+        // Dynamic Question Scaling
+        if (q.q.length > 140) qText.style.fontSize = '0.85rem';
+        else if (q.q.length > 100) qText.style.fontSize = '0.95rem';
+        else qText.style.fontSize = '1.1rem';
+    }
+
     if (optionsCont) {
         optionsCont.innerHTML = '';
         q.options.forEach((opt, i) => {
             const btn = document.createElement('button');
             btn.className = 'option-btn';
+
+            // Dynamic Answer Scaling
+            if (opt.length > 50) btn.style.fontSize = '0.8rem';
+            else if (opt.length > 30) btn.style.fontSize = '0.95rem';
+            else btn.style.fontSize = '1.1rem';
+
             // Structure: Number on left, Text centered, using idx+1.
             btn.innerHTML = `<span class="opt-num">${i + 1}</span><span class="opt-text">${opt}</span>`;
 
@@ -2766,7 +2935,7 @@ function startQuiz() {
 }
 
 function checkAnswer(selectedIndex) {
-    const q = questions[currentQuestionIndex];
+    const q = questions[currentQuizIndex];
     let isCorrect = false;
 
     if (Array.isArray(q.correct)) {
@@ -2795,6 +2964,11 @@ function checkAnswer(selectedIndex) {
             en.phasingOut = true;
             if (en.opacity === undefined) en.opacity = 1.0;
         });
+
+        // ONLY progress the level index if no boss is active
+        if (!boss) {
+            currentQuestionIndex++;
+        }
     } else {
         soundManager.play('explosion');
         spawnDamageText(player.x, player.y, "WRONG!", "#ff0000");
@@ -2803,7 +2977,6 @@ function checkAnswer(selectedIndex) {
     const container = document.getElementById('quiz-container');
     if (container) container.classList.add('hidden');
 
-    currentQuestionIndex++;
     gameState = 'playing';
 }
 
