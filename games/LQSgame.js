@@ -46,12 +46,27 @@ function processTransparency(img, callback) {
             const data = imageData.data;
 
             // Sample corner for background color (usually white)
-            const br = data[0], bg = data[1], bb = data[2];
+            const br = data[0], bg = data[1], bb = data[2], ba = data[3];
+
+            // Check if the image already has significant transparency
+            let hasTransparency = false;
+            if (ba < 200) hasTransparency = true;
 
             for (let i = 0; i < data.length; i += 4) {
-                const r = data[i], g = data[i + 1], b = data[i + 2];
-                // Remove if matches corner color or is very bright (near-white)
-                const isBackground = (Math.abs(r - br) < 30 && Math.abs(g - bg) < 30 && Math.abs(b - bb) < 30) || (r > 240 && g > 240 && b > 240);
+                const r = data[i], g = data[i + 1], b = data[i + 2], a = data[i + 3];
+                if (a < 128) {
+                    hasTransparency = true;
+                    continue; // Skip already transparent
+                }
+
+                // If image already has transparency, don't use the aggressive "near-white" fallback
+                // Only remove pixels that match the corner color closely
+                const matchesCorner = Math.abs(r - br) < 30 && Math.abs(g - bg) < 30 && Math.abs(b - bb) < 30;
+                const isPureWhite = r > 250 && g > 250 && b > 250;
+
+                // If the user already handled transparency, we don't want to kill highlights (white eye glints)
+                const isBackground = hasTransparency ? matchesCorner && (ba > 200) : (matchesCorner || isPureWhite);
+
                 if (isBackground) {
                     data[i + 3] = 0;
                 }
