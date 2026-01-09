@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSBH LQS</title>
+    <link rel="stylesheet" href="LQSgame.css">
+</head>
+
+<body>
+    <div id="game-wrapper">
+        <canvas id="gameCanvas"></canvas>
+
+        <div id="ui-overlay">
+            <div id="hud">
+                <div class="stat-box">
+                    <span class="label">Fitness Level:</span>
+                    <span id="fitness-stat">Average</span>
+                </div>
+                <div class="stat-box">
+                    <span class="label">Distance:</span>
+                    <span id="score-val">0</span>m
+                </div>
+                <div class="stat-box">
+                    <span class="label">Power:</span>
+                    <div id="power-bar-container">
+                        <div id="power-bar"></div>
+                    </div>
+                </div>
+                <div class="stat-box">
+                    <span class="label">Audio:</span>
+                    <div id="audio-stat" style="font-size: 0.9rem;">
+                        <span id="sfx-stat">[I] SFX: ON</span><br>
+                        <span id="music-stat" style="color: #aaa;">[O] Music: OFF</span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="quiz-container" class="hidden">
+                <div class="glass-card">
+                    <h2 id="question-text">Question goes here?</h2>
+                    <div id="options-container">
+                        <!-- Options will be injected here -->
+                    </div>
+                </div>
+            </div>
+
+            <div id="game-over" class="hidden">
+                <div class="glass-card">
+                    <h1>SODA OVERLOAD!</h1>
+                    <p>The microbes have overwhelmed you. Try to make healthier choices next time!</p>
+                    <p id="high-score-display" style="color: #ffd700; font-weight: bold; margin: 10px 0;"></p>
+                    <button onclick="location.reload()">Reset Odyssey</button>
+                    <a href="https://inimitable.dev/sodahealth" class="back-link">Return to Article</a>
+                </div>
+            </div>
+
+            <div id="start-screen">
+                <div class="glass-card">
+                    <h1>Lunch Quiz Survival</h1>
+                    <p style="margin-bottom: 20px;">Use <strong>W, Z, or X</strong> to
+                        Shoot.<br><strong>Space/Up</strong> to Jump.</p>
+                    <button onclick="startGame()">PLAY</button>
+                    <button onclick="toggleControlsMenu()" class="btn-secondary"
+                        style="background: var(--neon-blue);">CONTROLS</button>
+                    <p class="tiny-note">note: seeing updates may require a stronger refresh using the browser hotkey
+                        ctrl+shift+r or aka ctrl+f5</p>
+                    <a href="https://inimitable.dev/sodahealth" class="back-link">Back to Article</a>
+                </div>
+            </div>
+
+            <div id="controls-menu" class="hidden">
+                <div class="glass-card">
+                    <h1>Custom Controls</h1>
+                    <div id="controls-list" style="text-align: left; margin: 20px 0;">
+                        <!-- Injected by JS -->
+                    </div>
+                    <p id="rebind-prompt" style="color: var(--neon-green); min-height: 1.5em; font-weight: bold;"></p>
+                    <div
+                        style="display: flex; flex-direction: column; gap: 5px; justify-content: center; align-items: center;">
+                        <button onclick="toggleControlsMenu()" style="width: 240px;">CLOSE</button>
+                        <button onclick="resetControls()"
+                            style="background: #ff4757; width: 240px; margin-top: 5px;">RESET</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="victory" class="hidden">
+                <div class="glass-card">
+                    <h1>PEAK FITNESS ACHIEVED!</h1>
+                    <p>You've mastered the science of Allulose, Blueberries, and the Soleus muscle.</p>
+                    <button onclick="location.reload()">Run it Again</button>
+                    <a href="https://inimitable.dev/sodahealth" class="back-link">Read More Tips</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="LQSgame.js"></script>
+</body>
+
+</html>
