@@ -24,9 +24,13 @@ background2.src = 'LQSbg2.png';
 const background3 = new Image();
 background3.src = 'LQSbg3.png';
 
+const transFatBossImg = new Image();
+transFatBossImg.src = 'LQSm2.png';
+
 // Transparency Processing
 let playerTransparent = null;
 let microbeTransparent = null;
+let transFatBossTransparent = null;
 
 function processTransparency(img, callback) {
     const run = () => {
@@ -47,8 +51,7 @@ function processTransparency(img, callback) {
             for (let i = 0; i < data.length; i += 4) {
                 const r = data[i], g = data[i + 1], b = data[i + 2];
                 // Remove if matches corner color or is very bright (near-white)
-                // Lowered threshold to 220 to catch more off-white artifacts
-                const isBackground = (Math.abs(r - br) < 30 && Math.abs(g - bg) < 30 && Math.abs(b - bb) < 30) || (r > 220 && g > 220 && b > 220);
+                const isBackground = (Math.abs(r - br) < 30 && Math.abs(g - bg) < 30 && Math.abs(b - bb) < 30) || (r > 240 && g > 240 && b > 240);
                 if (isBackground) {
                     data[i + 3] = 0;
                 }
@@ -67,6 +70,8 @@ function processTransparency(img, callback) {
     if (img.complete && img.naturalWidth > 0) run();
     else img.onload = run;
 }
+
+processTransparency(transFatBossImg, (img) => { transFatBossTransparent = img; });
 
 // Character settings
 const player = {
@@ -92,7 +97,14 @@ const player = {
     // Visual Juice Props
     scaleX: 1,
     scaleY: 1,
-    muzzleTimer: 0
+    muzzleTimer: 0,
+    // Temporary Power-ups
+    isFreezeActive: false, // New Modifier-based Freeze
+    isHomingActive: false, // New Modifier-based Homing
+    isScatterActive: false, // New Modifier-based Scatter
+    tempWeaponTimer: 0,
+    homingTimer: 0,
+    scatterTimer: 0
 };
 
 // Gun & Bullets
@@ -204,7 +216,21 @@ let userControls = {
 let isRebinding = null; // Stores action name currently being rebinded
 
 function saveControls() {
-    localStorage.setItem('sodaHealthControls', JSON.stringify(userControls));
+    try {
+        localStorage.setItem('sodaHealthControls', JSON.stringify(userControls));
+    } catch (e) {
+        if (e.name === 'QuotaExceededError' || e.code === 22) {
+            console.warn('Local storage quota exceeded, clearing old controls.');
+            localStorage.removeItem('sodaHealthControls');
+            try {
+                localStorage.setItem('sodaHealthControls', JSON.stringify(userControls));
+            } catch (e2) {
+                console.error('Failed to save controls after clearing storage:', e2);
+            }
+        } else {
+            console.error('Failed to save controls:', e);
+        }
+    }
 }
 
 function loadControls() {
@@ -283,8 +309,20 @@ function drawGun(ctx, x, y, width, height, level = 1) {
 }
 
 function drawBullet(ctx, b) {
-    const { x, y, width, height, type } = b;
+    const { x, y, width, height, type, isFrozen, isHoming } = b;
     ctx.save();
+
+    // Freeze Modifier Overlay
+    if (isFrozen) {
+        ctx.shadowBlur = 15;
+        ctx.shadowColor = '#00ffff';
+    }
+
+    // Homing Modifier Overlay (Purple Glow)
+    if (isHoming) {
+        ctx.shadowBlur = isFrozen ? 20 : 15;
+        ctx.shadowColor = isFrozen ? '#80ffff' : '#9b59b6';
+    }
 
     if (type === 'pellet') {
         const lifeRatio = b.life / 60;
@@ -295,10 +333,10 @@ function drawBullet(ctx, b) {
         ctx.fill();
     } else if (type === 'rail') {
         ctx.shadowBlur = 15;
-        ctx.shadowColor = '#bf00ff';
-        ctx.fillStyle = '#ffffff';
+        ctx.shadowColor = isFrozen ? '#4facfe' : '#bf00ff';
+        ctx.fillStyle = isFrozen ? '#4facfe' : '#ffffff';
         ctx.fillRect(x, y, width, height);
-        ctx.strokeStyle = '#bf00ff';
+        ctx.strokeStyle = isFrozen ? '#ffffff' : '#bf00ff';
         ctx.lineWidth = 3;
         ctx.beginPath();
         ctx.moveTo(x - 10, y + height / 2);
@@ -309,11 +347,11 @@ function drawBullet(ctx, b) {
         const centerY = y + height / 2;
         const radius = width / 2;
         ctx.shadowBlur = 15;
-        ctx.shadowColor = '#ff4500';
+        ctx.shadowColor = isFrozen ? '#00ffff' : '#ff4500';
         const grad = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, radius);
         grad.addColorStop(0, '#ffffff');
-        grad.addColorStop(0.3, '#ffd700');
-        grad.addColorStop(1, '#ff4500');
+        grad.addColorStop(0.3, isFrozen ? '#4facfe' : '#ffd700');
+        grad.addColorStop(1, isFrozen ? '#00ffff' : '#ff4500');
         ctx.fillStyle = grad;
         ctx.beginPath();
         ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
@@ -387,7 +425,7 @@ function drawBullet(ctx, b) {
         ctx.stroke();
     } else {
         // Default laser
-        ctx.fillStyle = '#00f3ff';
+        ctx.fillStyle = isFrozen ? '#00ffff' : '#00f3ff';
         ctx.beginPath();
         ctx.roundRect(x, y, width, height, 2);
         ctx.fill();
@@ -419,14 +457,15 @@ function drawBullet(ctx, b) {
 }
 
 // Platforms
-// Platforms
 let platforms = [];
-const minPlatformDistance = 1500;
+const minPlatformDistance = 600; // Reduced from 1000 for more frequent platforms and ramps
 let lastPlatformSpawn = 0;
 let lastEnemySpawn = 0;
-let lastPowerupDistance = 0; // New for Power-up spacing
-let lastQuizDistance = 0; // Cooldown between quizzes
-let fireCooldown = 0;     // Rate limiting for auto-fire
+let lastPowerupDistance = 0;
+let lastQuizDistance = 0;
+let shuffledQuestionPool = []; // For randomized deck
+let currentPoolIndex = 0;
+let fireCooldown = 0;
 let gunTutorialTimer = 0; // Show "Press W" message
 let hasShownGunTutorial = false;
 
@@ -442,7 +481,7 @@ const allQuestions = [
     { q: "Garlic's organosulfur compounds can help protect against:", options: ["Genotoxicity", "Hair loss", "Dehydration"], correct: 0 },
     { q: "According to the article, inulin consumption can alter how which sugar is digested?", options: ["Fructose", "Glucose", "Lactose"], correct: 0 },
     { q: "Autophagy refers to what process mentioned in the article?", options: ["Cellular cleaning", "Fat storage", "Bone growth"], correct: 0 },
-    { q: "Which brand of Allulose did the author mention buying or recommending?", options: ["NOW", "Pyure", "Splenda"], correct: [0, 1] },
+    { q: "Which brand of Allulose did the author mention buying or recommending?", options: ["NOW", "Pyure", "Splenda"], correct: 0 }, // Splenda is incorrect per user request
     { q: "Which fruit's biomarker was better after eating sugary food with it?", options: ["Blueberry", "Avocado", "Garlic"], correct: 0 },
     { q: "Blueberries are specifically highlighted for reducing:", options: ["Inflammation", "Muscle mass", "Sleep"], correct: 0 },
     { q: "According to the article, dietary engineering can lead to a:", options: ["Net health gain", "Guaranteed loss", "Sugar crash"], correct: 0 },
@@ -533,8 +572,9 @@ window.addEventListener('keydown', e => {
 
     if (isPauseKey && gameState === 'playing') {
         gameState = 'paused';
-    } else if (gameState === 'paused' && (isSecondaryPlayKey || isPauseKey)) {
+    } else if (gameState === 'paused' && (isSecondaryPlayKey || isPauseKey || e.code === 'Enter')) {
         gameState = 'playing';
+        try { resumeAudio(); } catch (e) { }
     }
 
     // Numeric Quiz Selection (Keys 1, 2, 3)
@@ -632,71 +672,92 @@ function update() {
         const wpn = WEAPONS[currentWeapon];
         let damage = wpn.damage;
         let rate = wpn.baseRate;
+        const isFrozen = player.isFreezeActive;
+        const isHoming = player.isHomingActive;
+        const isScatter = player.isScatterActive;
 
-        if (currentWeapon === 'laser') {
-            // Laser Scaling: Speed
-            // Tier 1 is 10% slower than base (15 -> 16.5), then 20% faster each tier
-            const baseDelay = wpn.baseRate * 1.1;
-            rate = Math.round(baseDelay * Math.pow(0.8, weaponTier - 1));
-            bullets.push({
-                x: player.x + player.width,
-                y: player.y + player.height / 2 - 2,
-                width: 20,
-                height: 5,
-                speed: 12,
-                type: 'laser',
-                damage: damage
-            });
-            soundManager.play('shoot');
-        } else if (currentWeapon === 'plasma') {
-            // Plasma Scaling: Size (15% per tier) + Speed (10% faster per tier)
-            const scale = Math.pow(1.15, weaponTier - 1);
-            const size = 60 * scale;
-            rate = Math.round(wpn.baseRate * Math.pow(0.9, weaponTier - 1));
-            bullets.push({
-                x: player.x + player.width,
-                y: player.y + player.height / 2 - size / 2,
-                width: size,
-                height: size,
-                speed: 8,
-                type: 'plasma',
-                damage: damage
-            });
-            soundManager.play('plasma');
-        } else if (currentWeapon === 'spray') {
-            // Spray Scaling: Floating Pellets (Start at 5, +1 per tier)
-            const count = 5 + (weaponTier - 1);
-            for (let i = 0; i < count; i++) {
+        // Scatter Logic: 3-way spread or normal fire
+        const firePattern = isScatter ? [-0.2, 0, 0.2] : [0];
+        const damageMultiplier = isScatter ? 0.5 : 1;
+
+        firePattern.forEach(angleOffset => {
+            if (currentWeapon === 'laser') {
+                // Laser Scaling: Speed
+                // Tier 1 is 10% slower than base (15 -> 16.5), then 20% faster each tier
+                const baseDelay = wpn.baseRate * 1.1;
+                rate = Math.round(baseDelay * Math.pow(0.8, weaponTier - 1));
                 bullets.push({
                     x: player.x + player.width,
-                    y: player.y + player.height / 2,
-                    width: 10,
-                    height: 10,
-                    speed: 12 + Math.random() * 5,
-                    dy: (Math.random() - 0.5) * 8, // Up/down spread
-                    type: 'pellet',
-                    damage: damage,
-                    life: 60 + Math.floor(Math.random() * 20)
+                    y: player.y + player.height / 2 - 2,
+                    width: 20,
+                    height: 5,
+                    speed: 12,
+                    dy: angleOffset * 10,
+                    type: 'laser',
+                    damage: damage * damageMultiplier,
+                    isFrozen: isFrozen,
+                    isHoming: isHoming
                 });
+                soundManager.play('shoot');
+            } else if (currentWeapon === 'plasma') {
+                // Plasma Scaling: Size (15% per tier) + Speed (10% faster per tier, capped at Tier 3)
+                const scale = Math.pow(1.15, weaponTier - 1);
+                const size = 60 * scale;
+                const tierSpeedScale = Math.min(2, weaponTier - 1);
+                rate = Math.round(wpn.baseRate * Math.pow(0.9, tierSpeedScale));
+                bullets.push({
+                    x: player.x + player.width,
+                    y: player.y + player.height / 2 - size / 2,
+                    width: size,
+                    height: size,
+                    speed: 8,
+                    dy: angleOffset * 8,
+                    type: 'plasma',
+                    damage: damage * damageMultiplier,
+                    isFrozen: isFrozen,
+                    isHoming: isHoming
+                });
+                soundManager.play('plasma');
+            } else if (currentWeapon === 'spray') {
+                // Spray Scaling: Floating Pellets (Start at 5, +1 per tier)
+                const count = 5 + (weaponTier - 1);
+                for (let i = 0; i < count; i++) {
+                    bullets.push({
+                        x: player.x + player.width,
+                        y: player.y + player.height / 2,
+                        width: 10,
+                        height: 10,
+                        speed: 12 + Math.random() * 5,
+                        dy: (angleOffset * 5) + (Math.random() - 0.5) * 8, // Up/down spread
+                        type: 'pellet',
+                        damage: damage * damageMultiplier,
+                        isFrozen: isFrozen,
+                        isHoming: isHoming,
+                        life: 60 + Math.floor(Math.random() * 20)
+                    });
+                }
+                soundManager.play('shoot');
+                rate = wpn.baseRate; // Use baseRate (now 35)
+            } else if (currentWeapon === 'rail') {
+                bullets.push({
+                    x: player.x + player.width,
+                    y: player.y + player.height / 2 - 2,
+                    width: 40,
+                    height: 4,
+                    speed: 20,
+                    dy: angleOffset * 15,
+                    type: 'rail',
+                    damage: damage * damageMultiplier,
+                    isFrozen: isFrozen,
+                    isHoming: isHoming,
+                    pierceCount: weaponTier + 1, // Tier 1: 2 pierces (3 hits), Tier 4: 5 pierces (6 hits)
+                    hitHistory: [] // Track unique enemies hit
+                });
+                spawnParticles(player.x + player.width, player.y + player.height / 2, '#bf00ff', 5, 'trail');
+                soundManager.play('shoot');
+                rate = wpn.baseRate;
             }
-            soundManager.play('shoot');
-            rate = wpn.baseRate; // Use baseRate (now 35)
-        } else if (currentWeapon === 'rail') {
-            bullets.push({
-                x: player.x + player.width,
-                y: player.y + player.height / 2 - 2,
-                width: 40,
-                height: 4,
-                speed: 20,
-                type: 'rail',
-                damage: damage,
-                pierceCount: weaponTier + 1, // Tier 1: 2 pierces (3 hits), Tier 4: 5 pierces (6 hits)
-                hitHistory: [] // Track unique enemies hit
-            });
-            spawnParticles(player.x + player.width, player.y + player.height / 2, '#bf00ff', 5, 'trail');
-            soundManager.play('shoot');
-            rate = wpn.baseRate;
-        }
+        });
 
         fireCooldown = rate;
         player.muzzleTimer = 4;
@@ -959,6 +1020,64 @@ function update() {
     spawnPlatform();
     spawnGunItem();
     spawnPowerup();
+
+    // Update Powerups
+    powerups = powerups.filter(pu => {
+        pu.x -= gameSpeed;
+        if (
+            player.x < pu.x + pu.width &&
+            player.x + player.width > pu.x &&
+            player.y < pu.y + pu.height &&
+            player.y + player.height > pu.y
+        ) {
+            if (pu.type === 'shield') {
+                player.shieldActive = true;
+                spawnDamageText(player.x, player.y, "SHIELD UP!", "#4facfe");
+            } else if (pu.type === 'speed') {
+                player.speedBoostTimer = 300; // 5 seconds
+                spawnDamageText(player.x, player.y, "SPEED UP!", "#39ff14");
+            } else if (pu.type === 'freeze_gun') {
+                player.isFreezeActive = true;
+                player.tempWeaponTimer = 600; // 10 seconds
+                spawnDamageText(player.x, player.y, "FREEZE MODIFIER!", "#00ffff");
+            } else if (pu.type === 'homing_gun') {
+                player.isHomingActive = true;
+                player.homingTimer = 600; // 10 seconds
+                spawnDamageText(player.x, player.y, "HOMING MODIFIER!", "#9b59b6");
+            } else if (pu.type === 'scatter_gun') {
+                player.isScatterActive = true;
+                player.scatterTimer = 600; // 10 seconds
+                spawnDamageText(player.x, player.y, "SCATTER MODIFIER!", "#ff4500");
+            }
+            soundManager.play('powerup');
+            return false;
+        }
+        return pu.x + pu.width > 0;
+    });
+
+    // Update Temporary Timers
+    if (player.isFreezeActive) {
+        player.tempWeaponTimer--;
+        if (player.tempWeaponTimer <= 0) {
+            player.isFreezeActive = false;
+            spawnDamageText(player.x, player.y, "FREEZE ENDED", "#cccccc");
+        }
+    }
+    if (player.isHomingActive) {
+        player.homingTimer--;
+        if (player.homingTimer <= 0) {
+            player.isHomingActive = false;
+            spawnDamageText(player.x, player.y, "HOMING ENDED", "#cccccc");
+        }
+    }
+    if (player.isScatterActive) {
+        player.scatterTimer--;
+        if (player.scatterTimer <= 0) {
+            player.isScatterActive = false;
+            spawnDamageText(player.x, player.y, "SCATTER ENDED", "#cccccc");
+        }
+    }
+
     updateBullets();
     updateBoss();
     updateWeather();
@@ -971,27 +1090,61 @@ function update() {
 }
 
 function updateWeather() {
-    // Spawn weather
-    // Stage 3 starts at Question 10 (Bio Level)
-    const isStage3 = currentQuestionIndex >= 10;
-    // Increased rain chance from 0.2 to 0.35
-    if (Math.random() < (isStage3 ? 0.05 : 0.35)) {
+    // Stage logic: Transitions only happen AFTER boss is dead (align with Backgrounds)
+    const effectiveIndex = boss ? Math.min(currentQuestionIndex, boss.spawnIndex - 1) : currentQuestionIndex;
+    const isStage2 = effectiveIndex >= 5 && effectiveIndex < 10;
+    const isStage3 = effectiveIndex >= 10;
+
+    // Acid Rain vs Normal Rain vs Leaves
+    if (Math.random() < (isStage3 ? 0.15 : 0.35)) {
         weatherParticles.push({
             x: Math.random() * canvas.width,
             y: -20,
-            vx: isStage3 ? (Math.random() - 0.5) * 2 : 1, // Wind
+            vx: isStage3 ? (Math.random() - 0.5) * 2 : 1,
             vy: isStage3 ? 2 + Math.random() * 2 : 10 + Math.random() * 5,
-            size: isStage3 ? 8 : 2,
-            type: isStage3 ? 'leaf' : 'rain',
+            size: isStage3 ? 8 : (isStage2 ? 3 : 2),
+            type: isStage3 ? 'leaf' : (isStage2 ? 'acid' : 'rain'),
+            color: isStage2 ? '#7cfc00' : 'rgba(174, 194, 224, 0.5)',
             angle: Math.random() * Math.PI * 2
         });
     }
 
-    weatherParticles.forEach((p, i) => {
+    weatherParticles = weatherParticles.filter(p => {
         p.x += p.vx;
         p.y += p.vy;
         if (p.type === 'leaf') p.angle += 0.05;
-        if (p.y > canvas.height) weatherParticles.splice(i, 1);
+
+        // Collision Check for Acid Rain sizzle/steam
+        if (p.type === 'acid') {
+            // Hit Ground (Graphical Floor)
+            if (p.y > canvas.height - 110) {
+                // Sizzle/Steam removed per user request for floor hits
+                return false;
+            }
+            // Hit Platform
+            for (let plat of platforms) {
+                if (p.x > plat.x && p.x < plat.x + plat.width && p.y > plat.y && p.y < plat.y + 10) {
+                    // Steam only (Removing yellow sizzle)
+                    for (let i = 0; i < 5; i++) {
+                        particles.push({
+                            x: p.x,
+                            y: p.y,
+                            size: 0.5 + Math.random() * 1.25, // Half size per user request
+                            color: 'rgba(220, 220, 220, 0.4)',
+                            vx: (Math.random() - 0.5) * 1.5,
+                            vy: -Math.random() * 2,
+                            gravity: -0.015,
+                            life: 1,
+                            decay: 0.012 + Math.random() * 0.01,
+                            isSteam: true
+                        });
+                    }
+                    return false;
+                }
+            }
+        }
+
+        return p.y <= canvas.height && p.x > -100 && p.x < canvas.width + 100;
     });
 }
 
@@ -1147,44 +1300,7 @@ function spawnBoss() {
 }
 
 
-function spawnPowerup() {
-    // Speed Boost: Increased frequency
-    // Distance reduced from 3000 to 1500, chance increased
-    if (distance - lastPowerupDistance > 1500 && Math.random() < 0.003) {
-        powerups.push({
-            x: canvas.width,
-            y: canvas.height - 250 - Math.random() * 200,
-            width: 35,
-            height: 35,
-            type: Math.random() > 0.5 ? 'speed' : 'shield' // Balanced 50/50
-        });
-        lastPowerupDistance = distance;
-    }
-
-    powerups = powerups.filter(pu => {
-        pu.x -= gameSpeed;
-        if (
-            player.x < pu.x + pu.width &&
-            player.x + player.width > pu.x &&
-            player.y < pu.y + pu.height &&
-            player.y + player.height > pu.y
-        ) {
-            if (pu.type === 'shield') {
-                player.shieldActive = true;
-                spawnDamageText(player.x, player.y, "SHIELD!", "#4facfe");
-            } else {
-                player.speedBoostTimer = 300; // 5 seconds
-                distance += 500; // WARP: Skip distance to next question
-                spawnDamageText(player.x, player.y, "BROCCOLI SPEED!", "#32cd32");
-            }
-            shakeScreen(5);
-            soundManager.play('powerup'); // Audio
-            spawnParticles(pu.x + pu.width / 2, pu.y + pu.height / 2, pu.type === 'shield' ? '#4facfe' : '#32cd32', 20);
-            return false;
-        }
-        return pu.x + pu.width > 0;
-    });
-}
+// spawnPowerup() removed here (moved later in file with scatter logic)
 
 
 function spawnEnemy() {
@@ -1331,7 +1447,21 @@ function saveProgress() {
         dailyChallengeComplete: dailyChallenge?.completed || false,
         dailyChallengeDate: new Date().toDateString()
     };
-    localStorage.setItem('sodaHealthProgress', JSON.stringify(data));
+    try {
+        localStorage.setItem('sodaHealthProgress', JSON.stringify(data));
+    } catch (e) {
+        if (e.name === 'QuotaExceededError' || e.code === 22) {
+            console.warn('Local storage quota exceeded, clearing old progress.');
+            localStorage.removeItem('sodaHealthProgress');
+            try {
+                localStorage.setItem('sodaHealthProgress', JSON.stringify(data));
+            } catch (e2) {
+                console.error('Failed to save progress after clearing storage:', e2);
+            }
+        } else {
+            console.error('Failed to save progress:', e);
+        }
+    }
 }
 
 function loadProgress() {
@@ -1478,6 +1608,23 @@ function spawnGunItem() {
     }
 }
 
+function spawnPowerup() {
+    if (distance - lastPowerupDistance < 2500) return;
+    if (Math.random() < 0.01) {
+        const types = ['shield', 'speed', 'freeze_gun', 'homing_gun', 'scatter_gun'];
+        const type = types[Math.floor(Math.random() * types.length)];
+        powerups.push({
+            x: canvas.width,
+            y: canvas.height - 150 - Math.random() * 100,
+            width: 35,
+            height: 35,
+            type: type,
+            speed: gameSpeed
+        });
+        lastPowerupDistance = distance;
+    }
+}
+
 
 function updateBullets() {
     // 1. Update positions
@@ -1495,32 +1642,6 @@ function updateBullets() {
                 b.x += b.speed;
                 b.y += (b.dy || 0);
                 return b.life > 0;
-            } else if (b.type === 'homing') {
-                // Find nearest enemy
-                if (!b.target || b.target.health <= 0) {
-                    let minDist = Infinity;
-                    enemies.forEach(e => {
-                        if (e.phasingOut) return;
-                        const dx = e.x - b.x;
-                        const dy = e.y - b.y;
-                        const dist = Math.sqrt(dx * dx + dy * dy);
-                        if (dist < minDist) {
-                            minDist = dist;
-                            b.target = e;
-                        }
-                    });
-                }
-                if (b.target) {
-                    const dx = b.target.x + b.target.width / 2 - b.x;
-                    const dy = b.target.y + b.target.height / 2 - b.y;
-                    const angle = Math.atan2(dy, dx);
-                    b.dy = b.dy * 0.9 + Math.sin(angle) * 2;
-                    b.speed = Math.min(12, b.speed + 0.2);
-                }
-                b.x += b.speed;
-                b.y += (b.dy || 0);
-                spawnParticles(b.x, b.y, '#9b59b6', 1, 'trail');
-                return b.x < canvas.width && b.x > 0;
             } else if (b.type === 'beam') {
                 b.life--;
                 return b.life > 0;
@@ -1529,7 +1650,60 @@ function updateBullets() {
                 b.y += (b.dy || 0);
                 return b.x < canvas.width;
             } else {
+                // Apply Homing to any projectile if active
+                if (b.isHoming) {
+                    // Periodic re-targeting or if current target is invalid
+                    if (!b.target || b.target.health <= 0 || b.target.phasingOut || Math.random() < 0.05) {
+                        let bestScore = Infinity;
+                        b.target = null;
+                        enemies.forEach(e => {
+                            if (e.phasingOut) return;
+                            const dx = e.x - b.x;
+                            const dy = e.y - b.y;
+                            const dist = Math.sqrt(dx * dx + dy * dy);
+
+                            if (dist < 600) { // Max homing detection range
+                                // THREAT SCORE: Prioritize ground units (low Y_Dist relative to ground) 
+                                // and units in front (low X_Dist). Heavy penalty for extreme heights.
+                                const xDist = Math.abs(dx);
+                                const yDist = Math.abs(dy);
+                                // Ground prioritization: prefer things closer to y=canvas.height - 110
+                                const groundProximity = Math.abs(e.y - (canvas.height - 110));
+                                const score = dist + (xDist * 0.5) + (yDist * 1.5) + (groundProximity * 2);
+
+                                if (score < bestScore) {
+                                    bestScore = score;
+                                    b.target = e;
+                                }
+                            }
+                        });
+                        // Also track boss if no small enemies nearby
+                        if (!b.target && boss) b.target = boss;
+                    }
+
+                    if (b.target) {
+                        const tx = b.target.x + b.target.width / 2;
+                        const ty = b.target.y + b.target.height / 2;
+                        const dx = tx - b.x;
+                        const dy = ty - b.y;
+                        const angle = Math.atan2(dy, dx);
+
+                        // Stronger/Smoother steering (increased force from 1.5 to 2.5)
+                        b.dy = (b.dy || 0) * 0.85 + Math.sin(angle) * 2.5;
+
+                        // Adaptive horizontal speed
+                        if (b.x < tx) {
+                            b.x += b.speed * 0.15;
+                        }
+                    }
+
+                    if (Math.random() < 0.3) {
+                        spawnParticles(b.x, b.y, '#9b59b6', 1, 'trail');
+                    }
+                }
+
                 b.x += b.speed;
+                b.y += (b.dy || 0);
                 return b.x < canvas.width;
             }
         });
@@ -1605,23 +1779,18 @@ function updateBullets() {
                         b.pierceCount--;
                         if (b.hitHistory) b.hitHistory.push(e);
                     }
+                } else if (b.type === 'plasma') {
+                    // Plasma hits everything in its path during a single frame but is then consumed
+                    hitBullets.add(i);
                 } else if (b.type !== 'beam') {
                     hitBullets.add(i);
                 }
 
-                // Damage Logic
+                // Damage Logic: Use bullet's intrinsic damage property (fixes scatter mod balancing)
                 let damage = b.damage || 1;
-                if (b.type === 'rail') damage = 14; // Tuned: beats Oxidants (10) but Tank (15) remains as per User Request
-                else if (b.type === 'plasma') damage = 12; // Beats Oxidant (10) in 1 shot
-                else if (b.type === 'laser') damage = 3;
-                else if (b.type === 'pellet') damage = 2;
-                else if (b.type === 'spread') damage = 3; // Buffed from 2
-                else if (b.type === 'homing') damage = 4;
-                else if (b.type === 'freeze') damage = 4; // Buffed from 1 (User Request)
-                else if (b.type === 'beam') damage = 0.5;
 
                 // Freeze effect
-                if (b.type === 'freeze') {
+                if (b.isFrozen) {
                     e.isFrozen = true;
                     e.freezeTimer = 180; // 3 seconds frozen
                     spawnParticles(e.x + e.width / 2, e.y + e.height / 2, '#00ffff', 5);
@@ -1666,7 +1835,10 @@ function updateBullets() {
 
                 // If it's a rail shot, we don't break; we continue through other enemies
                 // Rail pierces until pierceCount is exhausted
-                if (b.type !== 'rail' || hitBullets.has(i)) break;
+                // Plasma also continues through the current frame's enemy loop to hit multiple targets
+                if ((b.type !== 'rail' && b.type !== 'plasma') || hitBullets.has(i) && b.type !== 'plasma') break;
+                // Note: hitBullets.has(i) for rail means pierce is exhausted, so we break.
+                // For plasma, we allow the loop to finish even if it's marked for destruction.
             }
         }
 
@@ -1767,20 +1939,36 @@ function updateBullets() {
 
 function spawnPlatform() {
     const timeSinceLast = distance - lastPlatformSpawn;
-    if (timeSinceLast > minPlatformDistance && Math.random() < 0.05 && gameState === 'playing') {
-        const width = 150 + Math.random() * 100;
-        const h = 25; // Slightly thicker
-        // Lower platforms for easier jumping (Stage 1 can jump ~150-200px)
-        const y = canvas.height - 250 - Math.random() * 150;
+    // Increased chance from 0.05 to 0.08
+    if (timeSinceLast > minPlatformDistance && Math.random() < 0.08 && gameState === 'playing') {
+        const isRamp = Math.random() < 0.3; // 30% chance for a ramp
+        if (isRamp) {
+            const startY = canvas.height - 250 - Math.random() * 100;
+            const startX = canvas.width + 100;
+            for (let i = 0; i < 3; i++) {
+                platforms.push({
+                    x: startX + i * 150,
+                    y: startY - i * 50,
+                    width: 100,
+                    height: 25,
+                    speed: gameSpeed
+                });
+            }
+            lastPlatformSpawn = distance + 300; // Skip a bit to avoid overlap
+        } else {
+            const width = 80 + Math.random() * 170; // More variety: 80 to 250px
+            const h = 25;
+            const y = canvas.height - 250 - Math.random() * 150;
 
-        platforms.push({
-            x: canvas.width + 100,
-            y: y,
-            width: width,
-            height: h,
-            speed: gameSpeed
-        });
-        lastPlatformSpawn = distance;
+            platforms.push({
+                x: canvas.width + 100,
+                y: y,
+                width: width,
+                height: h,
+                speed: gameSpeed
+            });
+            lastPlatformSpawn = distance;
+        }
     }
 }
 
@@ -1914,7 +2102,7 @@ function drawPowerup(ctx, pu) {
             ctx.fill();
         }
 
-    } else {
+    } else if (pu.type === 'shield') {
         // Draw Blueberries (Shield)
         const cx = pu.x + pu.width / 2;
         const cy = pu.y + pu.height / 2;
@@ -1937,13 +2125,70 @@ function drawPowerup(ctx, pu) {
             ctx.fillStyle = 'rgba(255,255,255,0.6)';
             ctx.fill();
         });
+    } else if (pu.type === 'freeze_gun') {
+        // Draw Snowflake (Freeze Gun)
+        const cx = pu.x + pu.width / 2;
+        const cy = pu.y + pu.height / 2;
+        ctx.strokeStyle = '#00ffff';
+        ctx.lineWidth = 3;
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = '#00ffff';
+        for (let i = 0; i < 6; i++) {
+            const angle = (i / 6) * Math.PI * 2;
+            ctx.beginPath();
+            ctx.moveTo(cx, cy);
+            ctx.lineTo(cx + Math.cos(angle) * 15, cy + Math.sin(angle) * 15);
+            ctx.stroke();
+            // Small crossbars
+            const bx = cx + Math.cos(angle) * 10;
+            const by = cy + Math.sin(angle) * 10;
+            ctx.beginPath();
+            ctx.moveTo(bx - Math.cos(angle - 0.5) * 5, by - Math.sin(angle - 0.5) * 5);
+            ctx.lineTo(bx + Math.cos(angle - 0.5) * 5, by + Math.sin(angle - 0.5) * 5);
+            ctx.stroke();
+        }
+        ctx.shadowBlur = 0;
+    } else if (pu.type === 'homing_gun') {
+        // Draw Purple Crosshair (Homing Gun)
+        const cx = pu.x + pu.width / 2;
+        const cy = pu.y + pu.height / 2;
+        ctx.strokeStyle = '#9b59b6';
+        ctx.lineWidth = 3;
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = '#9b59b6';
+
+        ctx.beginPath();
+        ctx.arc(cx, cy, 12, 0, Math.PI * 2);
+        ctx.moveTo(cx - 15, cy);
+        ctx.lineTo(cx + 15, cy);
+        ctx.moveTo(cx, cy - 15);
+        ctx.lineTo(cx, cy + 15);
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+    } else if (pu.type === 'scatter_gun') {
+        // Draw 3-dots Triangle (Scatter Gun)
+        const cx = pu.x + pu.width / 2;
+        const cy = pu.y + pu.height / 2;
+        ctx.fillStyle = '#ff4500';
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = '#ff4500';
+
+        // Triangle pattern
+        const offsets = [{ x: 0, y: -10 }, { x: -10, y: 10 }, { x: 10, y: 10 }];
+        offsets.forEach(off => {
+            ctx.beginPath();
+            ctx.arc(cx + off.x, cy + off.y, 6, 0, Math.PI * 2);
+            ctx.fill();
+        });
+        ctx.shadowBlur = 0;
     }
 
     // Label
     ctx.fillStyle = 'white';
-    ctx.font = 'bold 14px Courier New'; // Increased size
+    ctx.font = 'bold 14px Courier New';
     ctx.textAlign = 'center';
-    ctx.fillText(isShield ? "SHIELD" : "SPEED", pu.x + pu.width / 2, pu.y - 12);
+    let label = isShield ? "SHIELD" : (pu.type === 'speed' ? "SPEED" : (pu.type === 'freeze_gun' ? "FREEZE" : (pu.type === 'homing_gun' ? "HOMING" : "SCATTER")));
+    ctx.fillText(label, pu.x + pu.width / 2, pu.y - 12);
 
     ctx.restore();
 }
@@ -1961,34 +2206,27 @@ function draw() {
 
     // Draw Backgrounds
     backgrounds.forEach(bg => {
-        if (bg.isBg && bg.img) {
-            ctx.drawImage(bg.img, bg.x, 0, canvas.width, canvas.height);
-        }
-    });
+        if (bg.isBg && bg.img && bg.img.complete) {
+            // Level 2 special handling to align floor
+            if (bg.img.src.includes('LQSbg2.png')) {
+                const floorOffset = 60; // Shift up to align visual floor with game floor
+                ctx.drawImage(bg.img, bg.x, -floorOffset, canvas.width, canvas.height);
 
-
-    // 2. Copyright Patch (Drawn as part of background so actors stay in front)
-    backgrounds.forEach(bg => {
-        // Updated Logic: Show only in Level 1 (Fast Food)
-        if (bg.img === background1 && currentQuestionIndex < 5) {
-            const patchX = bg.x + (canvas.width * 0.07);
-            const patchY = canvas.height * 0.63;
-            const patchW = canvas.width * 0.16;
-            const patchH = canvas.height * 0.06;
-
-            if (patchX + patchW > 0 && patchX < canvas.width) {
-                ctx.fillStyle = '#1c1c1c';
-                ctx.fillRect(patchX, patchY, patchW, patchH);
-                ctx.shadowBlur = 10;
-                ctx.shadowColor = '#39ff14';
-                ctx.fillStyle = '#39ff14';
-                ctx.font = 'bold 15px Courier New';
-                ctx.textAlign = 'center';
-                ctx.fillText("NEON NIBBLES", patchX + patchW / 2, patchY + patchH / 2 + 5);
-                ctx.shadowBlur = 0;
+                // Fill the bottom gap with a dark metallic/purple color matching the theme
+                ctx.fillStyle = '#100c1a';
+                ctx.fillRect(bg.x, canvas.height - floorOffset, canvas.width, floorOffset);
+            } else {
+                ctx.drawImage(bg.img, bg.x, 0, canvas.width, canvas.height);
             }
         }
     });
+
+    // Floor Fill for Level 2 (Ensure no gaps at the very bottom)
+    const effectiveIndex = boss ? Math.min(currentQuestionIndex, boss.spawnIndex - 1) : currentQuestionIndex;
+    if (effectiveIndex >= 5 && effectiveIndex < 10) {
+        ctx.fillStyle = '#100c1a';
+        ctx.fillRect(0, canvas.height - 110, canvas.width, 110);
+    }
 
     // Draw Boss
     if (boss) {
@@ -2001,8 +2239,44 @@ function draw() {
         // Basic Boss Rendering (Reverted)
 
         // Body
-        if (boss.isBottle) {
-            // Draw Bottle Appearance (Hydrogenated Oils)
+        if (boss.type === 'trans_fat') {
+            if (transFatBossTransparent) {
+                // Draw Trans Fat Blob Image
+                ctx.save();
+
+                // Animation: Squash and Stretch to simulate moving/walking
+                const animSpeed = 0.01;
+                const squash = Math.sin(Date.now() * animSpeed) * 0.08;
+                const stretch = Math.cos(Date.now() * animSpeed) * 0.05;
+
+                const drawW = boss.width * (1 + squash);
+                const drawH = boss.height * (1 - squash);
+
+                // Position adjustment for squash/stretch (keep bottom grounded)
+                const animY = boss.y + (boss.height - drawH);
+
+                // Flip horizontally so it faces the player (who is on the left)
+                ctx.translate(boss.x + boss.width / 2, animY + drawH / 2);
+                ctx.scale(-1, 1);
+
+                // Subtle walk wobble
+                const wobble = Math.sin(Date.now() * animSpeed * 0.5) * 0.05;
+                ctx.rotate(wobble);
+
+                ctx.drawImage(transFatBossTransparent, -drawW / 2, -drawH / 2, drawW, drawH);
+                ctx.restore();
+            } else {
+                // Blob Fallback (if image not ready)
+                ctx.fillStyle = '#ffff00';
+                ctx.shadowBlur = 20;
+                ctx.shadowColor = '#ffff00';
+                ctx.beginPath();
+                ctx.ellipse(centerX, centerY, boss.width / 2, boss.height / 2.5, 0, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.shadowBlur = 0;
+            }
+        } else if (boss.isBottle) {
+            // Legacy Bottle Appearance (Hydrogenated Oils)
             const bX = centerX - boss.width * 0.3;
             const bY = boss.y;
             const bW = boss.width * 0.6;
@@ -2059,18 +2333,20 @@ function draw() {
             ctx.fillText(boss.name, centerX, boss.y + boss.height + 40);
         }
 
-        // Simple Spikes
-        ctx.beginPath();
-        for (let i = 0; i < 12; i++) {
-            const ang = (i * Math.PI * 2) / 12 + boss.phase;
-            const ox = centerX + (boss.width / 2) * Math.cos(ang);
-            const oy = centerY + (boss.width / 2) * Math.sin(ang);
-            const ex = centerX + (boss.width * 0.8) * Math.cos(ang);
-            const ey = centerY + (boss.width * 0.8) * Math.sin(ang);
-            ctx.moveTo(ox, oy);
-            ctx.lineTo(ex, ey);
+        // Simple Spikes (Skip for Trans Fat image-based boss)
+        if (boss.type !== 'trans_fat') {
+            ctx.beginPath();
+            for (let i = 0; i < 12; i++) {
+                const ang = (i * Math.PI * 2) / 12 + boss.phase;
+                const ox = centerX + (boss.width / 2) * Math.cos(ang);
+                const oy = centerY + (boss.width / 2) * Math.sin(ang);
+                const ex = centerX + (boss.width * 0.8) * Math.cos(ang);
+                const ey = centerY + (boss.width * 0.8) * Math.sin(ang);
+                ctx.moveTo(ox, oy);
+                ctx.lineTo(ex, ey);
+            }
+            ctx.stroke();
         }
-        ctx.stroke();
 
         // Boss Health Bar
         ctx.fillStyle = 'rgba(0,0,0,0.5)';
@@ -2139,22 +2415,41 @@ function draw() {
             ctx.textAlign = 'center';
             ctx.fillText("FRUCTOSE", cx, cy + 25);
         } else if (enemy.type === 'tank') {
-            // Heavy armored enemy
-            ctx.fillStyle = cfg.color;
-            ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
-            // Armor plates
-            ctx.strokeStyle = '#444';
-            ctx.lineWidth = 4;
-            ctx.strokeRect(enemy.x + 5, enemy.y + 5, enemy.width - 10, enemy.height - 10);
-            ctx.strokeRect(enemy.x + 15, enemy.y + 15, enemy.width - 30, enemy.height - 30);
-            // Shield icon
-            ctx.fillStyle = '#ffd700';
-            ctx.font = 'bold 20px Courier New';
-            ctx.textAlign = 'center';
-            ctx.fillText('🛡️', cx, cy + 8);
+            // Heavy armored enemy - NOW TRANS FAT BLOB
+            if (transFatBossTransparent) {
+                ctx.save();
+                // Animation: Squash and Stretch to simulate moving/walking
+                const animSpeed = 0.01;
+                const squash = Math.sin(Date.now() * animSpeed + enemy.phase) * 0.08;
+
+                const drawW = enemy.width * (1 + squash);
+                const drawH = enemy.height * (1 - squash);
+
+                // Position adjustment for squash/stretch (keep bottom grounded)
+                const animY = enemy.y + (enemy.height - drawH);
+
+                // Flip horizontally so it faces the player (who is on the left)
+                ctx.translate(enemy.x + enemy.width / 2, animY + drawH / 2);
+                ctx.scale(-1, 1);
+
+                // Subtle walk wobble
+                const wobble = Math.sin(Date.now() * animSpeed * 0.5 + enemy.phase) * 0.05;
+                ctx.rotate(wobble);
+
+                ctx.drawImage(transFatBossTransparent, -drawW / 2, -drawH / 2, drawW, drawH);
+                ctx.restore();
+            } else {
+                ctx.fillStyle = cfg.color;
+                ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
+                // Armor plates
+                ctx.strokeStyle = '#444';
+                ctx.lineWidth = 4;
+                ctx.strokeRect(enemy.x + 5, enemy.y + 5, enemy.width - 10, enemy.height - 10);
+            }
             // Label
             ctx.fillStyle = 'white';
             ctx.font = 'bold 10px Courier New';
+            ctx.textAlign = 'center';
             ctx.fillText("TRANS FAT", cx, enemy.y + enemy.height + 12);
         } else if (enemy.type === 'splitter') {
             // Blobby enemy that splits
@@ -2233,12 +2528,12 @@ function draw() {
     // Draw Weather
     ctx.save();
     weatherParticles.forEach(p => {
-        if (p.type === 'rain') {
-            ctx.strokeStyle = 'rgba(174, 194, 224, 0.5)';
-            ctx.lineWidth = 1;
+        if (p.type === 'rain' || p.type === 'acid') {
+            ctx.strokeStyle = p.color || 'rgba(174, 194, 224, 0.5)';
+            ctx.lineWidth = p.type === 'acid' ? 2 : 1;
             ctx.beginPath();
             ctx.moveTo(p.x, p.y);
-            ctx.lineTo(p.x + p.vx, p.y + 5);
+            ctx.lineTo(p.x + p.vx, p.y + (p.type === 'acid' ? 8 : 5));
             ctx.stroke();
         } else {
             // Leaf
@@ -2471,6 +2766,70 @@ function draw() {
         ctx.font = 'bold 11px Courier New';
         ctx.fillStyle = '#888';
         ctx.fillText(`TIER ${weaponTier}/4`, hudX + 90, hudY + 64);
+        // Freeze Icon if active
+        if (player.isFreezeActive) {
+            const fx = hudX + hudWidth - 25;
+            const fy = hudY + 20;
+            ctx.save();
+            ctx.translate(fx, fy);
+            ctx.strokeStyle = '#00ffff';
+            ctx.lineWidth = 2;
+            ctx.shadowBlur = 8;
+            ctx.shadowColor = '#00ffff';
+
+            // Draw small snowflake icon
+            ctx.beginPath();
+            for (let i = 0; i < 6; i++) {
+                ctx.moveTo(0, 0);
+                ctx.lineTo(0, -8);
+                // Crossbar
+                ctx.moveTo(-3, -5);
+                ctx.lineTo(3, -5);
+                ctx.rotate(Math.PI / 3);
+            }
+            ctx.stroke();
+            ctx.restore();
+        }
+
+        // Homing Icon if active
+        if (player.isHomingActive) {
+            const hx = hudX + hudWidth - 55; // Offset from freeze icon
+            const hy = hudY + 20;
+            ctx.save();
+            ctx.translate(hx, hy);
+            ctx.strokeStyle = '#9b59b6';
+            ctx.lineWidth = 2;
+            ctx.shadowBlur = 8;
+            ctx.shadowColor = '#9b59b6';
+
+            // Draw small crosshair icon
+            ctx.beginPath();
+            ctx.arc(0, 0, 8, 0, Math.PI * 2);
+            ctx.moveTo(-10, 0); ctx.lineTo(10, 0);
+            ctx.moveTo(0, -10); ctx.lineTo(0, 10);
+            ctx.stroke();
+            ctx.restore();
+        }
+
+        // Scatter Icon if active
+        if (player.isScatterActive) {
+            const sx = hudX + hudWidth - 85; // Offset from homing/freeze icons
+            const hy = hudY + 20;
+            ctx.save();
+            ctx.translate(sx, hy);
+            ctx.fillStyle = '#ff4500';
+            ctx.shadowBlur = 8;
+            ctx.shadowColor = '#ff4500';
+
+            // Draw small 3-dot triangle
+            const dots = [{ x: 0, y: -6 }, { x: -6, y: 6 }, { x: 6, y: 6 }];
+            dots.forEach(d => {
+                ctx.beginPath();
+                ctx.arc(d.x, d.y, 4, 0, Math.PI * 2);
+                ctx.fill();
+            });
+            ctx.restore();
+        }
 
         ctx.restore();
     }
@@ -2792,6 +3151,15 @@ function startGame() {
     fireCooldown = 0;
     weaponTimer = 0;
     currentWeapon = 'laser';
+
+    // Initialize Quiz Deck
+    shuffledQuestionPool = allQuestions.map((_, i) => i);
+    // Fisher-Yates Shuffle
+    for (let i = shuffledQuestionPool.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffledQuestionPool[i], shuffledQuestionPool[j]] = [shuffledQuestionPool[j], shuffledQuestionPool[i]];
+    }
+    currentPoolIndex = 0;
 }
 
 function updateHUD() {
@@ -2890,18 +3258,46 @@ function startQuiz() {
     enemyBullets = []; // Clear all projectiles on screen for a fair transition
 
     // During boss, serve random questions from the current stage
+    // During boss, serve random questions from the current stage
     if (boss) {
         const stageStart = Math.max(0, boss.spawnIndex - (boss.spawnIndex % 5)); // Start of the 5-question block
         currentQuizIndex = stageStart + Math.floor(Math.random() * 5); // Random question within that block
     } else {
-        currentQuizIndex = currentQuestionIndex;
+        // Deck Logic: Use next card from shuffled pool
+        if (currentPoolIndex >= shuffledQuestionPool.length) {
+            //Reshuffle if exhausted (rare)
+            shuffledQuestionPool = allQuestions.map((_, i) => i).sort(() => Math.random() - 0.5);
+            currentPoolIndex = 0;
+        }
+        currentQuizIndex = shuffledQuestionPool[currentPoolIndex];
+        currentPoolIndex++;
+    }
+
+    const q = allQuestions[currentQuizIndex]; // Use allQuestions consistently
+    if (!q) return;
+
+    // Shuffle options and remap correct index
+    const originalOptions = [...q.options];
+    const shuffledOptions = [...q.options].sort(() => Math.random() - 0.5);
+
+    // Find new correct indices after shuffle
+    const newCorrect = [];
+    if (Array.isArray(q.correct)) {
+        q.correct.forEach(idx => {
+            const correctText = originalOptions[idx];
+            newCorrect.push(shuffledOptions.indexOf(correctText));
+        });
+    } else {
+        const correctText = originalOptions[q.correct];
+        const newIdx = shuffledOptions.indexOf(correctText);
+        q.shuffledCorrect = newIdx;
+    }
+    if (Array.isArray(q.correct)) {
+        q.shuffledCorrect = newCorrect;
     }
 
     const container = document.getElementById('quiz-container');
     if (container) container.classList.remove('hidden');
-
-    const q = questions[currentQuizIndex];
-    if (!q) return; // Safety check
 
     const qText = document.getElementById('question-text');
     const optionsCont = document.getElementById('options-container');
@@ -2916,7 +3312,7 @@ function startQuiz() {
 
     if (optionsCont) {
         optionsCont.innerHTML = '';
-        q.options.forEach((opt, i) => {
+        shuffledOptions.forEach((opt, i) => {
             const btn = document.createElement('button');
             btn.className = 'option-btn';
 
@@ -2935,13 +3331,16 @@ function startQuiz() {
 }
 
 function checkAnswer(selectedIndex) {
-    const q = questions[currentQuizIndex];
+    const q = allQuestions[currentQuizIndex]; // Use allQuestions to match startQuiz
     let isCorrect = false;
 
-    if (Array.isArray(q.correct)) {
-        isCorrect = q.correct.includes(selectedIndex);
+    // Use shuffled correct index if available
+    const correctIdx = q.shuffledCorrect !== undefined ? q.shuffledCorrect : q.correct;
+
+    if (Array.isArray(correctIdx)) {
+        isCorrect = correctIdx.includes(selectedIndex);
     } else {
-        isCorrect = selectedIndex === q.correct;
+        isCorrect = selectedIndex === correctIdx;
     }
 
     if (isCorrect) {
